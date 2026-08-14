@@ -1,29 +1,28 @@
 :root {
-	/* Basis: shadcn/ui-Schema mit Tailwind-4.3-Palette "Mist" (kühles Neutral)
-	   Primary = mist-900 wie im shadcn-Neutral-Muster (dunkler Primärbutton).
-	   Für "Zinc" statt "Mist": Werte gegen die Zinc-Skala tauschen. */
-	--main-first: #394447;        /* mist-700 – primary (weicher als mist-900) */
-	--main-first-alt: #2b3336;    /* zwischen mist-700/800 – primary hover */
-	--main-first-light: #e3e7e8;  /* mist-200 – aktive/sekundäre Tönung */
+	/* shadcn/ui-inspired scheme based on Tailwind 4.3 Mist. The primary color
+	   uses mist-700 for a softer result than the usual neutral-900 pattern. */
+	--main-first: #394447;        /* mist-700 – primary */
+	--main-first-alt: #2b3336;    /* between mist-700/800 – primary hover */
+	--main-first-light: #e3e7e8;  /* mist-200 – active/secondary tint */
 	--main-first-lighter: #f1f3f3;/* mist-100 */
 	--main-first-dark: #090b0c;   /* mist-950 */
 	--main-first-darker: #090b0c;
 
-	/* Schriftfarben */
+	/* Text colors */
 	--main-font-color: #161b1d;   /* mist-900 */
-	--light-font-color: #67787c;  /* mist-500 – muted-foreground */
+	--light-font-color: #67787c;  /* mist-500 – muted foreground */
 	--white: #fff;
 
-	/* Mist-Graupalette */
+	/* Mist neutral scale */
 	--grey-darker: #394447;       /* mist-700 */
 	--grey-dark: #67787c;         /* mist-500 */
 	--grey-medium-dark: #9ca8ab;  /* mist-400 */
 	--grey-medium: #d0d6d8;       /* mist-300 */
 	--grey-medium-light: #e3e7e8; /* mist-200 – border */
-	--grey-light: #f1f3f3;        /* mist-100 – App-Hintergrund */
+	--grey-light: #f1f3f3;        /* mist-100 – application background */
 	--grey-lighter: #f9fbfb;      /* mist-50 – muted */
 
-	/* Ungelesen: rein typografisch (kein Farbfeld mehr) */
+	/* Unread state: typography only, without a colored surface */
 	--unread-font-color: #090b0c; /* mist-950 */
 	--unread-bg: #fff;
 	--unread-bg-light: #fff;
@@ -32,6 +31,8 @@
 	--alert-bg: #c0392b;
 	--alert-light: #f9e3de;
 	--alert-text: #7a2e1f;
+	--alert-surface: #fbf1ef;
+	--alert-border: #eec4bc;
 
 	--code-text: #b4442e;
 	--code-bg: #f4ecec;
@@ -39,6 +40,8 @@
 	--warning-bg: #e0c04f;
 	--warning-light: #faf4d8;
 	--warning-text: #6e5a1b;
+	--warning-surface: #fdf9ec;
+	--warning-border: #ecd9a0;
 
 	--info-light: #eef2f3;
 	--info-text: #394447;
@@ -46,18 +49,20 @@
 	--success-bg: #45a878;
 	--success-light: #e1f2e9;
 	--success-text: #1f6b45;
+	--success-surface: #f0f9f4;
+	--success-border: #bfe3cf;
 
-	/* Favoriten: Amber als einziger Farbtupfer */
+	/* Favorites: amber is the only accent color */
 	--fav-bg: #d99e04;
 	--fav-light: #fdf6e0;
 
-	/* Sidebar (shadcn --sidebar: mist-50, Border mist-200) */
+	/* Sidebar: mist-50 surface with a mist-200 border */
 	--sid-font-color: #394447;
 	--sid-bg: #f9fbfb;
 	--sid-bg-alt: #f1f3f3;
 	--sid-bg-dark: #e3e7e8;
 	--sid-sep: #e3e7e8;
-	--sid-active: #e3e7e8;        /* aktive Tönung neutral */
+	--sid-active: #e3e7e8;        /* neutral active tint */
 	--sid-active-font: #090b0c;
 	--sid-pills: rgba(22, 27, 29, 0.08);
 }

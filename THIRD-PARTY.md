@@ -1,52 +1,50 @@
-# Hinweise zu Drittkomponenten
+# Third-party notices
 
 ## FreshRSS / Mapco
 
-Atelier basiert auf dem offiziellen Mapco-Theme von Thomas Guesnon, das als
-Teil des FreshRSS-Projekts veröffentlicht wird.
+Atelier is based on the official Mapco theme by Thomas Guesnon, distributed as
+part of the FreshRSS project.
 
-- Quelle: <https://github.com/FreshRSS/FreshRSS/tree/1.29.1/p/themes/Mapco>
-- Verifizierter Upstream-Tag: `1.29.1`
-- Commit des Tags: `b2c50115baa36c217e939ee3ea8ecfae52f91abd`
-- Lizenz: GNU Affero General Public License, Version 3 (`AGPL-3.0`)
-- Lizenztext: [`LICENSE`](LICENSE)
+- Source: <https://github.com/FreshRSS/FreshRSS/tree/1.29.1/p/themes/Mapco>
+- Verified upstream tag: `1.29.1`
+- Tag commit: `b2c50115baa36c217e939ee3ea8ecfae52f91abd`
+- License: GNU Affero General Public License version 3 (`AGPL-3.0`)
+- License text: [`LICENSE`](LICENSE)
 
-Die Mapco-Strukturmodule bilden weiterhin die Basis. Der Abgleich gegen den
-genannten Tag weist folgende bewusste Abweichungen außerhalb der
-Atelier-Override-Schicht aus:
+The Mapco structural modules remain the foundation. A comparison against the
+tag above shows the following intentional differences outside Atelier's
+override layer:
 
-- `_components.css` und `_components.rtl.css` erfassen verschachtelte
-  `.as-link`-Elemente und ergänzen `.alert-info`.
-- `_forms.css` und `_forms.rtl.css` verwenden `:user-invalid` statt `:invalid`,
-  damit Felder nicht vor einer Nutzerinteraktion als fehlerhaft erscheinen.
-- `_fonts.css` und `_fonts.rtl.css` laden keine Mapco-Webfonts.
-- `_variables.css` und `_variables.rtl.css` enthalten die Atelier-Farbpalette.
-- `atelier.css` und `atelier.rtl.css` sind die entsprechend umbenannten
-  Mapco-Einstiegsdateien.
+- `_components.css` and `_components.rtl.css` cover nested `.as-link` elements
+  and add `.alert-info`.
+- `_forms.css` and `_forms.rtl.css` use `:user-invalid` instead of `:invalid`
+  so fields are not presented as invalid before user interaction.
+- `_fonts.css` and `_fonts.rtl.css` do not load Mapco web fonts.
+- `_variables.css` and `_variables.rtl.css` contain Atelier's color palette.
+- `atelier.css` and `atelier.rtl.css` are the renamed Mapco entry points.
 
-Diese Abweichungen bleiben paarweise in LTR und RTL identisch. Die eigentliche
-visuelle Umgestaltung liegt in `atelier-ui.css` und `atelier-ui.rtl.css`.
+These differences remain identical between each LTR and RTL pair. The visual
+redesign itself lives in `atelier-ui.css` and `atelier-ui.rtl.css`.
 
 ## Lucide
 
-44 SVG-Dateien unter `icons/` sind angepasste Kopien aus `lucide-static`
-1.31.0. Jede dieser Dateien behält den Header
-`@license lucide-static v1.31.0 - ISC`.
+The 44 SVG files under `icons/` are adapted copies from `lucide-static` 1.31.0.
+Each file retains the `@license lucide-static v1.31.0 - ISC` header.
 
-- Quelle: <https://github.com/lucide-icons/lucide>
-- Urheber: Lucide Icons and Contributors
-- Lizenz: ISC; einige aufgeführte Icons stammen aus Feather und bleiben unter
-  der MIT-Lizenz
-- Vollständige Hinweise: [`icons/LICENSE`](icons/LICENSE)
+- Source: <https://github.com/lucide-icons/lucide>
+- Copyright holders: Lucide Icons and Contributors
+- License: ISC; some included icons originate from Feather and remain under
+  the MIT License
+- Complete notices: [`icons/LICENSE`](icons/LICENSE)
 
-`icons/FreshRSS-logo.svg` und `icons/icon.svg` sind keine Lucide-Icons. Sie sind
-angepasste FreshRSS-/Mapco-Assets und fallen unter die AGPL-3.0-Hauptlizenz.
+`icons/FreshRSS-logo.svg` and `icons/icon.svg` are not Lucide icons. They are
+adapted FreshRSS/Mapco assets covered by the main AGPL-3.0 license.
 
-## Designreferenzen
+## Design references
 
-Das visuelle System orientiert sich an shadcn/ui-Theming und den Farben von
-Tailwind CSS. Von beiden Projekten werden weder Code noch Fonts, Skripte oder
-Laufzeitabhängigkeiten gebündelt oder aus dem Netz geladen.
+The visual system draws on shadcn/ui theming and Tailwind CSS colors. No code,
+fonts, scripts, or runtime dependencies from either project are bundled or
+loaded over the network.
 
-- shadcn/ui-Theming: <https://ui.shadcn.com/docs/theming>
-- Tailwind-CSS-Farben: <https://tailwindcss.com/docs/colors>
+- shadcn/ui theming: <https://ui.shadcn.com/docs/theming>
+- Tailwind CSS colors: <https://tailwindcss.com/docs/colors>

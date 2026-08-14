@@ -7,11 +7,14 @@ import json
 from pathlib import Path
 import re
 import sys
+from urllib.parse import unquote
+import xml.etree.ElementTree as ElementTree
 
 
 ROOT = Path(__file__).resolve().parents[1]
 LUCIDE_HEADER = "<!-- @license lucide-static v1.31.0 - ISC -->"
 NON_LUCIDE_SVGS = {"FreshRSS-logo.svg", "icon.svg"}
+EXPECTED_THEME_FILES = ["_frss.css", "atelier.css", "atelier-ui.css"]
 EXTERNAL_OR_COMPAT_PROPERTIES = {
     # Retained from Mapco's palette contract even though Atelier does not
     # currently consume them directly.
@@ -19,11 +22,21 @@ EXTERNAL_OR_COMPAT_PROPERTIES = {
     "--warning-bg",
 }
 PROTECTED_NOTES = (
-    "Kein backdrop-filter",
-    "Desktop-Layout als CSS-Grid",
-    "Basis hängt 100vh Leerraum an",
+    "Do not add backdrop-filter",
+    "desktop CSS Grid",
+    "base theme adds 100vh of whitespace",
     "width: auto !important",
     "195px",
+)
+FORBIDDEN_PHYSICAL_DECLARATIONS = (
+    "padding-left:",
+    "padding-right:",
+    "margin-left:",
+    "margin-right:",
+    "border-left:",
+    "border-right:",
+    "text-align: left",
+    "text-align: right",
 )
 
 
@@ -99,6 +112,18 @@ def check_balanced_braces(path: Path, css: str) -> list[str]:
     return errors
 
 
+def check_local_markdown_links(path: Path, content: str) -> list[str]:
+    errors: list[str] = []
+    for target in re.findall(r"\[[^\]]+\]\(([^)]+)\)", content):
+        target = target.split(maxsplit=1)[0]
+        if target.startswith(("#", "http://", "https://", "mailto:")):
+            continue
+        file_target = unquote(target.split("#", 1)[0])
+        if file_target and not (path.parent / file_target).exists():
+            errors.append(f"{path.relative_to(ROOT)}: broken local link: {target}")
+    return errors
+
+
 def main() -> int:
     errors: list[str] = []
     text_files = sorted(
@@ -123,6 +148,8 @@ def main() -> int:
                 errors.append(f"{relative}:{line_number}: trailing whitespace")
         if path.suffix == ".css":
             errors.extend(check_balanced_braces(relative, content))
+        if path.suffix == ".md":
+            errors.extend(check_local_markdown_links(path, content))
 
     try:
         metadata = json.loads((ROOT / "metadata.json").read_text(encoding="utf-8"))
@@ -134,6 +161,10 @@ def main() -> int:
         errors.append("metadata.json: name must be Atelier")
     if metadata.get("version") != 1.0:
         errors.append("metadata.json: version must match release 1.0")
+    if metadata.get("files") != EXPECTED_THEME_FILES:
+        errors.append(
+            "metadata.json: files must preserve the verified FreshRSS load order"
+        )
     for filename in metadata.get("files", []):
         if filename == "_frss.css":
             continue
@@ -144,26 +175,61 @@ def main() -> int:
         if not rtl_path.is_file():
             errors.append(f"metadata.json: missing RTL counterpart {rtl_path.name}")
 
-    css = "\n".join(path.read_text(encoding="utf-8") for path in ROOT.glob("*.css"))
+    css_paths = sorted(ROOT.glob("*.css"))
+    css = "\n".join(path.read_text(encoding="utf-8") for path in css_paths)
     definitions = set(re.findall(r"(?m)^\s*(--[\w-]+)\s*:", css))
     uses = set(re.findall(r"var\(\s*(--[\w-]+)", css))
     unused = definitions - uses - EXTERNAL_OR_COMPAT_PROPERTIES
     if unused:
         errors.append("unused custom properties: " + ", ".join(sorted(unused)))
 
+    if (ROOT / "_variables.css").read_bytes() != (
+        ROOT / "_variables.rtl.css"
+    ).read_bytes():
+        errors.append("_variables.rtl.css must be identical to _variables.css")
+
+    for path in css_paths:
+        content = path.read_text(encoding="utf-8")
+        for imported in re.findall(r'@import\s+["\']([^"\']+)["\']', content):
+            if not (path.parent / imported).is_file():
+                errors.append(f"{path.name}: missing imported stylesheet: {imported}")
+        if re.search(r"url\(\s*[\"']?https?://", content, flags=re.IGNORECASE):
+            errors.append(f"{path.name}: external runtime asset URL is not allowed")
+
+    ui_css = (ROOT / "atelier-ui.css").read_text(encoding="utf-8")
+    for declaration in FORBIDDEN_PHYSICAL_DECLARATIONS:
+        if declaration in ui_css:
+            errors.append(
+                f"atelier-ui.css: use a logical property instead of {declaration}"
+            )
+
     svg_files = sorted((ROOT / "icons").glob("*.svg"))
     lucide_files = [path for path in svg_files if path.name not in NON_LUCIDE_SVGS]
     if len(lucide_files) != 44:
         errors.append(f"expected 44 Lucide SVGs, found {len(lucide_files)}")
     for path in lucide_files:
-        first_line = path.read_text(encoding="utf-8").splitlines()[0]
+        content = path.read_text(encoding="utf-8")
+        first_line = content.splitlines()[0]
         if first_line != LUCIDE_HEADER:
-            errors.append(f"{path.relative_to(ROOT)}: missing exact Lucide license header")
+            errors.append(
+                f"{path.relative_to(ROOT)}: missing exact Lucide license header"
+            )
+    for path in svg_files:
+        try:
+            ElementTree.parse(path)
+        except ElementTree.ParseError as error:
+            errors.append(f"{path.relative_to(ROOT)}: invalid SVG XML: {error}")
 
-    ui_css = (ROOT / "atelier-ui.css").read_text(encoding="utf-8")
     for note in PROTECTED_NOTES:
         if note not in ui_css:
             errors.append(f"atelier-ui.css: protected design note missing: {note}")
+
+    license_text = (ROOT / "LICENSE").read_text(encoding="utf-8")
+    if "GNU AFFERO GENERAL PUBLIC LICENSE" not in license_text:
+        errors.append("LICENSE: expected the GNU AGPL license text")
+    icon_license = (ROOT / "icons" / "LICENSE").read_text(encoding="utf-8")
+    if "ISC License" not in icon_license or "The MIT License" not in icon_license:
+        errors.append("icons/LICENSE: expected both Lucide ISC and Feather MIT notices")
 
     if errors:
         for error in errors:
@@ -171,7 +237,10 @@ def main() -> int:
         return 1
 
     print(f"checked {len(text_files)} text files and {len(svg_files)} SVG files")
-    print("CSS braces, formatting, metadata, custom properties, and licenses are valid")
+    print(
+        "CSS, metadata, links, SVGs, custom properties, RTL tokens, "
+        "and licenses are valid"
+    )
     return 0
 
 

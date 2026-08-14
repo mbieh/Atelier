@@ -1,30 +1,30 @@
 /*
- * Atelier UI – Override-Schicht über der Mapco-Struktur-Basis
+ * Atelier UI – override layer on top of the Mapco structural foundation
  *
- * Designsystem: shadcn/ui (https://ui.shadcn.com/docs/theming)
- * Farbpalette:  Tailwind 4.3 "Mist" (siehe _variables.css)
+ * Design system: shadcn/ui (https://ui.shadcn.com/docs/theming)
+ * Color palette: Tailwind 4.3 "Mist" (see _variables.css)
  *
- * Gliederung:
- *   1. Tokens & Grundtypografie
+ * Sections:
+ *   1. Tokens & typography
  *   2. Buttons (outline / ghost / primary)
- *   3. Formulare & Suche
+ *   3. Forms & search
  *   4. Header & Toolbar
- *   5. Sidebar (inkl. animiertem Collapse)
- *   6. Layout: Karte, Seitenhintergrund
- *   7. Listenansicht
+ *   5. Sidebar (including animated collapse)
+ *   6. Layout: content card & page background
+ *   7. List view
  *   8. Dropdowns, Panels, Overlays, Badges
  *   9. Motion
  *  10. Accessibility
  */
 
-/*=== 1. Tokens & Grundtypografie =====================================*/
+/*=== 1. Tokens & typography =========================================*/
 
 :root {
 	--at-sans: "Inter", "Inter Variable", ui-sans-serif, system-ui, -apple-system,
 		BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-	--at-radius-s: 6px;   /* Ghost-Elemente, Menü-Items */
-	--at-radius-m: 8px;   /* Buttons, Inputs (shadcn --radius - 2px) */
-	--at-radius-l: 10px;  /* Karten, Popover (shadcn --radius) */
+	--at-radius-s: 6px;   /* Ghost controls and menu items */
+	--at-radius-m: 8px;   /* Buttons and inputs (shadcn --radius - 2px) */
+	--at-radius-l: 10px;  /* Cards and popovers (shadcn --radius) */
 	--at-shadow-xs: 0 1px 2px rgba(9, 11, 12, 0.05);
 	--at-shadow-md: 0 1px 2px rgba(9, 11, 12, 0.05), 0 8px 24px rgba(9, 11, 12, 0.06);
 	--at-shadow-pop: 0 4px 12px rgba(9, 11, 12, 0.1), 0 12px 32px rgba(9, 11, 12, 0.08);
@@ -65,7 +65,7 @@ body {
 
 /*=== 2. Buttons ======================================================*/
 
-/* Grundvariante: shadcn "outline" */
+/* Base variant: shadcn "outline" */
 .btn {
 	border-radius: var(--at-radius-m);
 	border: 1px solid var(--grey-medium-light);
@@ -82,7 +82,7 @@ body {
 	border-color: var(--grey-medium);
 }
 
-/* Primärvariante: shadcn "default" (dunkler Primary) */
+/* Primary variant: shadcn "default" */
 .btn.btn-important {
 	background: var(--main-first);
 	border-color: var(--main-first);
@@ -108,7 +108,7 @@ body {
 	border-radius: var(--at-radius-m);
 }
 
-/*=== 3. Formulare & Suche ===========================================*/
+/*=== 3. Forms & search ==============================================*/
 
 input,
 select,
@@ -126,7 +126,7 @@ textarea:focus {
 	box-shadow: var(--at-ring);
 }
 
-/* Suche: ein Feld, Lupe als Ghost-Icon im Feld (shadcn-Input-Muster) */
+/* Search: one input with a ghost-style search control inside it. */
 .header .item.search {
 	white-space: nowrap;
 }
@@ -135,7 +135,7 @@ textarea:focus {
 	border-radius: var(--at-radius-m);
 	border: 1px solid var(--grey-medium-light);
 	background-color: var(--white);
-	padding-left: 2.75rem;
+	padding-inline-end: 2.75rem;
 	outline: none;
 	box-shadow: var(--at-shadow-xs);
 }
@@ -155,7 +155,8 @@ textarea:focus {
 	width: 30px;
 	height: 30px;
 	min-height: 30px;
-	margin: 4px -2.5rem 0 0;
+	margin: 4px 0 0;
+	margin-inline-start: -2.5rem;
 	padding: 0;
 	border: none;
 	background-color: transparent;
@@ -171,9 +172,9 @@ textarea:focus {
 
 /*=== 4. Header & Toolbar ============================================*/
 
-/* Solide Leiste. Kein backdrop-filter: der würde den Header zum
-   Containing Block machen und das absolut positionierte
-   Configure-Dropdown zerreißen (empirisch verifiziert). */
+/* Solid bar. Do not add backdrop-filter: it turns the header into a
+   containing block and breaks the absolutely positioned configuration
+   dropdown. This behavior was verified in FreshRSS. */
 .header {
 	background: var(--grey-light);
 	border-bottom: 1px solid var(--sid-sep);
@@ -193,7 +194,7 @@ textarea:focus {
 	color: var(--main-font-color);
 }
 
-/* Toolbar: Ghost-Icon-Buttons (shadcn "ghost"), aktive weich getönt */
+/* Toolbar: shadcn-style ghost buttons with a softly tinted active state. */
 .nav_menu .btn,
 .nav_menu .stick .btn,
 .nav_menu .group .btn,
@@ -220,7 +221,7 @@ textarea:focus {
 	background-color: var(--main-first-light);
 }
 
-/* Dunkle Icons auf heller Aktiv-Tönung: Weiß-Filter der Basis aufheben */
+/* Preserve dark icons on the light active tint by cancelling the base filter. */
 .nav_menu .stick .btn.active .icon,
 .nav_menu .group .btn.active .icon,
 .nav_menu .stick .btn#toggle-read.active .icon,
@@ -234,14 +235,14 @@ textarea:focus {
 
 .aside.aside_feed {
 	background: var(--sid-bg);
-	border-left: 1px solid var(--grey-medium-light);
+	border-inline-end: 1px solid var(--grey-medium-light);
 }
 
 .aside {
 	scrollbar-color: rgba(9, 11, 12, 0.25) transparent;
 }
 
-/* Icon-Filter der dunklen Mapco-Basis neutralisieren */
+/* Cancel icon filters inherited from Mapco's dark sidebar. */
 .aside .icon,
 .aside_feed .icon,
 .aside_feed .tree-folder-title .icon,
@@ -250,7 +251,7 @@ textarea:focus {
 	filter: none !important;
 }
 
-/* Kategorie-Kopf: normale Schreibweise, kein Blockhintergrund */
+/* Category headings use normal casing without a filled block. */
 .aside_feed .tree-folder .tree-folder-title {
 	background: transparent;
 	text-transform: none;
@@ -265,7 +266,7 @@ textarea:focus {
 	letter-spacing: 0;
 }
 
-/* Einträge als Ghost-Zeilen */
+/* Feed entries use lightweight ghost rows. */
 .aside_feed .tree-folder-items .item {
 	border-radius: var(--at-radius-s);
 	margin: 1px 6px;
@@ -277,24 +278,28 @@ textarea:focus {
 }
 
 .aside_feed .tree-folder-items .item:not(.active) a:hover {
+	transform: translateX(2px);
+}
+
+:dir(rtl) .aside_feed .tree-folder-items .item:not(.active) a:hover {
 	transform: translateX(-2px);
 }
 
-/* Aktiver Eintrag: weiche Tönung statt Vollfläche */
+/* Active entries use a soft tint instead of a saturated fill. */
 .aside_feed .tree-folder-items .item.active,
 .aside_feed .tree-folder-items .item.active a {
 	background: var(--main-first-light) !important;
 	color: var(--main-first-dark) !important;
 }
 
-/* Konfigurations-Sidebar analog */
+/* Apply the same active treatment to the configuration sidebar. */
 .aside:not(.aside_feed) .item.active,
 .aside:not(.aside_feed) .item.active a {
 	background: var(--main-first-light);
 	color: var(--main-first-dark);
 }
 
-/* Verwaltungs-Buttons: tonal (shadcn "secondary") */
+/* Sidebar controls use a tonal shadcn-style secondary treatment. */
 .aside .btn.btn-important,
 .aside .stick .btn {
 	background: var(--main-first-light);
@@ -314,14 +319,20 @@ textarea:focus {
 }
 
 .aside .stick .btn:first-child {
-	border-radius: 0 var(--at-radius-m) var(--at-radius-m) 0;
+	border-start-start-radius: var(--at-radius-m);
+	border-start-end-radius: 0;
+	border-end-start-radius: var(--at-radius-m);
+	border-end-end-radius: 0;
 }
 
 .aside .stick .btn:last-child {
-	border-radius: var(--at-radius-m) 0 0 var(--at-radius-m);
+	border-start-start-radius: 0;
+	border-start-end-radius: var(--at-radius-m);
+	border-end-start-radius: 0;
+	border-end-end-radius: var(--at-radius-m);
 }
 
-/* Ungelesen-Badges als Pillen */
+/* Unread counters use pill shapes. */
 .aside_feed .tree-folder-title .title:not([data-unread="0"])::after,
 .aside_feed .feed .item-title:not([data-unread="0"])::after {
 	border-radius: 999px;
@@ -330,7 +341,7 @@ textarea:focus {
 	font-weight: 600;
 }
 
-/* Collapse animiert statt hart (Basis nutzt display:none) */
+/* Animate collapse instead of using the base theme's hard display:none. */
 .aside {
 	transition: width 0.25s ease, min-width 0.25s ease, opacity 0.18s ease,
 		padding 0.25s ease;
@@ -343,12 +354,12 @@ textarea:focus {
 	min-width: 0;
 	opacity: 0;
 	padding: 0;
-	border-left-width: 0;
+	border-inline-end-width: 0;
 	pointer-events: none;
 }
 
-/* Baum behält volle Breite: Inhalt gleitet unter dem Clip heraus,
-   statt während der Animation umzubrechen */
+/* Keep the tree at full width so content slides under the clipping edge
+   instead of wrapping during the animation. */
 .aside.aside_feed .tree {
 	min-width: calc(var(--width-aside, 300px) - 1px);
 	box-sizing: border-box;
@@ -358,19 +369,18 @@ textarea:focus {
 	white-space: nowrap;
 }
 
-/*=== 6. Layout: Karte & Seitenhintergrund ===========================*/
+/*=== 6. Layout: content card & page background ======================*/
 
-/* #global nicht künstlich auf Viewporthöhe strecken */
+/* Do not stretch #global artificially to the viewport height. */
 #global {
 	height: auto !important;
 }
 
-/* Sidebar-Fläche bis Seitenende: Desktop-Layout als CSS-Grid.
-   Die Sidebar ist eine echte, sich streckende Spalte (align-self:
-   stretch), die Karte endet mit ihrem Inhalt. Ersetzt die Tabellen-
-   Zellen der Basis. Kein Hintergrund-Verlauf auf <body>: Basis-Regeln
-   wie "#stream { background: inherit }" würden ihn relativ zur
-   eigenen Box neu rendern (Geisterstreifen, verifiziert). */
+/* Stretch the sidebar to the page end with a desktop CSS Grid. The sidebar
+   becomes a real stretching column while the content card ends with its
+   content. This replaces the base table-cell layout. Do not paint a gradient
+   on <body>: inherited rules such as "#stream { background: inherit }" redraw
+   it relative to their own boxes and create visible ghost strips. */
 html,
 body {
 	background: var(--grey-light);
@@ -402,21 +412,22 @@ body {
 		grid-column: 2;
 	}
 
-	/* Spezifischer als "#global > .aside", sonst gewinnt die ID-Regel
-	   und die Spalte bliebe 300px breit */
+	/* More specific than "#global > .aside" so the ID rule cannot keep
+	   the collapsed column at 300px. */
 	#global > .aside.is-hidden {
 		width: 0;
 	}
 }
 
-/* Hauptbereich als Karte */
+/* Present the main stream as a content card. */
 #stream.normal,
 #stream.reader {
 	background: var(--white);
 	border: 1px solid var(--grey-medium-light);
 	border-radius: var(--at-radius-l);
 	box-shadow: var(--at-shadow-md);
-	margin: 0.75rem 0.5rem 1rem 1rem;
+	margin-block: 0.75rem 1rem;
+	margin-inline: 0.5rem 1rem;
 	overflow: clip;
 }
 
@@ -428,7 +439,7 @@ body {
 	padding: 1rem 0;
 }
 
-/* Login-Seite auf App-Hintergrund */
+/* Keep authentication pages on the application background. */
 body.formLogin,
 body.register {
 	background: var(--grey-light);
@@ -455,15 +466,14 @@ main.prompt h1,
 	#stream.reader {
 		margin: 0;
 		border-radius: 0;
-		border-left: none;
-		border-right: none;
+		border-inline: none;
 		box-shadow: none;
 	}
 }
 
-/*=== 7. Listenansicht ===============================================*/
+/*=== 7. List view ===================================================*/
 
-/* Tagestrenner: Label mit auslaufender Haarlinie */
+/* Date separator: label followed by a flexible hairline. */
 .transition {
 	display: flex;
 	align-items: center;
@@ -491,17 +501,25 @@ main.prompt h1,
 	color: var(--light-font-color);
 }
 
-/* Zeilen */
+/* Feed rows */
 .flux_header {
 	border-top: 1px solid var(--grey-lighter);
 	transition: background-color 0.12s ease-in-out, box-shadow 0.12s ease-in-out;
 }
 
 .flux:not(.current) .flux_header:hover {
-	box-shadow: inset -2px 0 0 var(--grey-medium);
+	box-shadow: inset 2px 0 0 var(--grey-medium);
 }
 
 .flux.not_read:not(.current) .flux_header:hover {
+	box-shadow: inset 2px 0 0 var(--main-first);
+}
+
+:dir(rtl) .flux:not(.current) .flux_header:hover {
+	box-shadow: inset -2px 0 0 var(--grey-medium);
+}
+
+:dir(rtl) .flux.not_read:not(.current) .flux_header:hover {
 	box-shadow: inset -2px 0 0 var(--main-first);
 }
 
@@ -513,7 +531,7 @@ main.prompt h1,
 	transform: scale(1.12);
 }
 
-/* Gelesen vs. ungelesen rein typografisch */
+/* Distinguish read and unread entries typographically. */
 #stream .flux .item.title a,
 #stream .flux .title a {
 	font-weight: 600;
@@ -530,15 +548,14 @@ main.prompt h1,
 	font-weight: 500;
 }
 
-/* Datumsspalte: absolut positioniert (Basis) -> Randluft über Padding
-   im Datums-Element selbst; 155px der Basis reichen nicht für lange
-   deutsche Datumsangaben */
+/* The base theme positions dates absolutely. Apply spacing to the date itself;
+   its original 155px width is too narrow for long German date strings. */
 .flux .flux_header .item .date {
 	width: 195px;
-	padding-left: 14px;
+	padding-inline-end: 14px;
 }
 
-/* Artikelinhalt */
+/* Article content */
 .flux_content {
 	animation: at-fade 0.22s ease-out;
 }
@@ -555,7 +572,7 @@ main.prompt h1,
 	line-height: 1.25;
 }
 
-/* "Alle als gelesen markieren": kompakt (Basis hängt 100vh Leerraum an) */
+/* Keep "mark all as read" compact; the base theme adds 100vh of whitespace. */
 #bigMarkAsRead.big {
 	background: transparent;
 	color: var(--main-first);
@@ -594,9 +611,9 @@ main.prompt h1,
 	padding: 4px 0;
 }
 
-/* Menü-Items im shadcn-Muster: gerundet mit Innenabstand.
-   Mapco legt den Hover in Primary auf das ganze .item (Vollbreite,
-   eckig) – das wird neutralisiert und auf den Link verlagert. */
+/* Rounded shadcn-style menu items with an inset hover surface. Mapco applies
+   its primary hover fill to the full-width .item; neutralize it and move the
+   hover treatment to the link. */
 .dropdown-menu .item > a,
 .dropdown-menu .item > span,
 .dropdown-menu .item .as-link {
@@ -634,8 +651,15 @@ main.prompt h1,
 }
 
 #slider {
+	box-shadow: -12px 0 32px rgba(9, 11, 12, 0.14);
+	border-start-start-radius: var(--at-radius-l);
+	border-start-end-radius: 0;
+	border-end-start-radius: var(--at-radius-l);
+	border-end-end-radius: 0;
+}
+
+:dir(rtl) #slider {
 	box-shadow: 12px 0 32px rgba(9, 11, 12, 0.14);
-	border-radius: 0 var(--at-radius-l) var(--at-radius-l) 0;
 }
 
 #overlay {
@@ -654,7 +678,7 @@ main.prompt h1,
 	border-radius: var(--at-radius-l) var(--at-radius-l) 0 0;
 }
 
-/* Notifications als Toast (shadcn-Sonner-Muster) statt Vollbreiten-Balken */
+/* Render notifications as compact toasts instead of full-width banners. */
 .notification {
 	position: fixed;
 	top: auto;
@@ -663,18 +687,19 @@ main.prompt h1,
 	right: auto;
 	transform: translateX(-50%);
 	width: auto;
-	min-width: 360px;
+	min-width: min(360px, 90vw);
 	max-width: min(90vw, 560px);
 	height: auto;
-	padding: 0.75rem 1.25rem 0.75rem 3rem;
-	background: #161b1d;
-	color: #f1f3f3;
+	padding-block: 0.75rem;
+	padding-inline: 1.25rem 3rem;
+	background: var(--main-font-color);
+	color: var(--grey-light);
 	border: none;
 	border-radius: var(--at-radius-l);
 	box-shadow: 0 8px 20px rgba(9, 11, 12, 0.25), 0 20px 48px rgba(9, 11, 12, 0.18);
 	font-weight: 500;
 	line-height: 1.5;
-	text-align: right;
+	text-align: start;
 	animation: at-toast 0.2s ease-out;
 }
 
@@ -683,11 +708,11 @@ main.prompt h1,
 	font-weight: 600;
 }
 
-/* Statusvarianten: dunkler Toast, Status als leuchtender Punkt */
+/* Keep status variants dark and identify their state with a bright dot. */
 .notification.good,
 .notification.bad {
-	background: #161b1d;
-	color: #f1f3f3;
+	background: var(--main-font-color);
+	color: var(--grey-light);
 }
 
 .notification .msg::before {
@@ -696,7 +721,7 @@ main.prompt h1,
 	width: 9px;
 	height: 9px;
 	border-radius: 999px;
-	margin-left: 0.6rem;
+	margin-inline-end: 0.6rem;
 	vertical-align: middle;
 	background: var(--grey-medium-dark);
 }
@@ -712,8 +737,8 @@ main.prompt h1,
 }
 
 .notification .close {
-	left: 6px;
-	right: auto;
+	inset-inline-start: auto;
+	inset-inline-end: 6px;
 	top: 50%;
 	bottom: auto;
 	transform: translateY(-50%);
@@ -749,23 +774,23 @@ main.prompt h1,
 	border-radius: 999px;
 }
 
-
-/* Hinweisblöcke: shadcn-Alert (runde Ecken, ruhige Tönung, kein 3px-Retro) */
+/* Consolidated shadcn-style alerts. Keep aliases for third-party extensions. */
 .alert {
 	border-radius: var(--at-radius-l);
 	border: 1px solid var(--grey-medium-light);
 	background: var(--grey-lighter);
 	color: var(--main-font-color);
+	box-shadow: var(--at-shadow-xs);
+	padding: 0.85rem 1.1rem;
 	text-shadow: none;
 	font-size: 0.9rem;
+	font-weight: 500;
 	line-height: 1.5;
-	padding: 0.75rem 1rem;
-	box-shadow: var(--at-shadow-xs);
 }
 
 .alert-warn {
-	background: var(--warning-light);
-	border-color: color-mix(in srgb, var(--warning-text) 25%, transparent);
+	border-color: var(--warning-border);
+	background: var(--warning-surface);
 	color: var(--warning-text);
 }
 
@@ -775,15 +800,17 @@ main.prompt h1,
 	color: var(--info-text);
 }
 
-.alert-error {
-	background: var(--alert-light);
-	border-color: color-mix(in srgb, var(--alert-text) 25%, transparent);
+.alert-error,
+.alert.error {
+	border-color: var(--alert-border);
+	background: var(--alert-surface);
 	color: var(--alert-text);
 }
 
-.alert-success {
-	background: var(--success-light);
-	border-color: color-mix(in srgb, var(--success-text) 25%, transparent);
+.alert-success,
+.alert.success {
+	border-color: var(--success-border);
+	background: var(--success-surface);
 	color: var(--success-text);
 }
 
@@ -791,73 +818,6 @@ main.prompt h1,
 	font-weight: 600;
 	font-size: 1rem;
 	text-shadow: none;
-}
-
-
-/* Inline-Hinweisblöcke: getönte, gerundete Flächen statt Gelb-Kästen */
-.alert {
-	border: none;
-	border-radius: var(--at-radius-l);
-	padding: 0.9rem 1.25rem;
-	background: var(--grey-lighter);
-	color: var(--main-font-color);
-	box-shadow: inset 0 0 0 1px var(--grey-medium-light);
-	font-size: 0.9rem;
-	line-height: 1.5;
-}
-
-.alert-warn {
-	background: var(--warning-light);
-	color: var(--warning-text);
-	box-shadow: none;
-}
-
-.alert-error,
-.alert.error {
-	background: var(--alert-light);
-	color: var(--alert-text);
-	box-shadow: none;
-}
-
-.alert-success,
-.alert.success {
-	background: var(--success-light);
-	color: var(--success-text);
-	box-shadow: none;
-}
-
-
-/* Hinweisblöcke (Formularseiten) als shadcn-Alerts */
-.alert,
-.alert-warn,
-.alert-info,
-.alert-error,
-.alert-success {
-	border-radius: var(--at-radius-l);
-	border: 1px solid var(--grey-medium-light);
-	background: var(--grey-lighter);
-	color: var(--main-font-color);
-	box-shadow: var(--at-shadow-xs);
-	padding: 0.85rem 1.1rem;
-	font-weight: 500;
-}
-
-.alert-warn {
-	border-color: #ecd9a0;
-	background: #fdf9ec;
-	color: #6e5a1b;
-}
-
-.alert-error {
-	border-color: #eec4bc;
-	background: #fbf1ef;
-	color: #7a2e1f;
-}
-
-.alert-success {
-	border-color: #bfe3cf;
-	background: #f0f9f4;
-	color: #1f6b45;
 }
 
 /*=== 9. Motion ======================================================*/
@@ -876,7 +836,7 @@ main.prompt h1,
 	}
 }
 
-/* Weiche Seitenwechsel (progressive enhancement) */
+/* Soft page transitions as progressive enhancement. */
 @view-transition {
 	navigation: auto;
 }

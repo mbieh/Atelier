@@ -1,23 +1,46 @@
 # Changelog
 
-Alle nennenswerten Änderungen an diesem Projekt werden in dieser Datei
-dokumentiert. Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/),
-die Versionierung folgt [Semantic Versioning](https://semver.org/lang/de/).
+All notable changes to this project are documented in this file.
+
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/).
+
+## Unreleased
+
+### Changed
+
+- Replaced direction-specific spacing, borders, and radii in the Atelier UI
+  layer with CSS logical properties.
+- Simplified RTL generation now that the UI source handles both directions.
+- Consolidated duplicate alert rules and centralized their palette tokens.
+- Standardized project-owned documentation, metadata, and code comments in
+  English.
+
+### Fixed
+
+- Preserved the intended information-alert colors that were previously
+  overwritten by a later generic alert rule.
+- Prevented toast notifications from exceeding very narrow viewports.
+
+### Development
+
+- Expanded local checks for manifest order, imports, local Markdown links,
+  runtime asset URLs, SVG validity, RTL token parity, and license files.
 
 ## 1.0.0 - 2026-08-14
 
 ### Added
 
-- Reproduzierbare RTL-Generierung und lokale Release-Prüfungen.
-- Öffentliche Dokumentation, Lizenzzuordnung und CI-Prüfung.
-- Erste Atelier-Fassung auf Grundlage des offiziellen Mapco-Themes.
-- Eigenständige shadcn/ui-inspirierte Override-Schicht mit Mist-Farbpalette.
-- 44 angepasste Lucide-Icons und ein lokaler Systemschrift-Stack.
-- RTL-Pendant der Atelier-Override-Schicht.
+- Reproducible RTL generation and dependency-free local release checks.
+- Public documentation, license attribution, and CI verification.
+- Initial Atelier release based on the official Mapco theme.
+- A dedicated shadcn/ui-inspired override layer using the Mist color palette.
+- 44 adapted Lucide icons and a local system-font stack.
+- An RTL counterpart for the Atelier override layer.
 
 ### Changed
 
-- Desktop-Layout auf CSS-Grid umgestellt, damit die Sidebar strukturell bis zum
-  Seitenende reicht und sauber animiert ein- und ausklappt.
-- Datumsspalte für längere deutsche Datumsangaben verbreitert.
-- Übermäßigen Leerraum unter „Alle als gelesen markieren“ entfernt.
+- Reworked the desktop layout with CSS Grid so the sidebar stretches to the
+  bottom of the page and animates cleanly when collapsed or expanded.
+- Widened the date column for longer German date strings.
+- Removed excessive whitespace below the “mark all as read” control.

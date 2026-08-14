@@ -1,121 +1,169 @@
 # Atelier
 
-Atelier ist ein modernes, helles Theme für [FreshRSS](https://freshrss.org/).
-Es verbindet die Struktur des offiziellen Mapco-Themes mit einer eigenständigen
-Override-Schicht im Stil von shadcn/ui und der kühlen Tailwind-Farbpalette Mist.
-Das Theme lädt keine Webfonts, Skripte oder sonstigen Laufzeitabhängigkeiten aus
-dem Netz.
+A modern, light theme for [FreshRSS](https://freshrss.org/) inspired by
+contemporary shadcn/ui interfaces.
 
-![Vorschau des Atelier-Themes](thumbs/original.png)
+Atelier combines the structure of FreshRSS's official Mapco theme with a
+separate visual override layer, a cool neutral Mist color palette, soft active
+states, subtle motion, and Lucide icons. It does not load web fonts, scripts,
+or other runtime assets from external services.
 
-## Kompatibilität
+![Atelier theme preview](thumbs/original.png)
 
-Atelier 1.0 wurde mit FreshRSS 1.29.1 und Chromium getestet. Geprüft wurden die
-kurze und lange Listenansicht, ein geöffneter Artikel, das
-Konfigurations-Dropdown, der Suchfokus, das Ein- und Ausklappen der Sidebar,
-Konfigurationsseiten und ein mobiler Viewport.
+## Features
 
-Noch nicht ausdrücklich visuell geprüft sind:
+- Light, neutral interface designed for comfortable feed reading
+- Responsive desktop and mobile layouts
+- Animated sidebar collapse without content reflow
+- Clear primary, outline, and ghost button hierarchy
+- Accessible focus states and reduced-motion support
+- Locally bundled SVG icons with no CDN dependency
+- Generated RTL stylesheet kept in sync with the main UI layer
+- Centralized color tokens for straightforward customization
 
-- Global- und Reader-Ansicht mit dem Grid-Layout,
-- View Transitions in Firefox,
-- der Fortschrittsbalken `#actualizeProgress`,
-- die RTL-Darstellung in einer RTL-Sprache und
-- andere FreshRSS-Versionen als 1.29.1.
+## Compatibility
+
+Atelier 1.0 has been tested with FreshRSS 1.29.1 in Chromium.
+
+The following areas were verified:
+
+- short and extended list views;
+- an opened article;
+- the configuration dropdown;
+- search-field focus behavior;
+- sidebar collapse and expansion;
+- configuration pages; and
+- a mobile viewport.
+
+The following areas have not yet been explicitly verified:
+
+- global and reader views with the desktop grid layout;
+- View Transitions in Firefox;
+- the `#actualizeProgress` feed-update indicator;
+- the generated RTL layout in an RTL language; and
+- FreshRSS versions other than 1.29.1.
 
 ## Installation
 
-### Manuell
+### Manual installation
 
-1. Das Repository als Ordner `Atelier` herunterladen oder klonen.
-2. Den vollständigen Ordner nach `FreshRSS/p/themes/Atelier` kopieren.
-3. In FreshRSS unter **Konfiguration → Anzeige → Theme** „Atelier“ auswählen.
+1. Download or clone this repository.
+2. Ensure that the theme directory is named `Atelier`.
+3. Copy the complete directory to `<FreshRSS>/p/themes/Atelier`.
+4. Open FreshRSS and select **Configuration → Display → Theme → Atelier**.
 
-Der Repository-Inhalt liegt bewusst direkt in der Theme-Wurzel. Dadurch kann
-der Checkout ohne Kopier- oder Build-Schritt als FreshRSS-Theme verwendet
-werden.
+The repository root is also the theme root. No build or copy step is required
+before installation.
 
-### Docker-Bind-Mount
+### Docker Compose bind mount
 
-Den absoluten Host-Pfad an die eigene Installation anpassen:
+Replace the host path with the absolute path to your checkout:
 
 ```yaml
 services:
   freshrss:
     volumes:
-      - /absoluter/pfad/zu/Atelier:/var/www/FreshRSS/p/themes/Atelier:ro
+      - /absolute/path/to/Atelier:/var/www/FreshRSS/p/themes/Atelier:ro
 ```
 
-Anschließend das Theme in FreshRSS auswählen. Der Read-only-Mount verhindert,
-dass ein Container-Update den Checkout verändert.
+Select Atelier in FreshRSS after starting or restarting the container. The
+read-only mount prevents the container from modifying the checkout.
 
-## Anpassung
+## Customization
 
-Die Farben werden zentral in [`_variables.css`](_variables.css) definiert. Die
-kommentierten Mist-Werte können dort beispielsweise gegen eine andere neutrale
-Palette ausgetauscht werden. Die zugehörige `_variables.rtl.css` muss dabei
-denselben Variablenstand behalten.
+Theme colors are defined centrally in [`_variables.css`](_variables.css). The
+commented Mist values can be replaced with another neutral palette without
+changing the component rules. Run the RTL generator after changing these
+tokens instead of editing `_variables.rtl.css` manually.
 
-Die Theme-Schichten werden in dieser Reihenfolge geladen:
+FreshRSS loads the theme layers in this order:
 
-1. `_frss.css` als FreshRSS-Basis,
-2. `atelier.css` als von Mapco abgeleitete Struktur und
-3. `atelier-ui.css` als Atelier-Override.
+1. `_frss.css` — FreshRSS base styles;
+2. `atelier.css` — the Mapco-derived structural layer; and
+3. `atelier-ui.css` — Atelier's visual override layer.
 
-`atelier-ui.rtl.css` ist generiert und soll nicht von Hand bearbeitet werden:
+For substantial UI changes, prefer adding or updating rules in
+`atelier-ui.css` instead of modifying the Mapco-derived modules.
+
+## Repository layout
+
+| Path | Purpose |
+| --- | --- |
+| `metadata.json` | FreshRSS theme manifest and load order |
+| `_variables.css` | Color palette and shared theme tokens |
+| `atelier.css` | Mapco-derived structural entry point |
+| `atelier-ui.css` | Main Atelier UI implementation |
+| `atelier-ui.rtl.css` | Generated RTL counterpart |
+| `icons/` | Local FreshRSS assets and 44 adapted Lucide SVGs |
+| `thumbs/original.png` | Theme preview used by FreshRSS and this README |
+| `scripts/` | Dependency-free validation and RTL generation |
+
+## Development
+
+Do not edit `_fonts.rtl.css`, `_variables.rtl.css`, or `atelier-ui.rtl.css`
+manually. Generate these direction-neutral counterparts from their canonical
+sources:
 
 ```console
 python3 scripts/generate_rtl.py
+```
+
+Verify that the generated files are current:
+
+```console
 python3 scripts/generate_rtl.py --check
 ```
 
-Alle lokalen Release-Prüfungen laufen ohne zusätzliche Pakete:
+Run all dependency-free release checks:
 
 ```console
 python3 scripts/check_theme.py
 python3 scripts/generate_rtl.py --check
 ```
 
-## Design notes
+The checks validate formatting, CSS brace balance, the FreshRSS manifest,
+custom-property usage, Lucide license headers, and the documented CSS
+safeguards. The same checks run in CI for pushes and pull requests.
 
-- Der Header verwendet absichtlich keinen `backdrop-filter`: Der Filter erzeugt
-  einen neuen Containing Block und beschädigt das absolut positionierte
-  Konfigurations-Dropdown. Dropdowns selbst können den Effekt gefahrlos nutzen.
-- Das Desktop-Layout ist ein CSS-Grid. So ist die Sidebar eine echte,
-  gestreckte Spalte und hinterlässt beim animierten Einklappen keinen Streifen.
-  Ein Verlauf auf `body` wird vermieden, weil geerbte FreshRSS-Hintergründe ihn
-  relativ zu ihren eigenen Boxen erneut zeichnen würden.
-- Die Sidebar überschreibt das `display: none` der Basis mit einer
-  Breiten-/Opacity-Transition. Der Feed-Baum behält währenddessen seine Breite,
-  damit sein Inhalt nicht umbricht.
-- Die absolut positionierte Datumsspalte ist 195 px breit und erhält ihren
-  Abstand direkt im Datumselement; 155 px reichen für längere deutsche
-  Datumsangaben nicht.
-- `#bigMarkAsRead` erhält nur `2rem` unteren Abstand statt `100vh`, und `#global`
-  wird nicht künstlich auf Viewporthöhe gestreckt.
-- Links in Dropdown-Menüs benötigen `width: auto !important`, da die
-  FreshRSS-Basis sonst `width: 100%` erzwingt und die rechte Rundung abschneidet.
+## Design implementation notes
 
-Diese Schutzkommentare stehen zusätzlich direkt in `atelier-ui.css` und dürfen
-beim Aufräumen nicht entfernt werden.
+- The header intentionally does not use `backdrop-filter`. Applying it creates
+  a containing block and breaks the absolutely positioned configuration
+  dropdown. Dropdowns themselves can safely use the effect.
+- The desktop layout uses CSS Grid so the sidebar forms a real stretching
+  column and leaves no background strip while collapsing. A painted gradient
+  on `body` is avoided because inherited FreshRSS backgrounds would redraw it
+  relative to their own boxes.
+- The sidebar overrides the base theme's `display: none` behavior with width
+  and opacity transitions. Its feed tree retains a fixed width during the
+  animation to prevent content wrapping.
+- The absolutely positioned date column is 195 px wide and receives spacing
+  on the date element itself. The base width of 155 px is too narrow for long
+  German date strings.
+- `#bigMarkAsRead` uses a `2rem` bottom margin instead of the base theme's
+  `100vh`, and `#global` is not stretched artificially to the viewport height.
+- Dropdown links require `width: auto !important` because the FreshRSS base
+  style otherwise forces `width: 100%` and clips the right-hand rounding.
 
-## Herkunft und Lizenz
+These safeguards are also documented next to the relevant rules in
+`atelier-ui.css` and should remain intact during refactoring.
 
-Atelier ist ein Fork des offiziellen
-[Mapco-Themes](https://github.com/FreshRSS/FreshRSS/tree/1.29.1/p/themes/Mapco)
-von Thomas Guesnon aus dem FreshRSS-Projekt. Das Haupt-Theme steht deshalb unter
-der [GNU Affero General Public License Version 3](LICENSE).
+## License and credits
 
-44 UI-SVGs stammen aus `lucide-static` 1.31.0 und behalten ihren jeweiligen
-ISC-Lizenzheader. Für Lucide und die daraus übernommenen Feather-Icons gelten
-die Texte in [`icons/LICENSE`](icons/LICENSE). Die übrigen Logo-Assets stammen
-aus der FreshRSS-/Mapco-Basis. Vollständige Zuordnungen stehen in
-[`THIRD-PARTY.md`](THIRD-PARTY.md).
+Atelier is derived from the official
+[Mapco theme](https://github.com/FreshRSS/FreshRSS/tree/1.29.1/p/themes/Mapco)
+by Thomas Guesnon and the FreshRSS project. The theme is distributed under the
+[GNU Affero General Public License version 3](LICENSE).
 
-## Credits
+The 44 Lucide UI icons retain their `lucide-static` 1.31.0 ISC headers. The
+complete Lucide and Feather license notices are available in
+[`icons/LICENSE`](icons/LICENSE). The remaining logo assets are derived from
+FreshRSS and Mapco. See [`THIRD-PARTY.md`](THIRD-PARTY.md) for detailed
+attribution.
 
-- Thomas Guesnon und das FreshRSS-Projekt für Mapco und die Theme-Basis
-- Lucide Contributors für das Lucide-Iconset
-- Cole Bemis und die Feather Contributors für in Lucide enthaltene
-  Feather-Ursprungsicons
-- shadcn/ui und Tailwind CSS als Design- und Farbreferenz
+Credits:
+
+- Thomas Guesnon and the FreshRSS project for Mapco and the theme foundation
+- Lucide Contributors for the Lucide icon set
+- Cole Bemis and Feather Contributors for icons inherited through Lucide
+- shadcn/ui and Tailwind CSS as design and color references
