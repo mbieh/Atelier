@@ -16,6 +16,7 @@
  *   9. Native component completion
  *  10. Motion
  *  11. Accessibility
+ *  12. Dark-mode asset adaptations
  */
 
 /*=== 1. Tokens & typography =========================================*/
@@ -27,10 +28,24 @@
 	--at-radius-m: calc(var(--radius) - 2px);
 	--at-radius-l: var(--radius);
 	--at-toolbar-control-height: 2.5rem;
+	--at-control-border: var(--input);
 	--at-shadow-xs: 0 1px 2px rgba(9, 11, 12, 0.05);
 	--at-shadow-md: 0 1px 2px rgba(9, 11, 12, 0.05), 0 8px 24px rgba(9, 11, 12, 0.06);
 	--at-shadow-pop: 0 4px 12px rgba(9, 11, 12, 0.1), 0 12px 32px rgba(9, 11, 12, 0.08);
 	--at-ring: 0 0 0 3px color-mix(in srgb, var(--ring) 25%, transparent);
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--at-control-border: color-mix(
+			in srgb,
+			var(--foreground) 20%,
+			transparent
+		);
+		--at-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.16);
+		--at-shadow-md: 0 1px 2px rgba(0, 0, 0, 0.28), 0 8px 24px rgba(0, 0, 0, 0.2);
+		--at-shadow-pop: 0 4px 12px rgba(0, 0, 0, 0.35), 0 12px 32px rgba(0, 0, 0, 0.28);
+	}
 }
 
 html,
@@ -79,7 +94,7 @@ body {
 	min-block-size: var(--at-toolbar-control-height);
 	padding-block: 0;
 	border-radius: var(--at-radius-m);
-	border: 1px solid var(--border);
+	border: 1px solid var(--at-control-border);
 	background-color: var(--card);
 	color: var(--card-foreground);
 	font-weight: 500;
@@ -176,6 +191,12 @@ select:not([multiple]):not([size]) {
 
 :dir(rtl) select:not([multiple]):not([size]) {
 	background-position: left 0.75rem center;
+}
+
+@media (prefers-color-scheme: dark) {
+	select:not([multiple]):not([size]) {
+		background-image: url("icons/down-dark.svg");
+	}
 }
 
 input:focus,
@@ -383,7 +404,7 @@ input[type="file"]::file-selector-button {
 
 .header .item.search input {
 	border-radius: var(--at-radius-m);
-	border: 1px solid var(--input);
+	border: 1px solid var(--at-control-border);
 	background-color: var(--card);
 	padding-inline-end: 2.75rem;
 	outline: none;
@@ -435,6 +456,13 @@ input[type="file"]::file-selector-button {
 	filter: none;
 }
 
+@media (prefers-color-scheme: dark) {
+	.header .item.title a .logo,
+	.header .item.title a:hover .logo {
+		filter: invert(1) brightness(1.05);
+	}
+}
+
 .header > .item.title {
 	text-align: start;
 }
@@ -462,7 +490,7 @@ input[type="file"]::file-selector-button {
 	block-size: var(--at-toolbar-control-height);
 	min-block-size: var(--at-toolbar-control-height);
 	padding: 0;
-	border: 1px solid var(--input);
+	border: 1px solid var(--at-control-border);
 	border-radius: var(--at-radius-m);
 	background: var(--background);
 	box-shadow: var(--at-shadow-xs);
@@ -505,7 +533,7 @@ input[type="file"]::file-selector-button {
 	align-items: center;
 	box-sizing: border-box;
 	block-size: var(--at-toolbar-control-height);
-	border-color: var(--input);
+	border-color: var(--at-control-border);
 	background: var(--background);
 	box-shadow: var(--at-shadow-xs);
 }
@@ -560,7 +588,7 @@ input[type="file"]::file-selector-button {
 }
 
 .aside {
-	scrollbar-color: rgba(9, 11, 12, 0.25) transparent;
+	scrollbar-color: var(--input) transparent;
 }
 
 /* Cancel icon filters inherited from Mapco's dark sidebar. */
@@ -878,18 +906,22 @@ main.prompt h1,
 }
 
 /* Distinguish read and unread entries typographically. */
+#stream .flux .flux_header .item > .title,
 #stream .flux .item.title a,
 #stream .flux .title a {
+	color: var(--foreground);
 	font-weight: 600;
 	letter-spacing: -0.005em;
 }
 
-.flux.not_read .flux_header .item.title a {
+#stream .flux.not_read .flux_header .item > .title,
+#stream .flux.not_read .flux_header .item.title a {
 	font-weight: 650;
 }
 
-.flux:not(.not_read) .flux_header .item.title a,
-.flux:not(.not_read) .flux_header .item.website a {
+#stream .flux:not(.not_read) .flux_header .item > .title,
+#stream .flux:not(.not_read) .flux_header .item.title a,
+#stream .flux:not(.not_read) .flux_header .item.website a {
 	color: var(--muted-foreground);
 	font-weight: 500;
 }
@@ -1425,8 +1457,9 @@ tbody tr:hover {
 }
 
 .theme-preview-list .preview-container .properties {
-	background: color-mix(in srgb, var(--foreground) 88%, transparent);
-	color: var(--background);
+	border-top: 1px solid var(--border);
+	background: var(--muted);
+	color: var(--foreground);
 }
 
 .post a[href="./"] {
@@ -1669,5 +1702,30 @@ summary:focus-visible {
 	::view-transition-old(*),
 	::view-transition-new(*) {
 		animation: none !important;
+	}
+}
+
+/*=== 12. Dark-mode asset adaptations ================================*/
+
+@media (prefers-color-scheme: dark) {
+	/* Locally bundled neutral SVGs use a fixed light-theme stroke because
+	   external SVG files cannot inherit the page's currentColor. Keep these
+	   rules last so they win over Mapco's component-specific icon filters. */
+	img.icon:not([src$="/starred.svg"]) {
+		filter: brightness(0) saturate(100%) invert(84%) !important;
+	}
+
+	#bigMarkAsRead.big .bigTick {
+		filter: brightness(0) saturate(100%) invert(84%) !important;
+	}
+
+	.btn.btn-important img.icon:not([src$="/starred.svg"]),
+	.notification .close img.icon {
+		filter: none !important;
+	}
+
+	.nav_menu .dropdown:not(#dropdown-search-wrapper) a.dropdown-toggle,
+	.box .box-title form .dropdown a.dropdown-toggle {
+		background-image: url("icons/more-dark.svg");
 	}
 }

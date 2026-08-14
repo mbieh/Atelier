@@ -1,6 +1,6 @@
 # Atelier
 
-A modern, light theme for [FreshRSS](https://freshrss.org/) inspired by
+A modern light and dark theme for [FreshRSS](https://freshrss.org/) inspired by
 contemporary shadcn/ui interfaces.
 
 Atelier combines the structure of FreshRSS's official Mapco theme with a
@@ -12,7 +12,7 @@ or other runtime assets from external services.
 
 ## Features
 
-- Light, neutral interface designed for comfortable feed reading
+- Light and dark neutral interfaces that follow the operating-system preference
 - Responsive desktop and mobile layouts
 - Animated sidebar collapse without content reflow
 - Clear visual hierarchy for controls and content
@@ -26,9 +26,10 @@ Atelier 1.0 has been tested with FreshRSS 1.29.1 in Chromium, including list
 and article views, configuration pages, sidebar behavior, search, and a mobile
 viewport.
 
-The component layer has also been checked in Firefox with representative mobile
-and RTL fixtures. Complete FreshRSS workflows in Firefox and RTL layouts, and
-FreshRSS versions other than 1.29.1, have not yet been explicitly tested.
+The component layer has also been checked in Firefox with representative dark,
+mobile, and RTL fixtures. Complete FreshRSS workflows in Firefox and RTL
+layouts, and FreshRSS versions other than 1.29.1, have not yet been explicitly
+tested.
 
 ## Installation
 
@@ -63,6 +64,9 @@ commented Mist values can be replaced with another neutral palette without
 changing the component rules. Run the RTL generator after changing these
 tokens instead of editing `_variables.rtl.css` manually.
 
+Atelier follows the browser's `prefers-color-scheme` value automatically. It
+does not require JavaScript or store a separate theme preference.
+
 ```console
 python3 scripts/generate_rtl.py
 ```
@@ -74,7 +78,7 @@ Atelier is derived from the official
 by Thomas Guesnon and the FreshRSS project. The theme is distributed under the
 [GNU Affero General Public License version 3](LICENSE).
 
-The 44 Lucide UI icons retain their `lucide-static` 1.31.0 ISC headers. The
+The 46 Lucide UI icons retain their `lucide-static` 1.31.0 ISC headers. The
 complete Lucide and Feather license notices are available in
 [`icons/LICENSE`](icons/LICENSE). The remaining logo assets are derived from
 FreshRSS and Mapco. See [`THIRD-PARTY.md`](THIRD-PARTY.md) for detailed

@@ -45,6 +45,26 @@ REQUIRED_SEMANTIC_PROPERTIES = {
     "--sidebar-ring",
 }
 EXTERNAL_OR_COMPAT_PROPERTIES = {
+    # FreshRSS base-theme tokens consumed by the shared _frss.css stylesheet.
+    "--frss-background-color",
+    "--frss-background-color-dark",
+    "--frss-background-color-error-transparent",
+    "--frss-background-color-middle",
+    "--frss-background-color-transparent",
+    "--frss-border-color",
+    "--frss-border-color-error",
+    "--frss-darken-background-hover-transparent",
+    "--frss-font-color-dark",
+    "--frss-font-color-disabled",
+    "--frss-font-color-error",
+    "--frss-font-color-grey-dark",
+    "--frss-font-color-grey-light",
+    "--frss-noThumbnailImage-background-color",
+    "--frss-scrollbar-handle",
+    "--frss-scrollbar-handle-hover",
+    "--frss-scrollbar-track",
+    "--frss-scrollbar-track-hover",
+    "--frss-switch-accent-color",
     # Retained from Mapco's palette contract even though Atelier does not
     # currently consume them directly.
     "--unread-bg-light",
@@ -244,8 +264,8 @@ def main() -> int:
 
     svg_files = sorted((ROOT / "icons").glob("*.svg"))
     lucide_files = [path for path in svg_files if path.name not in NON_LUCIDE_SVGS]
-    if len(lucide_files) != 44:
-        errors.append(f"expected 44 Lucide SVGs, found {len(lucide_files)}")
+    if len(lucide_files) != 46:
+        errors.append(f"expected 46 Lucide SVGs, found {len(lucide_files)}")
     for path in lucide_files:
         content = path.read_text(encoding="utf-8")
         first_line = content.splitlines()[0]

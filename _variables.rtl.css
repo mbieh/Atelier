@@ -1,4 +1,6 @@
 :root {
+	color-scheme: light;
+
 	/* shadcn/ui semantic color roles using the Tailwind Mist palette. */
 	--background: #f1f3f3;
 	--foreground: #161b1d;
@@ -97,4 +99,107 @@
 	--sid-active: var(--sidebar-accent);
 	--sid-active-font: var(--sidebar-accent-foreground);
 	--sid-pills: rgba(22, 27, 29, 0.08);
+
+	/* FreshRSS base-theme aliases used outside Mapco's component modules. */
+	--frss-font-color-dark: var(--foreground);
+	--frss-font-color-grey-dark: var(--muted-foreground);
+	--frss-font-color-grey-light: var(--muted-foreground);
+	--frss-font-color-disabled: var(--muted-foreground);
+	--frss-font-color-error: var(--destructive);
+	--frss-background-color: var(--card);
+	--frss-background-color-transparent: color-mix(
+		in srgb,
+		var(--card) 80%,
+		transparent
+	);
+	--frss-background-color-middle: var(--muted);
+	--frss-background-color-dark: var(--accent);
+	--frss-background-color-error-transparent: color-mix(
+		in srgb,
+		var(--destructive) 25%,
+		transparent
+	);
+	--frss-border-color: var(--input);
+	--frss-border-color-error: var(--destructive);
+	--frss-switch-accent-color: var(--success);
+	--frss-noThumbnailImage-background-color: var(--muted);
+	--frss-darken-background-hover-transparent: color-mix(
+		in srgb,
+		var(--foreground) 12%,
+		transparent
+	);
+	--frss-scrollbar-handle: color-mix(
+		in srgb,
+		var(--foreground) 18%,
+		transparent
+	);
+	--frss-scrollbar-handle-hover: color-mix(
+		in srgb,
+		var(--foreground) 40%,
+		transparent
+	);
+	--frss-scrollbar-track: transparent;
+	--frss-scrollbar-track-hover: transparent;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		color-scheme: dark;
+
+		/* Dark shadcn/ui roles using the same Tailwind Mist palette. */
+		--background: #161b1d;
+		--foreground: #f9fbfb;
+		--card: #242a2c;
+		--card-foreground: #f9fbfb;
+		--popover: #242a2c;
+		--popover-foreground: #f9fbfb;
+		--primary: #e3e7e8;
+		--primary-foreground: #242a2c;
+		--primary-hover: #f1f3f3;
+		--secondary: #2b3336;
+		--secondary-foreground: #f9fbfb;
+		--muted: #2b3336;
+		--muted-foreground: #9ca8ab;
+		--accent: #2b3336;
+		--accent-foreground: #f9fbfb;
+		--destructive: #e56b5d;
+		--destructive-foreground: #161b1d;
+		--destructive-muted: #351f1c;
+		--destructive-border: #7e3c34;
+		--border: #394447;
+		--input: #67787c;
+		--ring: #9ca8ab;
+
+		--warning: #e0c04f;
+		--warning-foreground: #f3d77a;
+		--warning-muted: #362f1a;
+		--warning-border: #6e5a1b;
+		--info-muted: #222d30;
+		--info-foreground: #b8d0d5;
+		--success: #45a878;
+		--success-foreground: #7bd5a6;
+		--success-muted: #1a3025;
+		--success-border: #2f6f50;
+		--favorite: #e0c04f;
+		--favorite-muted: #342b17;
+
+		--sidebar: #242a2c;
+		--sidebar-foreground: #e3e7e8;
+		--sidebar-primary: #e3e7e8;
+		--sidebar-primary-foreground: #242a2c;
+		--sidebar-accent: #2b3336;
+		--sidebar-accent-foreground: #f9fbfb;
+		--sidebar-border: #394447;
+		--sidebar-ring: #9ca8ab;
+
+		/* Dark values for Mapco roles that are not pure semantic aliases. */
+		--grey-medium-dark: #9ca8ab;
+		--alert-light: var(--destructive-muted);
+		--alert-text: #ffb4aa;
+		--code-text: #f08a74;
+		--code-bg: #2f2220;
+		--warning-light: var(--warning-muted);
+		--success-light: var(--success-muted);
+		--sid-pills: rgba(249, 251, 251, 0.1);
+	}
 }

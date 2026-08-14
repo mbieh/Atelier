@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+### Added
+
+- Added a system-controlled dark color scheme using the existing semantic
+  shadcn/ui token layer and locally bundled dark variants for CSS background
+  icons.
+
 ### Changed
 
 - Replaced direction-specific spacing, borders, and radii in the Atelier UI
@@ -35,6 +41,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   `PanelLeft` icon.
 - Centered button labels and replaced inconsistent native select arrows with a
   locally bundled Lucide chevron.
+- Mapped the shared FreshRSS base-theme colors to Atelier's semantic tokens and
+  corrected the current FreshRSS article-title selector so list titles remain
+  legible in dark mode, with a matching adaptive surface for theme metadata.
+- Softened dark outline controls and toolbar groups with translucent borders
+  and a lighter control shadow while preserving the light-theme contrast.
 
 ### Development
 
