@@ -26,6 +26,7 @@
 	--at-radius-s: calc(var(--radius) - 4px);
 	--at-radius-m: calc(var(--radius) - 2px);
 	--at-radius-l: var(--radius);
+	--at-toolbar-control-height: 2.5rem;
 	--at-shadow-xs: 0 1px 2px rgba(9, 11, 12, 0.05);
 	--at-shadow-md: 0 1px 2px rgba(9, 11, 12, 0.05), 0 8px 24px rgba(9, 11, 12, 0.06);
 	--at-shadow-pop: 0 4px 12px rgba(9, 11, 12, 0.1), 0 12px 32px rgba(9, 11, 12, 0.08);
@@ -71,11 +72,18 @@ body {
 
 /* Base variant: shadcn "outline" */
 .btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	min-block-size: var(--at-toolbar-control-height);
+	padding-block: 0;
 	border-radius: var(--at-radius-m);
 	border: 1px solid var(--border);
 	background-color: var(--card);
 	color: var(--card-foreground);
 	font-weight: 500;
+	line-height: 1;
 	box-shadow: var(--at-shadow-xs);
 	transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out,
 		box-shadow 0.15s ease-in-out;
@@ -151,6 +159,23 @@ textarea {
 	color: var(--foreground);
 	font-family: var(--at-sans);
 	transition: border-color 0.15s ease-out, box-shadow 0.15s ease-out;
+}
+
+select:not([multiple]):not([size]) {
+	appearance: none;
+	block-size: var(--at-toolbar-control-height);
+	min-block-size: var(--at-toolbar-control-height);
+	padding-block: 0;
+	padding-inline: 0.75rem 2.5rem;
+	background-image: url("icons/down.svg");
+	background-repeat: no-repeat;
+	background-position: right 0.75rem center;
+	background-size: 1rem;
+	line-height: normal;
+}
+
+:dir(rtl) select:not([multiple]):not([size]) {
+	background-position: left 0.75rem center;
 }
 
 input:focus,
@@ -342,7 +367,18 @@ input[type="file"]::file-selector-button {
 
 /* Search: one input with a ghost-style search control inside it. */
 .header .item.search {
+	padding-inline-end: 0.25rem;
+	text-align: end;
 	white-space: nowrap;
+}
+
+/* The structural .stick groups the field and submit button; it must not add a
+   second framed surface around the search control. */
+.header .item.search .stick,
+#dropdown-search-wrapper .stick.search {
+	padding: 0;
+	border: 0;
+	background: transparent;
 }
 
 .header .item.search input {
@@ -399,9 +435,37 @@ input[type="file"]::file-selector-button {
 	filter: none;
 }
 
+.header > .item.title {
+	text-align: start;
+}
+
+.header > .item.title a {
+	padding-inline: 0.5rem;
+}
+
 .header .item.configure .btn .icon,
 .header .item.configure > .icon {
 	filter: none;
+}
+
+.header > .item.configure {
+	width: 3rem;
+	inline-size: 3rem;
+	text-align: start;
+}
+
+.header .item.configure .btn {
+	display: inline-grid;
+	place-items: center;
+	box-sizing: border-box;
+	inline-size: var(--at-toolbar-control-height);
+	block-size: var(--at-toolbar-control-height);
+	min-block-size: var(--at-toolbar-control-height);
+	padding: 0;
+	border: 1px solid var(--input);
+	border-radius: var(--at-radius-m);
+	background: var(--background);
+	box-shadow: var(--at-shadow-xs);
 }
 
 .header .item.configure .signin {
@@ -433,6 +497,49 @@ input[type="file"]::file-selector-button {
 .nav_menu .stick .btn.active,
 .nav_menu .group .btn.active {
 	background-color: var(--accent);
+}
+
+/* shadcn outline treatment for toolbar control groups. */
+.nav_menu .stick,
+.nav_menu .group {
+	align-items: center;
+	box-sizing: border-box;
+	block-size: var(--at-toolbar-control-height);
+	border-color: var(--input);
+	background: var(--background);
+	box-shadow: var(--at-shadow-xs);
+}
+
+.nav_menu .btn,
+.nav_menu .stick .btn,
+.nav_menu .group .btn,
+.nav_menu .stick .dropdown a.dropdown-toggle,
+.nav_menu .group .dropdown a.dropdown-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	block-size: calc(var(--at-toolbar-control-height) - 2px);
+	min-block-size: calc(var(--at-toolbar-control-height) - 2px);
+	padding-block: 0;
+	line-height: 1;
+}
+
+@media (min-width: 841px) {
+	.nav_menu {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.25rem;
+		padding-block: 0.6875rem;
+		padding-inline: 0.5rem;
+	}
+
+	.nav_menu #nav_menu_toggle_aside {
+		inset-block-start: 50%;
+		inset-inline-start: 0.5rem;
+		transform: translateY(-50%);
+	}
 }
 
 /* Preserve dark icons on the light active tint by cancelling the base filter. */
@@ -655,8 +762,8 @@ body {
 	border: 1px solid var(--border);
 	border-radius: var(--at-radius-l);
 	box-shadow: var(--at-shadow-md);
-	margin-block: 0.75rem 1rem;
-	margin-inline: 0.5rem 1rem;
+	margin-block: 0 1rem;
+	margin-inline: 0.5rem;
 	overflow: clip;
 }
 
@@ -906,6 +1013,11 @@ main.prompt h1,
 	pointer-events: none;
 }
 
+.signout .icon {
+	margin-inline-start: 0.5rem;
+	vertical-align: -0.125rem;
+}
+
 #slider {
 	box-shadow: -12px 0 32px rgba(9, 11, 12, 0.14);
 	border-start-start-radius: var(--at-radius-l);
@@ -1084,10 +1196,10 @@ main.prompt h1,
 .stick,
 .group {
 	gap: 0;
-	padding: 2px;
+	padding: 0;
 	border: 1px solid var(--border);
 	border-radius: var(--at-radius-m);
-	background: var(--muted);
+	background: transparent;
 }
 
 .stick > .btn,
@@ -1143,6 +1255,13 @@ legend,
 	border-bottom: 1px solid var(--border);
 	border-end-start-radius: 0;
 	border-end-end-radius: 0;
+}
+
+/* Configuration choices should form one stable field column instead of
+   changing width with each option label. Multiple selects keep their native
+   list-box sizing. */
+.post .form-group .group-controls select:not([multiple]):not([size]) {
+	inline-size: min(100%, 20rem);
 }
 
 /* Card */

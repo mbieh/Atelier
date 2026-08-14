@@ -27,6 +27,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Prevented toast notifications from exceeding very narrow viewports.
 - Replaced an invalid `rgba(var(--main-first), ...)` log-row color with a valid
   semantic error surface.
+- Removed nested frames from search and toolbar groups, balanced the outer
+  gutters, aligned the header controls, centered the toolbar rhythm,
+  standardized control heights, increased outline contrast, standardized
+  configuration select widths, and restored spacing around the sign-out icon.
+- Replaced the folder-shaped sidebar toggle with the conventional Lucide
+  `PanelLeft` icon.
+- Centered button labels and replaced inconsistent native select arrows with a
+  locally bundled Lucide chevron.
 
 ### Development
 
