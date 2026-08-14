@@ -1,0 +1,917 @@
+/*
+ * Atelier UI – Override-Schicht über der Mapco-Struktur-Basis
+ *
+ * Designsystem: shadcn/ui (https://ui.shadcn.com/docs/theming)
+ * Farbpalette:  Tailwind 4.3 "Mist" (siehe _variables.css)
+ *
+ * Gliederung:
+ *   1. Tokens & Grundtypografie
+ *   2. Buttons (outline / ghost / primary)
+ *   3. Formulare & Suche
+ *   4. Header & Toolbar
+ *   5. Sidebar (inkl. animiertem Collapse)
+ *   6. Layout: Karte, Seitenhintergrund
+ *   7. Listenansicht
+ *   8. Dropdowns, Panels, Overlays, Badges
+ *   9. Motion
+ *  10. Accessibility
+ */
+
+/*=== 1. Tokens & Grundtypografie =====================================*/
+
+:root {
+	--at-sans: "Inter", "Inter Variable", ui-sans-serif, system-ui, -apple-system,
+		BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	--at-radius-s: 6px;   /* Ghost-Elemente, Menü-Items */
+	--at-radius-m: 8px;   /* Buttons, Inputs (shadcn --radius - 2px) */
+	--at-radius-l: 10px;  /* Karten, Popover (shadcn --radius) */
+	--at-shadow-xs: 0 1px 2px rgba(9, 11, 12, 0.05);
+	--at-shadow-md: 0 1px 2px rgba(9, 11, 12, 0.05), 0 8px 24px rgba(9, 11, 12, 0.06);
+	--at-shadow-pop: 0 4px 12px rgba(9, 11, 12, 0.1), 0 12px 32px rgba(9, 11, 12, 0.08);
+	--at-ring: 0 0 0 3px rgba(156, 168, 171, 0.35); /* mist-400/35 */
+}
+
+html,
+body {
+	font-family: var(--at-sans);
+}
+
+::selection {
+	background: var(--main-first-light);
+}
+
+* {
+	scrollbar-width: thin;
+	scrollbar-color: var(--grey-medium) transparent;
+}
+
+*::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+}
+
+*::-webkit-scrollbar-thumb {
+	background: var(--grey-medium);
+	border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+	background: var(--grey-medium-dark);
+}
+
+*::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+/*=== 2. Buttons ======================================================*/
+
+/* Grundvariante: shadcn "outline" */
+.btn {
+	border-radius: var(--at-radius-m);
+	border: 1px solid var(--grey-medium-light);
+	background-color: var(--white);
+	color: var(--main-font-color);
+	font-weight: 500;
+	box-shadow: var(--at-shadow-xs);
+	transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out,
+		box-shadow 0.15s ease-in-out;
+}
+
+.btn:hover {
+	background-color: var(--grey-lighter);
+	border-color: var(--grey-medium);
+}
+
+/* Primärvariante: shadcn "default" (dunkler Primary) */
+.btn.btn-important {
+	background: var(--main-first);
+	border-color: var(--main-first);
+	color: var(--white);
+	box-shadow: var(--at-shadow-xs);
+	transition: background-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out,
+		transform 0.15s ease-in-out;
+}
+
+.btn.btn-important:hover {
+	background: var(--main-first-alt);
+	border-color: var(--main-first-alt);
+	box-shadow: 0 2px 6px rgba(9, 11, 12, 0.22);
+	transform: translateY(-1px);
+}
+
+.btn.btn-important:active {
+	transform: translateY(0);
+	box-shadow: var(--at-shadow-xs);
+}
+
+.btn.btn-attention {
+	border-radius: var(--at-radius-m);
+}
+
+/*=== 3. Formulare & Suche ===========================================*/
+
+input,
+select,
+textarea {
+	border-radius: var(--at-radius-m);
+	font-family: var(--at-sans);
+	transition: border-color 0.15s ease-out, box-shadow 0.15s ease-out;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+	outline: none;
+	border-color: var(--grey-medium-dark);
+	box-shadow: var(--at-ring);
+}
+
+/* Suche: ein Feld, Lupe als Ghost-Icon im Feld (shadcn-Input-Muster) */
+.header .item.search {
+	white-space: nowrap;
+}
+
+.header .item.search input {
+	border-radius: var(--at-radius-m);
+	border: 1px solid var(--grey-medium-light);
+	background-color: var(--white);
+	padding-left: 2.75rem;
+	outline: none;
+	box-shadow: var(--at-shadow-xs);
+}
+
+.header .item.search input:hover {
+	background-color: var(--white);
+	border-color: var(--grey-medium);
+}
+
+.header .item.search input:focus {
+	background-color: var(--white);
+	border-color: var(--grey-medium-dark);
+	box-shadow: var(--at-ring);
+}
+
+.header .item.search .btn {
+	width: 30px;
+	height: 30px;
+	min-height: 30px;
+	margin: 4px -2.5rem 0 0;
+	padding: 0;
+	border: none;
+	background-color: transparent;
+	box-shadow: none;
+	border-radius: var(--at-radius-s);
+}
+
+.header .item.search input:focus ~ .btn,
+.header .item.search input:hover ~ .btn,
+.header .item.search .btn:hover {
+	background-color: var(--grey-light);
+}
+
+/*=== 4. Header & Toolbar ============================================*/
+
+/* Solide Leiste. Kein backdrop-filter: der würde den Header zum
+   Containing Block machen und das absolut positionierte
+   Configure-Dropdown zerreißen (empirisch verifiziert). */
+.header {
+	background: var(--grey-light);
+	border-bottom: 1px solid var(--sid-sep);
+}
+
+.header .item.title a .logo,
+.header .item.title a:hover .logo {
+	filter: none;
+}
+
+.header .item.configure .btn .icon,
+.header .item.configure > .icon {
+	filter: none;
+}
+
+.header .item.configure .signin {
+	color: var(--main-font-color);
+}
+
+/* Toolbar: Ghost-Icon-Buttons (shadcn "ghost"), aktive weich getönt */
+.nav_menu .btn,
+.nav_menu .stick .btn,
+.nav_menu .group .btn,
+.nav_menu .stick .dropdown a.dropdown-toggle,
+.nav_menu .group .dropdown a.dropdown-toggle {
+	border: none;
+	background-color: transparent;
+	box-shadow: none;
+	border-radius: var(--at-radius-s);
+	transition: background-color 0.12s ease-out;
+}
+
+.nav_menu .btn:hover,
+.nav_menu .stick .btn:hover,
+.nav_menu .group .btn:hover,
+.nav_menu .stick .dropdown a.dropdown-toggle:hover,
+.nav_menu .group .dropdown a.dropdown-toggle:hover {
+	background-color: var(--grey-medium-light);
+}
+
+.nav_menu .btn.active,
+.nav_menu .stick .btn.active,
+.nav_menu .group .btn.active {
+	background-color: var(--main-first-light);
+}
+
+/* Dunkle Icons auf heller Aktiv-Tönung: Weiß-Filter der Basis aufheben */
+.nav_menu .stick .btn.active .icon,
+.nav_menu .group .btn.active .icon,
+.nav_menu .stick .btn#toggle-read.active .icon,
+.nav_menu .stick .btn#toggle-unread.active .icon,
+.nav_menu .group .btn#toggle-read.active .icon,
+.nav_menu .group .btn#toggle-unread.active .icon {
+	filter: none;
+}
+
+/*=== 5. Sidebar =====================================================*/
+
+.aside.aside_feed {
+	background: var(--sid-bg);
+	border-left: 1px solid var(--grey-medium-light);
+}
+
+.aside {
+	scrollbar-color: rgba(9, 11, 12, 0.25) transparent;
+}
+
+/* Icon-Filter der dunklen Mapco-Basis neutralisieren */
+.aside .icon,
+.aside_feed .icon,
+.aside_feed .tree-folder-title .icon,
+.aside_feed .tree-folder-items .item.active .icon,
+.aside_feed .tree-folder-title.active .icon {
+	filter: none !important;
+}
+
+/* Kategorie-Kopf: normale Schreibweise, kein Blockhintergrund */
+.aside_feed .tree-folder .tree-folder-title {
+	background: transparent;
+	text-transform: none;
+	letter-spacing: 0;
+	font-weight: 600;
+	font-size: 0.875rem;
+	border-radius: var(--at-radius-s);
+}
+
+.aside_feed .tree-folder .tree-folder-title .title {
+	text-transform: none;
+	letter-spacing: 0;
+}
+
+/* Einträge als Ghost-Zeilen */
+.aside_feed .tree-folder-items .item {
+	border-radius: var(--at-radius-s);
+	margin: 1px 6px;
+}
+
+.aside_feed .tree-folder-items .item a {
+	border-radius: var(--at-radius-s);
+	transition: background-color 0.15s ease-out, transform 0.15s ease-out;
+}
+
+.aside_feed .tree-folder-items .item:not(.active) a:hover {
+	transform: translateX(-2px);
+}
+
+/* Aktiver Eintrag: weiche Tönung statt Vollfläche */
+.aside_feed .tree-folder-items .item.active,
+.aside_feed .tree-folder-items .item.active a {
+	background: var(--main-first-light) !important;
+	color: var(--main-first-dark) !important;
+}
+
+/* Konfigurations-Sidebar analog */
+.aside:not(.aside_feed) .item.active,
+.aside:not(.aside_feed) .item.active a {
+	background: var(--main-first-light);
+	color: var(--main-first-dark);
+}
+
+/* Verwaltungs-Buttons: tonal (shadcn "secondary") */
+.aside .btn.btn-important,
+.aside .stick .btn {
+	background: var(--main-first-light);
+	border: none;
+	color: var(--main-first-dark);
+	box-shadow: none;
+	border-radius: var(--at-radius-m);
+	font-weight: 600;
+}
+
+.aside .btn.btn-important:hover,
+.aside .stick .btn:hover {
+	background: var(--grey-medium);
+	color: var(--main-first-dark);
+	transform: none;
+	box-shadow: none;
+}
+
+.aside .stick .btn:first-child {
+	border-radius: 0 var(--at-radius-m) var(--at-radius-m) 0;
+}
+
+.aside .stick .btn:last-child {
+	border-radius: var(--at-radius-m) 0 0 var(--at-radius-m);
+}
+
+/* Ungelesen-Badges als Pillen */
+.aside_feed .tree-folder-title .title:not([data-unread="0"])::after,
+.aside_feed .feed .item-title:not([data-unread="0"])::after {
+	border-radius: 999px;
+	background: var(--grey-medium-light);
+	color: var(--grey-darker);
+	font-weight: 600;
+}
+
+/* Collapse animiert statt hart (Basis nutzt display:none) */
+.aside {
+	transition: width 0.25s ease, min-width 0.25s ease, opacity 0.18s ease,
+		padding 0.25s ease;
+	overflow: hidden;
+}
+
+.aside.is-hidden {
+	display: table-cell;
+	width: 0;
+	min-width: 0;
+	opacity: 0;
+	padding: 0;
+	border-left-width: 0;
+	pointer-events: none;
+}
+
+/* Baum behält volle Breite: Inhalt gleitet unter dem Clip heraus,
+   statt während der Animation umzubrechen */
+.aside.aside_feed .tree {
+	min-width: calc(var(--width-aside, 300px) - 1px);
+	box-sizing: border-box;
+}
+
+.aside .nav-form {
+	white-space: nowrap;
+}
+
+/*=== 6. Layout: Karte & Seitenhintergrund ===========================*/
+
+/* #global nicht künstlich auf Viewporthöhe strecken */
+#global {
+	height: auto !important;
+}
+
+/* Sidebar-Fläche bis Seitenende: Desktop-Layout als CSS-Grid.
+   Die Sidebar ist eine echte, sich streckende Spalte (align-self:
+   stretch), die Karte endet mit ihrem Inhalt. Ersetzt die Tabellen-
+   Zellen der Basis. Kein Hintergrund-Verlauf auf <body>: Basis-Regeln
+   wie "#stream { background: inherit }" würden ihn relativ zur
+   eigenen Box neu rendern (Geisterstreifen, verifiziert). */
+html,
+body {
+	background: var(--grey-light);
+}
+
+@media (min-width: 841px) {
+	body {
+		display: flex;
+		flex-direction: column;
+		min-height: 100dvh;
+	}
+
+	#global {
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr);
+		align-items: start;
+		flex: 1;
+	}
+
+	#global > .aside {
+		display: block;
+		grid-column: 1;
+		grid-row: 1 / span 9;
+		align-self: stretch;
+		width: var(--width-aside, 300px);
+	}
+
+	#global > :not(.aside) {
+		grid-column: 2;
+	}
+
+	/* Spezifischer als "#global > .aside", sonst gewinnt die ID-Regel
+	   und die Spalte bliebe 300px breit */
+	#global > .aside.is-hidden {
+		width: 0;
+	}
+}
+
+/* Hauptbereich als Karte */
+#stream.normal,
+#stream.reader {
+	background: var(--white);
+	border: 1px solid var(--grey-medium-light);
+	border-radius: var(--at-radius-l);
+	box-shadow: var(--at-shadow-md);
+	margin: 0.75rem 0.5rem 1rem 1rem;
+	overflow: clip;
+}
+
+#stream.normal {
+	padding-bottom: 0.25rem;
+}
+
+#stream.reader {
+	padding: 1rem 0;
+}
+
+/* Login-Seite auf App-Hintergrund */
+body.formLogin,
+body.register {
+	background: var(--grey-light);
+}
+
+main.prompt {
+	background: var(--white);
+	border: 1px solid var(--grey-medium-light);
+	border-radius: var(--at-radius-l);
+	box-shadow: var(--at-shadow-md);
+	padding: 1.5rem;
+}
+
+main.prompt h1,
+.post h1,
+.post h2 {
+	font-weight: 650;
+	letter-spacing: -0.01em;
+	line-height: 1.25;
+}
+
+@media (max-width: 840px) {
+	#stream.normal,
+	#stream.reader {
+		margin: 0;
+		border-radius: 0;
+		border-left: none;
+		border-right: none;
+		box-shadow: none;
+	}
+}
+
+/*=== 7. Listenansicht ===============================================*/
+
+/* Tagestrenner: Label mit auslaufender Haarlinie */
+.transition {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	text-transform: none;
+	letter-spacing: 0.01em;
+	font-weight: 600;
+	font-size: 0.8rem;
+	line-height: 2.5em;
+	color: var(--grey-medium-dark);
+	padding: 0.75rem 1.25rem 0;
+}
+
+.transition::after {
+	content: "";
+	flex: 1;
+	height: 1px;
+	background: var(--grey-medium-light);
+}
+
+.transition .name {
+	text-transform: none;
+	padding: 0;
+	font-weight: 600;
+	color: var(--light-font-color);
+}
+
+/* Zeilen */
+.flux_header {
+	border-top: 1px solid var(--grey-lighter);
+	transition: background-color 0.12s ease-in-out, box-shadow 0.12s ease-in-out;
+}
+
+.flux:not(.current) .flux_header:hover {
+	box-shadow: inset -2px 0 0 var(--grey-medium);
+}
+
+.flux.not_read:not(.current) .flux_header:hover {
+	box-shadow: inset -2px 0 0 var(--main-first);
+}
+
+.flux_header .favicon {
+	transition: transform 0.15s ease-out;
+}
+
+.flux_header:hover .favicon {
+	transform: scale(1.12);
+}
+
+/* Gelesen vs. ungelesen rein typografisch */
+#stream .flux .item.title a,
+#stream .flux .title a {
+	font-weight: 600;
+	letter-spacing: -0.005em;
+}
+
+.flux.not_read .flux_header .item.title a {
+	font-weight: 650;
+}
+
+.flux:not(.not_read) .flux_header .item.title a,
+.flux:not(.not_read) .flux_header .item.website a {
+	color: var(--light-font-color);
+	font-weight: 500;
+}
+
+/* Datumsspalte: absolut positioniert (Basis) -> Randluft über Padding
+   im Datums-Element selbst; 155px der Basis reichen nicht für lange
+   deutsche Datumsangaben */
+.flux .flux_header .item .date {
+	width: 195px;
+	padding-left: 14px;
+}
+
+/* Artikelinhalt */
+.flux_content {
+	animation: at-fade 0.22s ease-out;
+}
+
+.flux_content .content {
+	line-height: 1.65;
+}
+
+.flux_content .content h1,
+.flux_content .content h2,
+.flux_content .content h3 {
+	font-weight: 650;
+	letter-spacing: -0.01em;
+	line-height: 1.25;
+}
+
+/* "Alle als gelesen markieren": kompakt (Basis hängt 100vh Leerraum an) */
+#bigMarkAsRead.big {
+	background: transparent;
+	color: var(--main-first);
+	margin-bottom: 2rem;
+}
+
+#bigMarkAsRead.big:hover {
+	background: var(--main-first-lighter);
+	color: var(--main-first-dark);
+}
+
+#bigMarkAsRead.big .bigTick {
+	transition: transform 0.18s ease-out;
+}
+
+#bigMarkAsRead.big:hover .bigTick {
+	transform: scale(1.08);
+	filter: none;
+}
+
+#nav_entries {
+	border-top: 1px solid var(--grey-medium-light);
+}
+
+/*=== 8. Dropdowns, Panels, Overlays, Badges =========================*/
+
+.dropdown-menu {
+	border-radius: var(--at-radius-m);
+	border: 1px solid var(--grey-medium-light);
+	background: color-mix(in srgb, var(--white) 86%, transparent);
+	backdrop-filter: blur(12px) saturate(1.3);
+	-webkit-backdrop-filter: blur(12px) saturate(1.3);
+	box-shadow: var(--at-shadow-pop);
+	overflow: clip;
+	animation: at-pop 0.16s ease-out;
+	padding: 4px 0;
+}
+
+/* Menü-Items im shadcn-Muster: gerundet mit Innenabstand.
+   Mapco legt den Hover in Primary auf das ganze .item (Vollbreite,
+   eckig) – das wird neutralisiert und auf den Link verlagert. */
+.dropdown-menu .item > a,
+.dropdown-menu .item > span,
+.dropdown-menu .item .as-link {
+	display: block;
+	width: auto !important;
+	border-radius: var(--at-radius-s);
+	margin: 0 4px;
+}
+
+.dropdown-menu .item:hover,
+.dropdown-menu .item.current {
+	background: transparent !important;
+}
+
+.dropdown-menu .item > a:hover,
+.dropdown-menu .item > button:hover,
+.dropdown-menu .item .as-link:hover,
+.dropdown-menu .item.current > a {
+	background: var(--grey-light) !important;
+	color: var(--main-font-color) !important;
+}
+
+.dropdown-menu .item:hover .icon,
+.dropdown-menu .item > a:hover .icon {
+	filter: none !important;
+}
+
+.dropdown-menu .dropdown-header,
+.dropdown-menu .dropdown-section .dropdown-section-title {
+	text-transform: none;
+	letter-spacing: 0;
+	font-weight: 600;
+	font-size: 0.8rem;
+	color: var(--light-font-color);
+}
+
+#slider {
+	box-shadow: 12px 0 32px rgba(9, 11, 12, 0.14);
+	border-radius: 0 var(--at-radius-l) var(--at-radius-l) 0;
+}
+
+#overlay {
+	background: rgba(9, 11, 12, 0.35);
+	backdrop-filter: blur(3px);
+	-webkit-backdrop-filter: blur(3px);
+}
+
+.box {
+	border-radius: var(--at-radius-l);
+	border: 1px solid var(--grey-medium-light);
+	box-shadow: var(--at-shadow-md);
+}
+
+.box .box-title {
+	border-radius: var(--at-radius-l) var(--at-radius-l) 0 0;
+}
+
+/* Notifications als Toast (shadcn-Sonner-Muster) statt Vollbreiten-Balken */
+.notification {
+	position: fixed;
+	top: auto;
+	bottom: 1.25rem;
+	left: 50%;
+	right: auto;
+	transform: translateX(-50%);
+	width: auto;
+	min-width: 360px;
+	max-width: min(90vw, 560px);
+	height: auto;
+	padding: 0.75rem 1.25rem 0.75rem 3rem;
+	background: #161b1d;
+	color: #f1f3f3;
+	border: none;
+	border-radius: var(--at-radius-l);
+	box-shadow: 0 8px 20px rgba(9, 11, 12, 0.25), 0 20px 48px rgba(9, 11, 12, 0.18);
+	font-weight: 500;
+	line-height: 1.5;
+	text-align: right;
+	animation: at-toast 0.2s ease-out;
+}
+
+.notification .msg {
+	font-size: 0.95rem;
+	font-weight: 600;
+}
+
+/* Statusvarianten: dunkler Toast, Status als leuchtender Punkt */
+.notification.good,
+.notification.bad {
+	background: #161b1d;
+	color: #f1f3f3;
+}
+
+.notification .msg::before {
+	content: "";
+	display: inline-block;
+	width: 9px;
+	height: 9px;
+	border-radius: 999px;
+	margin-left: 0.6rem;
+	vertical-align: middle;
+	background: var(--grey-medium-dark);
+}
+
+.notification.good .msg::before {
+	background: #4ade80;
+	box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+}
+
+.notification.bad .msg::before {
+	background: #f87171;
+	box-shadow: 0 0 8px rgba(248, 113, 113, 0.6);
+}
+
+.notification .close {
+	left: 6px;
+	right: auto;
+	top: 50%;
+	bottom: auto;
+	transform: translateY(-50%);
+	padding: 0;
+	width: 28px;
+	height: 28px;
+	line-height: 28px;
+	border-radius: var(--at-radius-s);
+}
+
+.notification .close .icon {
+	filter: invert(1) brightness(1.4);
+}
+
+.notification .close:hover,
+.notification.good .close:hover,
+.notification.bad .close:hover {
+	background: rgba(241, 243, 243, 0.14);
+}
+
+@keyframes at-toast {
+	from {
+		opacity: 0;
+		transform: translate(-50%, 8px);
+	}
+	to {
+		transform: translate(-50%, 0);
+	}
+}
+
+.label,
+.item .labels span {
+	border-radius: 999px;
+}
+
+
+/* Hinweisblöcke: shadcn-Alert (runde Ecken, ruhige Tönung, kein 3px-Retro) */
+.alert {
+	border-radius: var(--at-radius-l);
+	border: 1px solid var(--grey-medium-light);
+	background: var(--grey-lighter);
+	color: var(--main-font-color);
+	text-shadow: none;
+	font-size: 0.9rem;
+	line-height: 1.5;
+	padding: 0.75rem 1rem;
+	box-shadow: var(--at-shadow-xs);
+}
+
+.alert-warn {
+	background: var(--warning-light);
+	border-color: color-mix(in srgb, var(--warning-text) 25%, transparent);
+	color: var(--warning-text);
+}
+
+.alert-info {
+	background: var(--info-light);
+	border-color: color-mix(in srgb, var(--info-text) 20%, transparent);
+	color: var(--info-text);
+}
+
+.alert-error {
+	background: var(--alert-light);
+	border-color: color-mix(in srgb, var(--alert-text) 25%, transparent);
+	color: var(--alert-text);
+}
+
+.alert-success {
+	background: var(--success-light);
+	border-color: color-mix(in srgb, var(--success-text) 25%, transparent);
+	color: var(--success-text);
+}
+
+.alert-head {
+	font-weight: 600;
+	font-size: 1rem;
+	text-shadow: none;
+}
+
+
+/* Inline-Hinweisblöcke: getönte, gerundete Flächen statt Gelb-Kästen */
+.alert {
+	border: none;
+	border-radius: var(--at-radius-l);
+	padding: 0.9rem 1.25rem;
+	background: var(--grey-lighter);
+	color: var(--main-font-color);
+	box-shadow: inset 0 0 0 1px var(--grey-medium-light);
+	font-size: 0.9rem;
+	line-height: 1.5;
+}
+
+.alert-warn {
+	background: var(--warning-light);
+	color: var(--warning-text);
+	box-shadow: none;
+}
+
+.alert-error,
+.alert.error {
+	background: var(--alert-light);
+	color: var(--alert-text);
+	box-shadow: none;
+}
+
+.alert-success,
+.alert.success {
+	background: var(--success-light);
+	color: var(--success-text);
+	box-shadow: none;
+}
+
+
+/* Hinweisblöcke (Formularseiten) als shadcn-Alerts */
+.alert,
+.alert-warn,
+.alert-info,
+.alert-error,
+.alert-success {
+	border-radius: var(--at-radius-l);
+	border: 1px solid var(--grey-medium-light);
+	background: var(--grey-lighter);
+	color: var(--main-font-color);
+	box-shadow: var(--at-shadow-xs);
+	padding: 0.85rem 1.1rem;
+	font-weight: 500;
+}
+
+.alert-warn {
+	border-color: #ecd9a0;
+	background: #fdf9ec;
+	color: #6e5a1b;
+}
+
+.alert-error {
+	border-color: #eec4bc;
+	background: #fbf1ef;
+	color: #7a2e1f;
+}
+
+.alert-success {
+	border-color: #bfe3cf;
+	background: #f0f9f4;
+	color: #1f6b45;
+}
+
+/*=== 9. Motion ======================================================*/
+
+@keyframes at-pop {
+	from {
+		opacity: 0;
+		transform: translateY(-4px) scale(0.98);
+	}
+}
+
+@keyframes at-fade {
+	from {
+		opacity: 0;
+		transform: translateY(4px);
+	}
+}
+
+/* Weiche Seitenwechsel (progressive enhancement) */
+@view-transition {
+	navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+	animation-duration: 0.18s;
+}
+
+#stream.normal,
+#stream.reader {
+	animation: at-fade 0.25s ease-out;
+}
+
+#new-article {
+	animation: at-pop 0.2s ease-out;
+}
+
+/*=== 10. Accessibility ==============================================*/
+
+a:focus-visible,
+.btn:focus-visible {
+	outline: 2px solid var(--grey-darker);
+	outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	* {
+		transition: none !important;
+		animation: none !important;
+	}
+
+	::view-transition-group(*),
+	::view-transition-old(*),
+	::view-transition-new(*) {
+		animation: none !important;
+	}
+}

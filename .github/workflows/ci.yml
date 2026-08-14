@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Verify theme files
+        run: python3 scripts/check_theme.py
+
+      - name: Verify generated RTL CSS
+        run: python3 scripts/generate_rtl.py --check

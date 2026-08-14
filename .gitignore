@@ -1,0 +1,17 @@
+# Operating systems
+.DS_Store
+Thumbs.db
+
+# Editors and IDEs
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# Local tooling
+__pycache__/
+*.py[cod]
+node_modules/
+.stylelintcache
+coverage/

@@ -1,0 +1,8 @@
+{
+	"name": "Atelier",
+	"author": "Mario (basierend auf Mapco von Thomas Guesnon)",
+	"description": "Modernes helles Theme nach shadcn/ui-Designsystem mit Tailwind-Mist-Palette: neutrale Lesehierarchie, helle Sidebar, weiche Radien, dezente Motion.",
+	"version": 1.0,
+	"files": ["_frss.css", "atelier.css", "atelier-ui.css"],
+	"theme-color": "#f1f3f3"
+}
