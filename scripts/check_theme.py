@@ -15,6 +15,35 @@ ROOT = Path(__file__).resolve().parents[1]
 LUCIDE_HEADER = "<!-- @license lucide-static v1.31.0 - ISC -->"
 NON_LUCIDE_SVGS = {"FreshRSS-logo.svg", "icon.svg"}
 EXPECTED_THEME_FILES = ["_frss.css", "atelier.css", "atelier-ui.css"]
+REQUIRED_SEMANTIC_PROPERTIES = {
+    "--accent",
+    "--accent-foreground",
+    "--background",
+    "--border",
+    "--card",
+    "--card-foreground",
+    "--destructive",
+    "--destructive-foreground",
+    "--foreground",
+    "--input",
+    "--muted",
+    "--muted-foreground",
+    "--popover",
+    "--popover-foreground",
+    "--primary",
+    "--primary-foreground",
+    "--ring",
+    "--secondary",
+    "--secondary-foreground",
+    "--sidebar",
+    "--sidebar-accent",
+    "--sidebar-accent-foreground",
+    "--sidebar-border",
+    "--sidebar-foreground",
+    "--sidebar-primary",
+    "--sidebar-primary-foreground",
+    "--sidebar-ring",
+}
 EXTERNAL_OR_COMPAT_PROPERTIES = {
     # Retained from Mapco's palette contract even though Atelier does not
     # currently consume them directly.
@@ -179,6 +208,12 @@ def main() -> int:
     css = "\n".join(path.read_text(encoding="utf-8") for path in css_paths)
     definitions = set(re.findall(r"(?m)^\s*(--[\w-]+)\s*:", css))
     uses = set(re.findall(r"var\(\s*(--[\w-]+)", css))
+    missing_semantic_properties = REQUIRED_SEMANTIC_PROPERTIES - definitions
+    if missing_semantic_properties:
+        errors.append(
+            "missing shadcn semantic properties: "
+            + ", ".join(sorted(missing_semantic_properties))
+        )
     unused = definitions - uses - EXTERNAL_OR_COMPAT_PROPERTIES
     if unused:
         errors.append("unused custom properties: " + ", ".join(sorted(unused)))
@@ -195,6 +230,10 @@ def main() -> int:
                 errors.append(f"{path.name}: missing imported stylesheet: {imported}")
         if re.search(r"url\(\s*[\"']?https?://", content, flags=re.IGNORECASE):
             errors.append(f"{path.name}: external runtime asset URL is not allowed")
+        if re.search(r"rgba?\(\s*var\(", content, flags=re.IGNORECASE):
+            errors.append(
+                f"{path.name}: pass colors through color-mix(), not rgba(var(...))"
+            )
 
     ui_css = (ROOT / "atelier-ui.css").read_text(encoding="utf-8")
     for declaration in FORBIDDEN_PHYSICAL_DECLARATIONS:
@@ -230,6 +269,18 @@ def main() -> int:
     icon_license = (ROOT / "icons" / "LICENSE").read_text(encoding="utf-8")
     if "ISC License" not in icon_license or "The MIT License" not in icon_license:
         errors.append("icons/LICENSE: expected both Lucide ISC and Feather MIT notices")
+
+    coverage_path = ROOT / "docs" / "component-coverage.md"
+    if not coverage_path.is_file():
+        errors.append("docs/component-coverage.md: component matrix is required")
+    else:
+        coverage = coverage_path.read_text(encoding="utf-8")
+        for component in ("Button", "Checkbox", "Sidebar", "Table", "Sonner"):
+            if f"| {component} |" not in coverage:
+                errors.append(
+                    "docs/component-coverage.md: missing native component row: "
+                    + component
+                )
 
     if errors:
         for error in errors:

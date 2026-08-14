@@ -15,33 +15,20 @@ or other runtime assets from external services.
 - Light, neutral interface designed for comfortable feed reading
 - Responsive desktop and mobile layouts
 - Animated sidebar collapse without content reflow
-- Clear primary, outline, and ghost button hierarchy
+- Clear visual hierarchy for controls and content
 - Accessible focus states and reduced-motion support
 - Locally bundled SVG icons with no CDN dependency
-- Generated RTL stylesheet kept in sync with the main UI layer
-- Centralized color tokens for straightforward customization
+- RTL layout support
 
 ## Compatibility
 
-Atelier 1.0 has been tested with FreshRSS 1.29.1 in Chromium.
+Atelier 1.0 has been tested with FreshRSS 1.29.1 in Chromium, including list
+and article views, configuration pages, sidebar behavior, search, and a mobile
+viewport.
 
-The following areas were verified:
-
-- short and extended list views;
-- an opened article;
-- the configuration dropdown;
-- search-field focus behavior;
-- sidebar collapse and expansion;
-- configuration pages; and
-- a mobile viewport.
-
-The following areas have not yet been explicitly verified:
-
-- global and reader views with the desktop grid layout;
-- View Transitions in Firefox;
-- the `#actualizeProgress` feed-update indicator;
-- the generated RTL layout in an RTL language; and
-- FreshRSS versions other than 1.29.1.
+The component layer has also been checked in Firefox with representative mobile
+and RTL fixtures. Complete FreshRSS workflows in Firefox and RTL layouts, and
+FreshRSS versions other than 1.29.1, have not yet been explicitly tested.
 
 ## Installation
 
@@ -76,77 +63,9 @@ commented Mist values can be replaced with another neutral palette without
 changing the component rules. Run the RTL generator after changing these
 tokens instead of editing `_variables.rtl.css` manually.
 
-FreshRSS loads the theme layers in this order:
-
-1. `_frss.css` — FreshRSS base styles;
-2. `atelier.css` — the Mapco-derived structural layer; and
-3. `atelier-ui.css` — Atelier's visual override layer.
-
-For substantial UI changes, prefer adding or updating rules in
-`atelier-ui.css` instead of modifying the Mapco-derived modules.
-
-## Repository layout
-
-| Path | Purpose |
-| --- | --- |
-| `metadata.json` | FreshRSS theme manifest and load order |
-| `_variables.css` | Color palette and shared theme tokens |
-| `atelier.css` | Mapco-derived structural entry point |
-| `atelier-ui.css` | Main Atelier UI implementation |
-| `atelier-ui.rtl.css` | Generated RTL counterpart |
-| `icons/` | Local FreshRSS assets and 44 adapted Lucide SVGs |
-| `thumbs/original.png` | Theme preview used by FreshRSS and this README |
-| `scripts/` | Dependency-free validation and RTL generation |
-
-## Development
-
-Do not edit `_fonts.rtl.css`, `_variables.rtl.css`, or `atelier-ui.rtl.css`
-manually. Generate these direction-neutral counterparts from their canonical
-sources:
-
 ```console
 python3 scripts/generate_rtl.py
 ```
-
-Verify that the generated files are current:
-
-```console
-python3 scripts/generate_rtl.py --check
-```
-
-Run all dependency-free release checks:
-
-```console
-python3 scripts/check_theme.py
-python3 scripts/generate_rtl.py --check
-```
-
-The checks validate formatting, CSS brace balance, the FreshRSS manifest,
-custom-property usage, Lucide license headers, and the documented CSS
-safeguards. The same checks run in CI for pushes and pull requests.
-
-## Design implementation notes
-
-- The header intentionally does not use `backdrop-filter`. Applying it creates
-  a containing block and breaks the absolutely positioned configuration
-  dropdown. Dropdowns themselves can safely use the effect.
-- The desktop layout uses CSS Grid so the sidebar forms a real stretching
-  column and leaves no background strip while collapsing. A painted gradient
-  on `body` is avoided because inherited FreshRSS backgrounds would redraw it
-  relative to their own boxes.
-- The sidebar overrides the base theme's `display: none` behavior with width
-  and opacity transitions. Its feed tree retains a fixed width during the
-  animation to prevent content wrapping.
-- The absolutely positioned date column is 195 px wide and receives spacing
-  on the date element itself. The base width of 155 px is too narrow for long
-  German date strings.
-- `#bigMarkAsRead` uses a `2rem` bottom margin instead of the base theme's
-  `100vh`, and `#global` is not stretched artificially to the viewport height.
-- Dropdown links require `width: auto !important` because the FreshRSS base
-  style otherwise forces `width: 100%` and clips the right-hand rounding.
-
-These safeguards are also documented next to the relevant rules in
-`atelier-ui.css` and should remain intact during refactoring.
 
 ## License and credits
 

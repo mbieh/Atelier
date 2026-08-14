@@ -13,8 +13,9 @@
  *   6. Layout: content card & page background
  *   7. List view
  *   8. Dropdowns, Panels, Overlays, Badges
- *   9. Motion
- *  10. Accessibility
+ *   9. Native component completion
+ *  10. Motion
+ *  11. Accessibility
  */
 
 /*=== 1. Tokens & typography =========================================*/
@@ -22,27 +23,30 @@
 :root {
 	--at-sans: "Inter", "Inter Variable", ui-sans-serif, system-ui, -apple-system,
 		BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-	--at-radius-s: 6px;   /* Ghost controls and menu items */
-	--at-radius-m: 8px;   /* Buttons and inputs (shadcn --radius - 2px) */
-	--at-radius-l: 10px;  /* Cards and popovers (shadcn --radius) */
+	--at-radius-s: calc(var(--radius) - 4px);
+	--at-radius-m: calc(var(--radius) - 2px);
+	--at-radius-l: var(--radius);
 	--at-shadow-xs: 0 1px 2px rgba(9, 11, 12, 0.05);
 	--at-shadow-md: 0 1px 2px rgba(9, 11, 12, 0.05), 0 8px 24px rgba(9, 11, 12, 0.06);
 	--at-shadow-pop: 0 4px 12px rgba(9, 11, 12, 0.1), 0 12px 32px rgba(9, 11, 12, 0.08);
-	--at-ring: 0 0 0 3px rgba(156, 168, 171, 0.35); /* mist-400/35 */
+	--at-ring: 0 0 0 3px color-mix(in srgb, var(--ring) 25%, transparent);
 }
 
 html,
 body {
 	font-family: var(--at-sans);
+	background: var(--background);
+	color: var(--foreground);
 }
 
 ::selection {
-	background: var(--main-first-light);
+	background: var(--primary);
+	color: var(--primary-foreground);
 }
 
 * {
 	scrollbar-width: thin;
-	scrollbar-color: var(--grey-medium) transparent;
+	scrollbar-color: var(--input) transparent;
 }
 
 *::-webkit-scrollbar {
@@ -51,12 +55,12 @@ body {
 }
 
 *::-webkit-scrollbar-thumb {
-	background: var(--grey-medium);
+	background: var(--input);
 	border-radius: 999px;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-	background: var(--grey-medium-dark);
+	background: var(--ring);
 }
 
 *::-webkit-scrollbar-track {
@@ -68,9 +72,9 @@ body {
 /* Base variant: shadcn "outline" */
 .btn {
 	border-radius: var(--at-radius-m);
-	border: 1px solid var(--grey-medium-light);
-	background-color: var(--white);
-	color: var(--main-font-color);
+	border: 1px solid var(--border);
+	background-color: var(--card);
+	color: var(--card-foreground);
 	font-weight: 500;
 	box-shadow: var(--at-shadow-xs);
 	transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out,
@@ -78,23 +82,23 @@ body {
 }
 
 .btn:hover {
-	background-color: var(--grey-lighter);
-	border-color: var(--grey-medium);
+	background-color: var(--accent);
+	border-color: var(--input);
 }
 
 /* Primary variant: shadcn "default" */
 .btn.btn-important {
-	background: var(--main-first);
-	border-color: var(--main-first);
-	color: var(--white);
+	background: var(--primary);
+	border-color: var(--primary);
+	color: var(--primary-foreground);
 	box-shadow: var(--at-shadow-xs);
 	transition: background-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out,
 		transform 0.15s ease-in-out;
 }
 
 .btn.btn-important:hover {
-	background: var(--main-first-alt);
-	border-color: var(--main-first-alt);
+	background: var(--primary-hover);
+	border-color: var(--primary-hover);
 	box-shadow: 0 2px 6px rgba(9, 11, 12, 0.22);
 	transform: translateY(-1px);
 }
@@ -106,6 +110,34 @@ body {
 
 .btn.btn-attention {
 	border-radius: var(--at-radius-m);
+	background: var(--destructive);
+	border-color: var(--destructive);
+	color: var(--destructive-foreground);
+	box-shadow: var(--at-shadow-xs);
+}
+
+.btn.btn-attention:hover {
+	background: color-mix(in srgb, var(--destructive) 90%, black);
+	border-color: color-mix(in srgb, var(--destructive) 90%, black);
+	color: var(--destructive-foreground);
+}
+
+.btn:disabled,
+.btn.disabled,
+.btn[aria-disabled="true"] {
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+button.as-link {
+	color: var(--primary);
+	font-weight: 500;
+	text-underline-offset: 0.15em;
+}
+
+button.as-link:hover {
+	color: var(--primary-hover);
+	text-decoration: underline;
 }
 
 /*=== 3. Forms & search ==============================================*/
@@ -114,6 +146,9 @@ input,
 select,
 textarea {
 	border-radius: var(--at-radius-m);
+	border-color: var(--input);
+	background: var(--card);
+	color: var(--foreground);
 	font-family: var(--at-sans);
 	transition: border-color 0.15s ease-out, box-shadow 0.15s ease-out;
 }
@@ -122,8 +157,187 @@ input:focus,
 select:focus,
 textarea:focus {
 	outline: none;
-	border-color: var(--grey-medium-dark);
+	border-color: var(--ring);
 	box-shadow: var(--at-ring);
+}
+
+input::placeholder,
+textarea::placeholder {
+	color: var(--muted-foreground);
+	opacity: 1;
+}
+
+input:disabled,
+input[readonly],
+select:disabled,
+textarea:disabled,
+textarea[readonly] {
+	cursor: not-allowed;
+	background: var(--muted);
+	color: var(--muted-foreground);
+	opacity: 0.7;
+}
+
+input:user-invalid,
+select:user-invalid,
+textarea:user-invalid {
+	border-color: var(--destructive);
+	color: var(--destructive);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--destructive) 18%, transparent);
+}
+
+label,
+.form-group .group-name {
+	color: var(--foreground);
+	font-size: 0.875rem;
+	font-weight: 500;
+}
+
+.form-group {
+	border-radius: var(--at-radius-m);
+}
+
+.form-group .help {
+	color: var(--muted-foreground);
+	font-size: 0.8125rem;
+	line-height: 1.45;
+}
+
+.form-group.form-actions {
+	background: color-mix(in srgb, var(--background) 88%, transparent);
+	border-top: 1px solid var(--border);
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+	appearance: none;
+	display: inline-grid;
+	place-content: center;
+	inline-size: 1rem;
+	block-size: 1rem;
+	min-inline-size: 1rem;
+	min-block-size: 1rem;
+	margin: 0;
+	margin-inline-end: 0.45rem;
+	padding: 0;
+	border: 1px solid var(--input);
+	background: var(--card);
+	box-shadow: var(--at-shadow-xs);
+	vertical-align: -0.125rem;
+}
+
+input[type="checkbox"] {
+	border-radius: 4px;
+}
+
+input[type="radio"] {
+	border-radius: 50%;
+}
+
+input[type="checkbox"]::before,
+input[type="radio"]::before {
+	content: "";
+	inline-size: 0.5rem;
+	block-size: 0.5rem;
+	transform: scale(0);
+	transition: transform 0.1s ease-out;
+}
+
+input[type="checkbox"]::before {
+	clip-path: polygon(14% 44%, 0 59%, 41% 100%, 100% 18%, 84% 4%, 39% 70%);
+	background: var(--primary-foreground);
+}
+
+input[type="radio"]::before {
+	border-radius: 50%;
+	background: var(--primary-foreground);
+}
+
+input[type="checkbox"]:checked,
+input[type="radio"]:checked {
+	border-color: var(--primary);
+	background: var(--primary);
+}
+
+input[type="checkbox"]:checked::before,
+input[type="radio"]:checked::before {
+	transform: scale(1);
+}
+
+input[type="checkbox"]:disabled,
+input[type="radio"]:disabled {
+	cursor: not-allowed;
+	background: var(--muted);
+	opacity: 0.5;
+}
+
+input[type="checkbox"]:focus-visible,
+input[type="radio"]:focus-visible {
+	outline: none;
+	box-shadow: var(--at-ring);
+}
+
+input[type="file"]::file-selector-button {
+	margin-inline-end: 0.75rem;
+	padding: 0.25rem 0.75rem;
+	border: 0;
+	border-inline-end: 1px solid var(--border);
+	background: var(--muted);
+	color: var(--foreground);
+	font: inherit;
+	font-weight: 500;
+	cursor: pointer;
+}
+
+/* FreshRSS's extension toggle maps directly to the shadcn Switch pattern. */
+.switch {
+	box-sizing: border-box;
+	inline-size: 2.25rem;
+	block-size: 1.25rem;
+	min-block-size: 1.25rem;
+	margin-inline: 0.5rem;
+	padding: 0;
+	border: 0;
+	border-radius: 999px;
+	background: var(--input);
+	box-shadow: none;
+	transition: background-color 0.15s ease-out;
+}
+
+.switch.active {
+	background: var(--primary);
+}
+
+.switch::before,
+.switch.active::before {
+	inset-block-start: 2px;
+	inset-inline-start: 2px;
+	inset-inline-end: auto;
+	inline-size: 1rem;
+	block-size: 1rem;
+	border-radius: 50%;
+	background: var(--card);
+	background-image: none;
+	box-shadow: 0 1px 2px rgba(9, 11, 12, 0.2);
+	transition: transform 0.15s ease-out;
+}
+
+.switch.active::before {
+	transform: translateX(1rem);
+}
+
+:dir(rtl) .switch.active::before {
+	transform: translateX(-1rem);
+}
+
+.switch::after,
+.switch.active::after {
+	display: none;
+}
+
+.switch:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--sidebar-ring) 25%, transparent);
 }
 
 /* Search: one input with a ghost-style search control inside it. */
@@ -133,21 +347,21 @@ textarea:focus {
 
 .header .item.search input {
 	border-radius: var(--at-radius-m);
-	border: 1px solid var(--grey-medium-light);
-	background-color: var(--white);
+	border: 1px solid var(--input);
+	background-color: var(--card);
 	padding-inline-end: 2.75rem;
 	outline: none;
 	box-shadow: var(--at-shadow-xs);
 }
 
 .header .item.search input:hover {
-	background-color: var(--white);
-	border-color: var(--grey-medium);
+	background-color: var(--card);
+	border-color: var(--ring);
 }
 
 .header .item.search input:focus {
-	background-color: var(--white);
-	border-color: var(--grey-medium-dark);
+	background-color: var(--card);
+	border-color: var(--ring);
 	box-shadow: var(--at-ring);
 }
 
@@ -167,7 +381,7 @@ textarea:focus {
 .header .item.search input:focus ~ .btn,
 .header .item.search input:hover ~ .btn,
 .header .item.search .btn:hover {
-	background-color: var(--grey-light);
+	background-color: var(--accent);
 }
 
 /*=== 4. Header & Toolbar ============================================*/
@@ -176,8 +390,8 @@ textarea:focus {
    containing block and breaks the absolutely positioned configuration
    dropdown. This behavior was verified in FreshRSS. */
 .header {
-	background: var(--grey-light);
-	border-bottom: 1px solid var(--sid-sep);
+	background: var(--background);
+	border-bottom: 1px solid var(--border);
 }
 
 .header .item.title a .logo,
@@ -191,7 +405,7 @@ textarea:focus {
 }
 
 .header .item.configure .signin {
-	color: var(--main-font-color);
+	color: var(--foreground);
 }
 
 /* Toolbar: shadcn-style ghost buttons with a softly tinted active state. */
@@ -212,13 +426,13 @@ textarea:focus {
 .nav_menu .group .btn:hover,
 .nav_menu .stick .dropdown a.dropdown-toggle:hover,
 .nav_menu .group .dropdown a.dropdown-toggle:hover {
-	background-color: var(--grey-medium-light);
+	background-color: var(--accent);
 }
 
 .nav_menu .btn.active,
 .nav_menu .stick .btn.active,
 .nav_menu .group .btn.active {
-	background-color: var(--main-first-light);
+	background-color: var(--accent);
 }
 
 /* Preserve dark icons on the light active tint by cancelling the base filter. */
@@ -234,8 +448,8 @@ textarea:focus {
 /*=== 5. Sidebar =====================================================*/
 
 .aside.aside_feed {
-	background: var(--sid-bg);
-	border-inline-end: 1px solid var(--grey-medium-light);
+	background: var(--sidebar);
+	border-inline-end: 1px solid var(--sidebar-border);
 }
 
 .aside {
@@ -288,32 +502,46 @@ textarea:focus {
 /* Active entries use a soft tint instead of a saturated fill. */
 .aside_feed .tree-folder-items .item.active,
 .aside_feed .tree-folder-items .item.active a {
-	background: var(--main-first-light) !important;
-	color: var(--main-first-dark) !important;
+	background: var(--sidebar-accent) !important;
+	color: var(--sidebar-accent-foreground) !important;
 }
 
 /* Apply the same active treatment to the configuration sidebar. */
 .aside:not(.aside_feed) .item.active,
 .aside:not(.aside_feed) .item.active a {
-	background: var(--main-first-light);
-	color: var(--main-first-dark);
+	background: var(--sidebar-accent);
+	color: var(--sidebar-accent-foreground);
 }
 
-/* Sidebar controls use a tonal shadcn-style secondary treatment. */
-.aside .btn.btn-important,
-.aside .stick .btn {
-	background: var(--main-first-light);
+/* Sidebar controls use shadcn-style primary and secondary treatments. */
+.aside .btn.btn-important {
+	background: var(--sidebar-primary);
 	border: none;
-	color: var(--main-first-dark);
+	color: var(--sidebar-primary-foreground);
 	box-shadow: none;
 	border-radius: var(--at-radius-m);
 	font-weight: 600;
 }
 
-.aside .btn.btn-important:hover,
+.aside .stick .btn {
+	background: var(--secondary);
+	border: none;
+	color: var(--secondary-foreground);
+	box-shadow: none;
+	border-radius: var(--at-radius-m);
+	font-weight: 600;
+}
+
+.aside .btn.btn-important:hover {
+	background: var(--primary-hover);
+	color: var(--sidebar-primary-foreground);
+	transform: none;
+	box-shadow: none;
+}
+
 .aside .stick .btn:hover {
-	background: var(--grey-medium);
-	color: var(--main-first-dark);
+	background: var(--sidebar-accent);
+	color: var(--sidebar-accent-foreground);
 	transform: none;
 	box-shadow: none;
 }
@@ -336,8 +564,8 @@ textarea:focus {
 .aside_feed .tree-folder-title .title:not([data-unread="0"])::after,
 .aside_feed .feed .item-title:not([data-unread="0"])::after {
 	border-radius: 999px;
-	background: var(--grey-medium-light);
-	color: var(--grey-darker);
+	background: var(--sidebar-accent);
+	color: var(--sidebar-accent-foreground);
 	font-weight: 600;
 }
 
@@ -383,7 +611,7 @@ textarea:focus {
    it relative to their own boxes and create visible ghost strips. */
 html,
 body {
-	background: var(--grey-light);
+	background: var(--background);
 }
 
 @media (min-width: 841px) {
@@ -422,8 +650,9 @@ body {
 /* Present the main stream as a content card. */
 #stream.normal,
 #stream.reader {
-	background: var(--white);
-	border: 1px solid var(--grey-medium-light);
+	background: var(--card);
+	color: var(--card-foreground);
+	border: 1px solid var(--border);
 	border-radius: var(--at-radius-l);
 	box-shadow: var(--at-shadow-md);
 	margin-block: 0.75rem 1rem;
@@ -442,12 +671,13 @@ body {
 /* Keep authentication pages on the application background. */
 body.formLogin,
 body.register {
-	background: var(--grey-light);
+	background: var(--background);
 }
 
 main.prompt {
-	background: var(--white);
-	border: 1px solid var(--grey-medium-light);
+	background: var(--card);
+	color: var(--card-foreground);
+	border: 1px solid var(--border);
 	border-radius: var(--at-radius-l);
 	box-shadow: var(--at-shadow-md);
 	padding: 1.5rem;
@@ -483,7 +713,7 @@ main.prompt h1,
 	font-weight: 600;
 	font-size: 0.8rem;
 	line-height: 2.5em;
-	color: var(--grey-medium-dark);
+	color: var(--muted-foreground);
 	padding: 0.75rem 1.25rem 0;
 }
 
@@ -491,36 +721,36 @@ main.prompt h1,
 	content: "";
 	flex: 1;
 	height: 1px;
-	background: var(--grey-medium-light);
+	background: var(--border);
 }
 
 .transition .name {
 	text-transform: none;
 	padding: 0;
 	font-weight: 600;
-	color: var(--light-font-color);
+	color: var(--muted-foreground);
 }
 
 /* Feed rows */
 .flux_header {
-	border-top: 1px solid var(--grey-lighter);
+	border-top: 1px solid var(--muted);
 	transition: background-color 0.12s ease-in-out, box-shadow 0.12s ease-in-out;
 }
 
 .flux:not(.current) .flux_header:hover {
-	box-shadow: inset 2px 0 0 var(--grey-medium);
+	box-shadow: inset 2px 0 0 var(--input);
 }
 
 .flux.not_read:not(.current) .flux_header:hover {
-	box-shadow: inset 2px 0 0 var(--main-first);
+	box-shadow: inset 2px 0 0 var(--primary);
 }
 
 :dir(rtl) .flux:not(.current) .flux_header:hover {
-	box-shadow: inset -2px 0 0 var(--grey-medium);
+	box-shadow: inset -2px 0 0 var(--input);
 }
 
 :dir(rtl) .flux.not_read:not(.current) .flux_header:hover {
-	box-shadow: inset -2px 0 0 var(--main-first);
+	box-shadow: inset -2px 0 0 var(--primary);
 }
 
 .flux_header .favicon {
@@ -529,6 +759,15 @@ main.prompt h1,
 
 .flux_header:hover .favicon {
 	transform: scale(1.12);
+}
+
+.flux.current .flux_header {
+	background: var(--accent);
+	box-shadow: inset 2px 0 0 var(--primary);
+}
+
+:dir(rtl) .flux.current .flux_header {
+	box-shadow: inset -2px 0 0 var(--primary);
 }
 
 /* Distinguish read and unread entries typographically. */
@@ -544,7 +783,7 @@ main.prompt h1,
 
 .flux:not(.not_read) .flux_header .item.title a,
 .flux:not(.not_read) .flux_header .item.website a {
-	color: var(--light-font-color);
+	color: var(--muted-foreground);
 	font-weight: 500;
 }
 
@@ -575,13 +814,13 @@ main.prompt h1,
 /* Keep "mark all as read" compact; the base theme adds 100vh of whitespace. */
 #bigMarkAsRead.big {
 	background: transparent;
-	color: var(--main-first);
+	color: var(--primary);
 	margin-bottom: 2rem;
 }
 
 #bigMarkAsRead.big:hover {
-	background: var(--main-first-lighter);
-	color: var(--main-first-dark);
+	background: var(--accent);
+	color: var(--accent-foreground);
 }
 
 #bigMarkAsRead.big .bigTick {
@@ -594,15 +833,16 @@ main.prompt h1,
 }
 
 #nav_entries {
-	border-top: 1px solid var(--grey-medium-light);
+	border-top: 1px solid var(--border);
 }
 
 /*=== 8. Dropdowns, Panels, Overlays, Badges =========================*/
 
 .dropdown-menu {
 	border-radius: var(--at-radius-m);
-	border: 1px solid var(--grey-medium-light);
-	background: color-mix(in srgb, var(--white) 86%, transparent);
+	border: 1px solid var(--border);
+	background: color-mix(in srgb, var(--popover) 86%, transparent);
+	color: var(--popover-foreground);
 	backdrop-filter: blur(12px) saturate(1.3);
 	-webkit-backdrop-filter: blur(12px) saturate(1.3);
 	box-shadow: var(--at-shadow-pop);
@@ -632,8 +872,8 @@ main.prompt h1,
 .dropdown-menu .item > button:hover,
 .dropdown-menu .item .as-link:hover,
 .dropdown-menu .item.current > a {
-	background: var(--grey-light) !important;
-	color: var(--main-font-color) !important;
+	background: var(--accent) !important;
+	color: var(--accent-foreground) !important;
 }
 
 .dropdown-menu .item:hover .icon,
@@ -647,7 +887,23 @@ main.prompt h1,
 	letter-spacing: 0;
 	font-weight: 600;
 	font-size: 0.8rem;
-	color: var(--light-font-color);
+	color: var(--muted-foreground);
+}
+
+.dropdown-menu .item.separator,
+.dropdown-menu .dropdown-section ~ .dropdown-section {
+	border-top-color: var(--border);
+}
+
+.dropdown-menu .item > :is(a, button, .as-link):focus-visible {
+	outline: 2px solid var(--ring);
+	outline-offset: -2px;
+	background: var(--accent);
+}
+
+.dropdown-menu .item > :is(a, button, .as-link)[aria-disabled="true"] {
+	opacity: 0.5;
+	pointer-events: none;
 }
 
 #slider {
@@ -670,7 +926,9 @@ main.prompt h1,
 
 .box {
 	border-radius: var(--at-radius-l);
-	border: 1px solid var(--grey-medium-light);
+	border: 1px solid var(--border);
+	background: var(--card);
+	color: var(--card-foreground);
 	box-shadow: var(--at-shadow-md);
 }
 
@@ -692,8 +950,8 @@ main.prompt h1,
 	height: auto;
 	padding-block: 0.75rem;
 	padding-inline: 1.25rem 3rem;
-	background: var(--main-font-color);
-	color: var(--grey-light);
+	background: var(--foreground);
+	color: var(--background);
 	border: none;
 	border-radius: var(--at-radius-l);
 	box-shadow: 0 8px 20px rgba(9, 11, 12, 0.25), 0 20px 48px rgba(9, 11, 12, 0.18);
@@ -711,8 +969,8 @@ main.prompt h1,
 /* Keep status variants dark and identify their state with a bright dot. */
 .notification.good,
 .notification.bad {
-	background: var(--main-font-color);
-	color: var(--grey-light);
+	background: var(--foreground);
+	color: var(--background);
 }
 
 .notification .msg::before {
@@ -723,7 +981,7 @@ main.prompt h1,
 	border-radius: 999px;
 	margin-inline-end: 0.6rem;
 	vertical-align: middle;
-	background: var(--grey-medium-dark);
+	background: var(--muted-foreground);
 }
 
 .notification.good .msg::before {
@@ -777,9 +1035,9 @@ main.prompt h1,
 /* Consolidated shadcn-style alerts. Keep aliases for third-party extensions. */
 .alert {
 	border-radius: var(--at-radius-l);
-	border: 1px solid var(--grey-medium-light);
-	background: var(--grey-lighter);
-	color: var(--main-font-color);
+	border: 1px solid var(--border);
+	background: var(--muted);
+	color: var(--foreground);
 	box-shadow: var(--at-shadow-xs);
 	padding: 0.85rem 1.1rem;
 	text-shadow: none;
@@ -790,28 +1048,28 @@ main.prompt h1,
 
 .alert-warn {
 	border-color: var(--warning-border);
-	background: var(--warning-surface);
-	color: var(--warning-text);
+	background: var(--warning-muted);
+	color: var(--warning-foreground);
 }
 
 .alert-info {
-	background: var(--info-light);
-	border-color: color-mix(in srgb, var(--info-text) 20%, transparent);
-	color: var(--info-text);
+	background: var(--info-muted);
+	border-color: color-mix(in srgb, var(--info-foreground) 20%, transparent);
+	color: var(--info-foreground);
 }
 
 .alert-error,
 .alert.error {
 	border-color: var(--alert-border);
-	background: var(--alert-surface);
+	background: var(--destructive-muted);
 	color: var(--alert-text);
 }
 
 .alert-success,
 .alert.success {
 	border-color: var(--success-border);
-	background: var(--success-surface);
-	color: var(--success-text);
+	background: var(--success-muted);
+	color: var(--success-foreground);
 }
 
 .alert-head {
@@ -820,7 +1078,424 @@ main.prompt h1,
 	text-shadow: none;
 }
 
-/*=== 9. Motion ======================================================*/
+/*=== 9. Native component completion =================================*/
+
+/* Button Group */
+.stick,
+.group {
+	gap: 0;
+	padding: 2px;
+	border: 1px solid var(--border);
+	border-radius: var(--at-radius-m);
+	background: var(--muted);
+}
+
+.stick > .btn,
+.group > .btn,
+.stick > .dropdown > .btn,
+.group > .dropdown > .btn {
+	border: 0;
+	border-radius: var(--at-radius-s);
+	box-shadow: none;
+}
+
+.stick > .btn:focus-visible,
+.group > .btn:focus-visible {
+	position: relative;
+	z-index: 1;
+}
+
+/* Field, Label and advanced Collapsible sections */
+legend,
+.form-advanced-title {
+	color: var(--foreground);
+	font-size: 0.875rem;
+	font-weight: 600;
+	letter-spacing: 0;
+	text-transform: none;
+}
+
+.form-advanced-title,
+.envInfo summary {
+	border-radius: var(--at-radius-s);
+	transition: background-color 0.12s ease-out;
+}
+
+.form-advanced-title:hover,
+.envInfo summary:hover {
+	background: var(--accent);
+	color: var(--accent-foreground);
+}
+
+.envInfo {
+	border: 1px solid var(--border);
+	border-radius: var(--at-radius-l);
+	background: var(--card);
+}
+
+.envInfo summary {
+	padding: 0.75rem 1rem;
+	cursor: pointer;
+	font-weight: 600;
+}
+
+.envInfo[open] summary {
+	border-bottom: 1px solid var(--border);
+	border-end-start-radius: 0;
+	border-end-end-radius: 0;
+}
+
+/* Card */
+.box .box-title {
+	border-bottom: 1px solid var(--border);
+	background: var(--card);
+	color: var(--card-foreground);
+}
+
+.box .box-title h1,
+.box .box-title h2,
+.box .box-title h3 {
+	font-weight: 600;
+	letter-spacing: -0.01em;
+}
+
+.box .box-content {
+	background: var(--card);
+	color: var(--card-foreground);
+}
+
+/* Table and Data Table */
+.table-wrapper {
+	max-width: 100%;
+	overflow: auto;
+	border: 1px solid var(--border);
+	border-radius: var(--at-radius-l);
+	background: var(--card);
+}
+
+.table-wrapper table {
+	margin: 0;
+	border: 0;
+}
+
+table {
+	background: var(--card);
+	color: var(--card-foreground);
+}
+
+th,
+td {
+	padding: 0.75rem;
+	border-color: var(--border);
+	vertical-align: middle;
+}
+
+th {
+	background: var(--muted);
+	color: var(--muted-foreground);
+	font-size: 0.75rem;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	text-align: start;
+}
+
+tbody tr {
+	transition: background-color 0.12s ease-out;
+}
+
+tbody tr:hover {
+	background: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+/* Pagination */
+.nav-pagination {
+	padding-block: 1rem;
+}
+
+.pagination {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0;
+	background: transparent;
+}
+
+.pagination .item,
+.pagination .item a {
+	border-radius: var(--at-radius-s);
+}
+
+.pagination .item a {
+	display: inline-grid;
+	place-items: center;
+	min-inline-size: 2.25rem;
+	min-block-size: 2.25rem;
+	padding-inline: 0.625rem;
+	border: 1px solid transparent;
+	color: var(--foreground);
+	font-weight: 500;
+}
+
+.pagination .item a:hover {
+	border-color: var(--border);
+	background: var(--accent);
+	color: var(--accent-foreground);
+	text-decoration: none;
+}
+
+.pagination .item.active a,
+.pagination .item a[aria-current="page"] {
+	border-color: var(--primary);
+	background: var(--primary);
+	color: var(--primary-foreground);
+}
+
+/* Badge and Item */
+.label,
+.item .labels span,
+.list-tags .tag > a,
+.list-tags .tag > span {
+	display: inline-flex;
+	align-items: center;
+	min-block-size: 1.25rem;
+	padding-inline: 0.5rem;
+	border: 1px solid var(--border);
+	border-radius: 999px;
+	background: var(--secondary);
+	color: var(--secondary-foreground);
+	font-size: 0.75rem;
+	font-weight: 600;
+	line-height: 1;
+}
+
+.manage-list > li,
+.manage-list > .item,
+.box-content > .item {
+	border-radius: var(--at-radius-s);
+	transition: background-color 0.12s ease-out;
+}
+
+.manage-list > li:hover,
+.manage-list > .item:hover,
+.box-content > .item:hover {
+	background: var(--accent);
+}
+
+.item.feed.mute,
+.item.feed.empty,
+.item.feed.disabled {
+	color: var(--muted-foreground);
+}
+
+.item.feed.error {
+	background: var(--destructive-muted);
+}
+
+/* Theme selector cards */
+.theme-preview-list .preview-container {
+	overflow: hidden;
+	border: 1px solid var(--border);
+	border-radius: var(--at-radius-l);
+	background: var(--card);
+	box-shadow: var(--at-shadow-xs);
+}
+
+.theme-preview-list .preview-container.picked {
+	border-color: var(--primary);
+	box-shadow: var(--at-ring);
+}
+
+.theme-preview-list .preview-container .properties {
+	background: color-mix(in srgb, var(--foreground) 88%, transparent);
+	color: var(--background);
+}
+
+.post a[href="./"] {
+	border: 1px solid var(--border);
+	border-radius: var(--at-radius-m);
+	background: var(--card);
+	color: var(--card-foreground);
+	box-shadow: var(--at-shadow-xs);
+}
+
+.post a[href="./"]:hover {
+	border-color: var(--input);
+	background: var(--accent);
+	color: var(--accent-foreground);
+}
+
+/* Dialog and Sheet */
+#popup {
+	background: rgba(9, 11, 12, 0.4);
+	backdrop-filter: blur(3px);
+	-webkit-backdrop-filter: blur(3px);
+}
+
+#popup-content {
+	border: 1px solid var(--border);
+	border-radius: var(--at-radius-l);
+	background: var(--card);
+	color: var(--card-foreground);
+	box-shadow: var(--at-shadow-pop);
+}
+
+#popup-close,
+#slider .toggle_aside {
+	border-radius: var(--at-radius-s);
+}
+
+#popup-close:hover,
+#slider .toggle_aside:hover {
+	background: var(--accent);
+}
+
+#slider {
+	border-inline-start: 1px solid var(--border);
+	background: var(--card);
+	color: var(--card-foreground);
+}
+
+/* Progress, Spinner and Empty */
+progress {
+	accent-color: var(--primary);
+}
+
+#actualizeProgress progress {
+	block-size: 0.5rem;
+	border: 0;
+	border-radius: 999px;
+	overflow: hidden;
+	background: var(--muted);
+}
+
+#actualizeProgress progress::-webkit-progress-bar {
+	background: var(--muted);
+}
+
+#actualizeProgress progress::-webkit-progress-value {
+	border-radius: 999px;
+	background: var(--primary);
+}
+
+#actualizeProgress progress::-moz-progress-bar {
+	border-radius: 999px;
+	background: var(--primary);
+}
+
+#load_more {
+	border-radius: var(--at-radius-m);
+	color: var(--muted-foreground);
+}
+
+#load_more:hover {
+	background: var(--accent);
+	color: var(--accent-foreground);
+}
+
+#load_more.loading::after,
+#button-update-loading::after,
+.loading::after {
+	border-color: currentColor;
+	border-inline-end-color: transparent;
+}
+
+#noArticlesToShow,
+.prompt.alert {
+	margin: 1rem;
+	text-align: center;
+}
+
+/* Drop Zone */
+.drop-zone,
+.dragbox {
+	border-radius: var(--at-radius-m);
+	transition: background-color 0.12s ease-out, border-color 0.12s ease-out;
+}
+
+.drag-active .drop-zone:not(.drag-disallowed) {
+	border-color: var(--ring);
+	background: var(--muted);
+}
+
+.drag-active .drag-hover.drop-zone {
+	border-color: var(--primary);
+	background: var(--accent);
+}
+
+/* Logs and Statistics */
+.log-item {
+	font-variant-numeric: tabular-nums;
+}
+
+.log-item.log-error {
+	background: var(--destructive-muted);
+}
+
+.log-item.log-warning {
+	background: var(--warning-muted);
+}
+
+.log-level {
+	inline-size: 2.5rem;
+	text-align: center;
+}
+
+.stat {
+	padding: 1rem;
+	border: 1px solid var(--border);
+	border-radius: var(--at-radius-l);
+	background: var(--card);
+	color: var(--card-foreground);
+}
+
+.stat canvas {
+	max-width: 100%;
+}
+
+.disabled-user {
+	opacity: 0.6;
+}
+
+.default-user {
+	background: color-mix(in srgb, var(--success-muted) 70%, transparent);
+}
+
+/* Article Typography */
+.flux_content .content a {
+	color: var(--primary);
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.15em;
+}
+
+.flux_content .content blockquote {
+	margin-inline: 0;
+	padding-inline-start: 1rem;
+	border-inline-start: 3px solid var(--border);
+	color: var(--muted-foreground);
+}
+
+.flux_content .content :not(pre) > code {
+	padding: 0.125rem 0.375rem;
+	border-radius: 4px;
+	background: var(--muted);
+	color: var(--code-text);
+	font-size: 0.875em;
+}
+
+.flux_content .content pre {
+	padding: 1rem;
+	overflow: auto;
+	border: 1px solid var(--border);
+	border-radius: var(--at-radius-m);
+	background: var(--muted);
+}
+
+.flux_content .content hr {
+	border: 0;
+	border-top: 1px solid var(--border);
+}
+
+/*=== 10. Motion =====================================================*/
 
 @keyframes at-pop {
 	from {
@@ -855,11 +1530,13 @@ main.prompt h1,
 	animation: at-pop 0.2s ease-out;
 }
 
-/*=== 10. Accessibility ==============================================*/
+/*=== 11. Accessibility ==============================================*/
 
 a:focus-visible,
-.btn:focus-visible {
-	outline: 2px solid var(--grey-darker);
+.btn:focus-visible,
+button.as-link:focus-visible,
+summary:focus-visible {
+	outline: 2px solid var(--ring);
 	outline-offset: 2px;
 }
 

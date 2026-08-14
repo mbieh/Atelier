@@ -20,6 +20,8 @@ override layer:
 - `_forms.css` and `_forms.rtl.css` use `:user-invalid` instead of `:invalid`
   so fields are not presented as invalid before user interaction.
 - `_fonts.css` and `_fonts.rtl.css` do not load Mapco web fonts.
+- `_logs.css` and `_logs.rtl.css` use a valid semantic error background instead
+  of passing a hexadecimal custom property to `rgba()`.
 - `_variables.css` and `_variables.rtl.css` contain Atelier's color palette.
 - `atelier.css` and `atelier.rtl.css` are the renamed Mapco entry points.
 

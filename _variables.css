@@ -1,68 +1,100 @@
 :root {
-	/* shadcn/ui-inspired scheme based on Tailwind 4.3 Mist. The primary color
-	   uses mist-700 for a softer result than the usual neutral-900 pattern. */
-	--main-first: #394447;        /* mist-700 – primary */
-	--main-first-alt: #2b3336;    /* between mist-700/800 – primary hover */
-	--main-first-light: #e3e7e8;  /* mist-200 – active/secondary tint */
-	--main-first-lighter: #f1f3f3;/* mist-100 */
-	--main-first-dark: #090b0c;   /* mist-950 */
-	--main-first-darker: #090b0c;
+	/* shadcn/ui semantic color roles using the Tailwind Mist palette. */
+	--background: #f1f3f3;
+	--foreground: #161b1d;
+	--card: #fff;
+	--card-foreground: #161b1d;
+	--popover: #fff;
+	--popover-foreground: #161b1d;
+	--primary: #394447;
+	--primary-foreground: #fff;
+	--primary-hover: #2b3336;
+	--secondary: #e3e7e8;
+	--secondary-foreground: #090b0c;
+	--muted: #f9fbfb;
+	--muted-foreground: #67787c;
+	--accent: #e3e7e8;
+	--accent-foreground: #090b0c;
+	--destructive: #c0392b;
+	--destructive-foreground: #fff;
+	--destructive-muted: #fbf1ef;
+	--destructive-border: #eec4bc;
+	--border: #e3e7e8;
+	--input: #d0d6d8;
+	--ring: #67787c;
+	--radius: 10px;
 
-	/* Text colors */
-	--main-font-color: #161b1d;   /* mist-900 */
-	--light-font-color: #67787c;  /* mist-500 – muted foreground */
-	--white: #fff;
+	/* Additional semantic feedback roles used by FreshRSS. */
+	--warning: #e0c04f;
+	--warning-foreground: #6e5a1b;
+	--warning-muted: #fdf9ec;
+	--warning-border: #ecd9a0;
+	--info-muted: #eef2f3;
+	--info-foreground: #394447;
+	--success: #45a878;
+	--success-foreground: #1f6b45;
+	--success-muted: #f0f9f4;
+	--success-border: #bfe3cf;
+	--favorite: #d99e04;
+	--favorite-muted: #fdf6e0;
 
-	/* Mist neutral scale */
-	--grey-darker: #394447;       /* mist-700 */
-	--grey-dark: #67787c;         /* mist-500 */
-	--grey-medium-dark: #9ca8ab;  /* mist-400 */
-	--grey-medium: #d0d6d8;       /* mist-300 */
-	--grey-medium-light: #e3e7e8; /* mist-200 – border */
-	--grey-light: #f1f3f3;        /* mist-100 – application background */
-	--grey-lighter: #f9fbfb;      /* mist-50 – muted */
+	/* shadcn/ui sidebar roles. */
+	--sidebar: #f9fbfb;
+	--sidebar-foreground: #394447;
+	--sidebar-primary: #394447;
+	--sidebar-primary-foreground: #fff;
+	--sidebar-accent: #e3e7e8;
+	--sidebar-accent-foreground: #090b0c;
+	--sidebar-border: #e3e7e8;
+	--sidebar-ring: #67787c;
 
-	/* Unread state: typography only, without a colored surface */
-	--unread-font-color: #090b0c; /* mist-950 */
-	--unread-bg: #fff;
-	--unread-bg-light: #fff;
+	/* Mapco compatibility aliases. Keep upstream structural modules stable. */
+	--main-first: var(--primary);
+	--main-first-alt: var(--primary-hover);
+	--main-first-light: var(--accent);
+	--main-first-darker: var(--accent-foreground);
+	--main-font-color: var(--foreground);
+	--light-font-color: var(--muted-foreground);
+	--white: var(--card);
 
-	/* Alerts */
-	--alert-bg: #c0392b;
+	--grey-dark: var(--muted-foreground);
+	--grey-medium-dark: #9ca8ab;
+	--grey-medium: var(--input);
+	--grey-medium-light: var(--border);
+	--grey-light: var(--background);
+	--grey-lighter: var(--muted);
+
+	--unread-font-color: var(--accent-foreground);
+	--unread-bg: var(--card);
+	--unread-bg-light: var(--card);
+
+	--alert-bg: var(--destructive);
 	--alert-light: #f9e3de;
 	--alert-text: #7a2e1f;
-	--alert-surface: #fbf1ef;
-	--alert-border: #eec4bc;
-
+	--alert-border: var(--destructive-border);
 	--code-text: #b4442e;
 	--code-bg: #f4ecec;
 
-	--warning-bg: #e0c04f;
+	--warning-bg: var(--warning);
 	--warning-light: #faf4d8;
-	--warning-text: #6e5a1b;
-	--warning-surface: #fdf9ec;
-	--warning-border: #ecd9a0;
+	--warning-text: var(--warning-foreground);
 
-	--info-light: #eef2f3;
-	--info-text: #394447;
+	--info-light: var(--info-muted);
+	--info-text: var(--info-foreground);
 
-	--success-bg: #45a878;
+	--success-bg: var(--success);
 	--success-light: #e1f2e9;
-	--success-text: #1f6b45;
-	--success-surface: #f0f9f4;
-	--success-border: #bfe3cf;
+	--success-text: var(--success-foreground);
 
-	/* Favorites: amber is the only accent color */
-	--fav-bg: #d99e04;
-	--fav-light: #fdf6e0;
+	--fav-bg: var(--favorite);
+	--fav-light: var(--favorite-muted);
 
-	/* Sidebar: mist-50 surface with a mist-200 border */
-	--sid-font-color: #394447;
-	--sid-bg: #f9fbfb;
-	--sid-bg-alt: #f1f3f3;
-	--sid-bg-dark: #e3e7e8;
-	--sid-sep: #e3e7e8;
-	--sid-active: #e3e7e8;        /* neutral active tint */
-	--sid-active-font: #090b0c;
+	--sid-font-color: var(--sidebar-foreground);
+	--sid-bg: var(--sidebar);
+	--sid-bg-alt: var(--background);
+	--sid-bg-dark: var(--sidebar-accent);
+	--sid-sep: var(--sidebar-border);
+	--sid-active: var(--sidebar-accent);
+	--sid-active-font: var(--sidebar-accent-foreground);
 	--sid-pills: rgba(22, 27, 29, 0.08);
 }
