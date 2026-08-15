@@ -12,9 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Aligned the sidebar's category rows with its feed rows. The control column is
   now pinned, so a category's collapse button no longer widens it and staggers
   the chevrons and titles against the rows above.
-- Gave the settings sidebar's back link the same icon slot as its neighbours.
-  FreshRSS bakes an arrow into the translated label, which `::first-letter`
-  suppresses so the row can carry a normal icon.
 - Added leading Lucide icons to every entry of the settings dropdown, the
   settings sidebar and the subscription sidebar, statistics included. FreshRSS
   emits no icons there, so each entry is keyed off its target URL and drawn as
@@ -27,6 +24,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- Removed the redundant “Back to your RSS feeds” action from configuration,
+  subscription, statistics, and authenticated error views. The FreshRSS logo
+  remains the consistent route back to the feed list. Advanced Search now
+  follows the subscription and statistics sections as the final sidebar entry.
+- Unified article typography with Atelier's sans-serif hierarchy, including
+  linked headings inherited from Mapco. Article titles now wrap predictably,
+  keep a stable foreground color, and use a restrained underline on hover.
+- Removed Mapco's nested title-only hover fill, which appeared as a second
+  rectangle inside the article row. Hovered and open rows now retain their
+  subtle full-row state without an additional color behind the title.
 - Added a smooth, direction-aware sidebar reveal for explicit toggle actions.
   Persisted collapsed-state restoration remains transition-free, preventing the
   sidebar from flashing open during reloads and feed refreshes. Child controls
@@ -51,6 +58,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- Kept FreshRSS's mobile-only sidebar opener hidden on desktop configuration
+  and subscription pages. The generic toolbar layout had exposed it outside
+  its intended breakpoint, causing inconsistent placement and styling while
+  requiring a first click merely to synchronize its mobile state.
 - Prevented the About and Terms content column from collapsing to its
   min-content width or centering itself vertically when combined with the form
   container-query system.

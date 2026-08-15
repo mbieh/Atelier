@@ -38,6 +38,8 @@
 	--at-form-wide-control-width: 36rem;
 	--at-dashboard-width: 96rem;
 	--at-reading-page-width: 72rem;
+	--at-row-hover: color-mix(in srgb, var(--accent) 45%, var(--card));
+	--at-row-current: color-mix(in srgb, var(--accent) 70%, var(--card));
 	--at-shadow-xs: 0 1px 2px rgba(9, 11, 12, 0.05);
 	--at-shadow-md: 0 1px 2px rgba(9, 11, 12, 0.05), 0 8px 24px rgba(9, 11, 12, 0.06);
 	--at-shadow-pop: 0 4px 12px rgba(9, 11, 12, 0.1), 0 12px 32px rgba(9, 11, 12, 0.08);
@@ -639,6 +641,15 @@ input[type="file"]::file-selector-button {
 		padding-inline: 0.5rem;
 	}
 
+	/* Configuration and subscription layouts emit a mobile-only sidebar
+	   control. Keep it out of the desktop grid: unlike the regular feed
+	   toolbar control, FreshRSS initializes this button as the closed-state
+	   opener and its first desktop click would therefore only synchronize the
+	   state instead of closing the already visible sidebar. */
+	.nav_menu.nav_mobile {
+		display: none;
+	}
+
 	.nav_menu #nav_menu_toggle_aside {
 		inset-block-start: 50%;
 		inset-inline-start: 0.5rem;
@@ -1220,20 +1231,28 @@ main.prompt h1,
 
 /* rtl-safe: the inset marker bars are mirrored by the :dir(rtl) rules below. */
 .flux:not(.current) .flux_header:hover {
-	box-shadow: inset 2px 0 0 var(--input);
+	background: var(--at-row-hover);
+	box-shadow: inset 2px 0 0 var(--border);
 }
 
 /* rtl-safe: mirrored by the :dir(rtl) rule below. */
 .flux.not_read:not(.current) .flux_header:hover {
-	box-shadow: inset 2px 0 0 var(--primary);
+	box-shadow: inset 2px 0 0 var(--input);
 }
 
 :dir(rtl) .flux:not(.current) .flux_header:hover {
-	box-shadow: inset -2px 0 0 var(--input);
+	box-shadow: inset -2px 0 0 var(--border);
 }
 
 :dir(rtl) .flux.not_read:not(.current) .flux_header:hover {
-	box-shadow: inset -2px 0 0 var(--primary);
+	box-shadow: inset -2px 0 0 var(--input);
+}
+
+/* Mapco colors the title sub-element separately on hover. Keep the row as one
+   continuous interaction surface, including its date column. */
+#stream .flux .flux_header:hover .item.titleAuthorSummaryDate > .title,
+#stream .flux .flux_header .item.titleAuthorSummaryDate > .date {
+	background: transparent;
 }
 
 .flux_header .favicon {
@@ -1244,9 +1263,13 @@ main.prompt h1,
 	transform: scale(1.12);
 }
 
+.flux.current {
+	background: var(--card);
+}
+
 /* rtl-safe: mirrored by the :dir(rtl) rule below. */
 .flux.current .flux_header {
-	background: var(--accent);
+	background: var(--at-row-current);
 	box-shadow: inset 2px 0 0 var(--primary);
 }
 
@@ -1281,15 +1304,48 @@ main.prompt h1,
 }
 
 .flux_content .content {
+	box-sizing: border-box;
+	inline-size: 100%;
 	line-height: 1.65;
 }
 
 .flux_content .content h1,
 .flux_content .content h2,
 .flux_content .content h3 {
+	font-family: var(--at-sans);
 	font-weight: 650;
 	letter-spacing: -0.01em;
 	line-height: 1.25;
+}
+
+/* Mapco assigns Spectral directly to every linked article h1. Article chrome
+   and embedded heading links instead follow Atelier's shared sans hierarchy. */
+.flux_content .content :is(h1, h2, h3) > a {
+	font-family: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	letter-spacing: inherit;
+	line-height: inherit;
+}
+
+.flux_content .content > header h1.title {
+	margin-block: 0.5rem 0.75rem;
+	font-size: clamp(1.5rem, 1.25rem + 0.75vw, 2rem);
+	letter-spacing: -0.025em;
+	overflow-wrap: anywhere;
+	text-wrap: balance;
+}
+
+.flux_content .content > header h1.title > a,
+.flux_content .content > header h1.title > a:hover {
+	color: var(--foreground);
+}
+
+.flux_content .content > header h1.title > a:hover {
+	text-decoration: underline;
+	text-decoration-color: var(--input);
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.18em;
 }
 
 /* Keep "mark all as read" compact; the base theme adds 100vh of whitespace. */
@@ -1606,37 +1662,37 @@ main.prompt h1,
 	display: none;
 }
 
-/* The back link is the sole entry of the settings sidebar's first section.
-   FreshRSS bakes an arrow into the translated label itself ("← Zurück zu
-   Ihren RSS-Feeds"), so no markup hook exists for it. Suppressing it through
-   ::first-letter frees the row to use the same icon slot as its neighbours.
-   Gecko and WebKit both treat the arrow as the first letter, and both drop
-   the space it leaves at the start of the line. */
-.aside.nav-list > ul > .item.nav-section:first-child > ul > .item:first-child > a {
-	position: relative;
-	/* Room for the out-of-flow icon: the row's own inset, the icon, its gap,
-	   less the space that trails the suppressed arrow and still occupies
-	   roughly a quarter em. */
-	padding-inline-start: calc(2.625rem - 0.28em);
+/* The logo already provides the canonical route back to the feed list. Hide
+   FreshRSS's duplicate first entry in both configuration sidebars. The
+   configuration variant contains no second entry, so remove its empty section
+   as well; the subscription variant keeps Advanced Search below it. */
+.aside.nav-list > ul > .item.nav-section:first-child > ul > .item:first-child,
+main.post .alert > p:last-child:has(
+	> a[href*="c=index"][href*="a=index"]
+) {
+	display: none;
 }
 
-.aside.nav-list > ul > .item.nav-section:first-child > ul > .item:first-child > a::first-letter {
-	font-size: 0;
+.aside.nav-list > ul > .item.nav-section:first-child:not(
+	:has(> ul > .item:nth-child(2))
+) {
+	display: none;
 }
 
-/* Out of flow on purpose: ::first-letter is skipped when inline content
-   precedes the text, so an inline icon here would silently restore the arrow. */
-.aside.nav-list > ul > .item.nav-section:first-child > ul > .item:first-child > a::before {
-	content: "";
-	position: absolute;
-	inset-inline-start: 1rem;
-	inset-block: 0;
-	inline-size: 1rem;
-	background-color: currentColor;
-	mask-image: url("icons/rss.svg");
-	mask-position: center;
-	mask-repeat: no-repeat;
-	mask-size: 1rem 1rem;
+/* The subscription sidebar's first section contains the hidden back link and
+   Advanced Search. Turn only that sidebar's section list into a flex column so
+   the remaining search action follows subscription and statistics entries. */
+.aside.nav-list > ul:has(
+	> .item.nav-section:first-child > ul > .item:nth-child(2)
+) {
+	display: flex;
+	flex-direction: column;
+}
+
+.aside.nav-list > ul > .item.nav-section:first-child:has(
+	> ul > .item:nth-child(2)
+) {
+	order: 1;
 }
 
 /* rtl-safe: mirrored by the :dir(rtl) rule below. */
