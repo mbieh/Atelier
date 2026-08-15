@@ -23,6 +23,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- Toolbar overflow no longer clips dropdown menus, and ellipsis toggles keep a
+  full 40px hit target with an explicitly rendered three-dot icon instead of
+  appearing as an empty segment.
+- Inset news rows subtract both horizontal margins from their actual width, so
+  hover and current-state surfaces retain matching rounded corners on both
+  sides instead of overflowing the trailing edge of the stream.
 - Secondary text now uses ramp step 600 instead of 500. Step 500 met 4.5:1 only
   on the white card and missed it on `--background` (4.14:1) and `--muted`
   (4.44:1). This was not specific to Mist: step 500 misses the mark in eight of
@@ -51,29 +57,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
-- Article rows read as rounded chips inset from the card. On hover the row used
-  to grow a 2px marker bar on its leading edge against a full-bleed band, with
-  a rule under every row — a slab-and-line pattern that dated the whole list.
-  Hover is the tinted chip alone now; unread rows were already distinguished
-  typographically. The current row keeps a marker, because it is a position
-  rather than a passing state, but inside the rounded shape. Mapco's own
-  current-row border and the negative margin compensating for it are reset,
-  along with the rule it draws between rows.
-- The toolbar reads as a row of raised chips instead of hard-outlined boxes.
-  Its groups were filled with `--background`, the same tone as the bar behind
-  them, so the shadow had nothing to sit on and the border alone had to carry
-  the shape — six dark outlines side by side. They are filled with the card
-  surface now, and the hairline and the shadow do the work together.
-- Control boundaries come in two weights, chosen by what the boundary has to
-  do. A field announces itself through one load-bearing edge: inputs, selects,
-  textareas and the search field are a hairline all round with the block-end
-  edge on `--at-field-border`, which carries the 3:1 of WCAG 1.4.11 against
-  both the surface behind it and its own fill. Putting the whole box at 3:1
-  made every field shout; a checkbox keeps the full box, because there the
-  square is the control. `--at-button-border` is a hairline for buttons and
-  toolbar groups, which are identified by their label or icon on a raised
-  surface and keep a contrast-checked focus ring. Hover moves the fill and no
-  longer darkens the boundary as well.
+- Article rows read as rounded chips inset from the card. Hover and current
+  state use one continuous, softly tinted surface; the former leading marker,
+  Mapco's current-row border, its compensating negative margin, and the rules
+  between rows are gone. Unread rows remain distinguished typographically.
+- Toolbar actions are true segmented controls: every group owns one card
+  surface and one quiet outer boundary, while its actions are separated by
+  hairlines and active state is communicated by fill. Icon-only actions are
+  square at 40px; labelled buttons use the same height and grow inline.
+- Inputs, selects, search, and buttons share a 40px control contract, aligned
+  content, consistent radii, and the same focus-ring behavior. Input boundaries
+  use `--at-field-border` uniformly on all four sides instead of combining a
+  hairline box with a heavier bottom edge; toolbar and button boundaries use
+  the quieter `--at-button-border` token.
+- Date separators are compact full-width section headers. Their subtle surface
+  and bottom divider replace the decorative trailing rule and establish a
+  stable start edge for the first news row.
 - Dark surfaces walk down the ramp instead of using hand-picked values: page
   900, cards 800, raised states between 800 and 700, separators 600. The two
   values that were tuned by hand are derived now, so a new scheme does not have

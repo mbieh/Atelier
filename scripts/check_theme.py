@@ -119,6 +119,7 @@ REQUIRED_LAYOUT_RULES = (
     # with the title even when the topline hides the read and favorite
     # controls and .item.website becomes the first child.
     LayoutRule(".flux .flux_header", "margin-inline: 0.5rem"),
+    LayoutRule(".flux .flux_header", "inline-size: calc(100% - 1rem)"),
     LayoutRule(".flux .flux_header > .item:first-child", "padding-inline-start: 0"),
     LayoutRule(".flux.current", "border-inline-start-width: 0"),
     LayoutRule(".flux_header", "border-top: 0"),
@@ -226,20 +227,30 @@ REQUIRED_LAYOUT_RULES = (
     LayoutRule(".post .group-controls > .stick"),
     LayoutRule(".post .form-group.form-actions", "backdrop-filter: none"),
     LayoutRule(".btn", "padding-block: 0"),
+    LayoutRule(".btn", "block-size: var(--at-control-size)"),
     LayoutRule(".header .item.search input", "max-inline-size: none"),
-    # Two boundary weights. Collapsing them back onto one token is what made
-    # the toolbar read as a row of hard-outlined boxes.
+    # One shared control size and uniform boundaries. Inputs remain easier to
+    # identify through --input; toolbar groups use the quieter --border token.
+    LayoutRule(":root", "--at-control-size: 2.5rem"),
     LayoutRule(":root", "--at-field-border: var(--input)"),
     LayoutRule(":root", "--at-button-border: var(--border)"),
     LayoutRule(".btn", "border: 1px solid var(--at-button-border)"),
-    LayoutRule("input", "border-block-end-color: var(--at-field-border)"),
+    LayoutRule("input", "border: 1px solid var(--at-field-border)"),
     LayoutRule(
-        ".header .item.search input", "border-block-end-color: var(--at-field-border)"
+        ".header .item.search input", "border: 1px solid var(--at-field-border)"
     ),
-    # Toolbar groups need a surface of their own; filled with --background they
-    # matched the bar behind them and only the border carried the shape.
+    # Each segmented toolbar group owns exactly one bordered card surface.
     LayoutRule(".nav_menu .stick", "background: var(--card)"),
-    LayoutRule(".nav_menu .stick", "border-color: var(--at-button-border)"),
+    LayoutRule(".nav_menu .stick", "border: 1px solid var(--at-button-border)"),
+    LayoutRule(".nav_menu .stick", "overflow: visible"),
+    LayoutRule(
+        ".nav_menu :is(.stick, .group) > .dropdown",
+        "block-size: 100%",
+    ),
+    LayoutRule(
+        ".nav_menu :is(.stick, .group) > .dropdown:not(#dropdown-search-wrapper) > a.dropdown-toggle",
+        'background-image: url("icons/more.svg")',
+    ),
 )
 COLLAPSED_SIDEBAR_STATE = re.compile(
     r"#global\s*>\s*\.aside\.is-hidden\s*\{"

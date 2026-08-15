@@ -27,17 +27,16 @@
 	--at-radius-s: calc(var(--radius) - 4px);
 	--at-radius-m: calc(var(--radius) - 2px);
 	--at-radius-l: var(--radius);
-	--at-toolbar-control-height: 2.5rem;
+	/* One 40px control contract for buttons, fields, and segmented controls.
+	   Icon-only controls are square; labelled controls grow only inline. */
+	--at-control-size: 2.5rem;
+	--at-control-padding-inline: 0.875rem;
+	--at-toolbar-control-height: var(--at-control-size);
 	--at-header-height: calc(
 		var(--at-toolbar-control-height) + 2 * var(--frss-padding-top-bottom)
 	);
-	/* Two boundary weights, by what the boundary has to do. A field has to
-	   announce itself -- an empty input has nothing else to identify it --
-	   so one edge carries the 3:1 of WCAG 1.4.11 while the rest stays a
-	   hairline. Putting the whole box at 3:1 made every field shout; putting
-	   it nowhere left the field invisible. A button is identified by its
-	   label or icon on a raised surface, so a hairline is enough all round;
-	   six hard outlines in a row read as a cage rather than a toolbar. */
+	/* Fields need an identifiable boundary; buttons use the quieter surface
+	   boundary. Both remain uniform on all four sides. */
 	--at-field-border: var(--input);
 	--at-button-border: var(--border);
 	--at-form-layout-width: 64rem;
@@ -109,14 +108,19 @@ body {
 	align-items: center;
 	justify-content: center;
 	box-sizing: border-box;
-	min-block-size: var(--at-toolbar-control-height);
+	block-size: var(--at-control-size);
+	min-block-size: var(--at-control-size);
+	gap: 0.5rem;
 	padding-block: 0;
+	padding-inline: var(--at-control-padding-inline);
 	border-radius: var(--at-radius-m);
 	border: 1px solid var(--at-button-border);
 	background-color: var(--card);
 	color: var(--card-foreground);
+	font-size: 0.875rem;
 	font-weight: 500;
 	line-height: 1;
+	white-space: nowrap;
 	box-shadow: var(--at-shadow-xs);
 	transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out,
 		box-shadow 0.15s ease-in-out;
@@ -129,25 +133,32 @@ body {
 	background-color: var(--accent);
 }
 
+/* FreshRSS normally renders icon controls as a single .icon child. Keep their
+   hit area exactly square while allowing labelled buttons to size naturally. */
+.btn:has(> .icon:only-child),
+.btn:has(> img:only-child),
+.btn:empty {
+	inline-size: var(--at-control-size);
+	min-inline-size: var(--at-control-size);
+	padding-inline: 0;
+}
+
 /* Primary variant: shadcn "default" */
 .btn.btn-important {
 	background: var(--primary);
 	border-color: var(--primary);
 	color: var(--primary-foreground);
 	box-shadow: var(--at-shadow-xs);
-	transition: background-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out,
-		transform 0.15s ease-in-out;
+	transition: background-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
 .btn.btn-important:hover {
 	background: var(--primary-hover);
 	border-color: var(--primary-hover);
-	box-shadow: 0 2px 6px rgba(9, 11, 12, 0.22);
-	transform: translateY(-1px);
+	box-shadow: var(--at-shadow-xs);
 }
 
 .btn.btn-important:active {
-	transform: translateY(0);
 	box-shadow: var(--at-shadow-xs);
 }
 
@@ -188,20 +199,34 @@ button.as-link:hover {
 input,
 select,
 textarea {
+	box-sizing: border-box;
 	border-radius: var(--at-radius-m);
-	border-color: var(--at-button-border);
-	border-block-end-color: var(--at-field-border);
+	border: 1px solid var(--at-field-border);
 	background: var(--card);
 	color: var(--foreground);
 	font-family: var(--at-sans);
+	font-size: 0.875rem;
+	box-shadow: var(--at-shadow-xs);
 	transition: border-color 0.15s ease-out, box-shadow 0.15s ease-out;
+}
+
+input:not([type="hidden"], [type="checkbox"], [type="radio"], [type="range"], [type="color"]),
+select:not([multiple]):not([size]) {
+	block-size: var(--at-control-size);
+	min-block-size: var(--at-control-size);
+	padding-block: 0;
+	padding-inline: 0.75rem;
+	line-height: 1.25rem;
+}
+
+textarea {
+	min-block-size: 6rem;
+	padding: 0.625rem 0.75rem;
+	line-height: 1.5;
 }
 
 select:not([multiple]):not([size]) {
 	appearance: none;
-	block-size: var(--at-toolbar-control-height);
-	min-block-size: var(--at-toolbar-control-height);
-	padding-block: 0;
 	padding-inline: 0.75rem 2.5rem;
 	background-image: url("icons/down.svg");
 	background-repeat: no-repeat;
@@ -450,19 +475,13 @@ input[type="file"]::file-selector-button {
 	width: auto;
 	max-inline-size: none;
 	max-width: none;
-	block-size: var(--at-toolbar-control-height);
+	block-size: var(--at-control-size);
 	border-radius: var(--at-radius-m);
-	border: 1px solid var(--at-button-border);
-	border-block-end-color: var(--at-field-border);
+	border: 1px solid var(--at-field-border);
 	background-color: var(--card);
 	padding-inline-end: 2.75rem;
 	outline: none;
 	box-shadow: var(--at-shadow-xs);
-}
-
-.header .item.search input:hover {
-	background-color: var(--card);
-	border-color: var(--ring);
 }
 
 .header .item.search input:focus {
@@ -474,9 +493,9 @@ input[type="file"]::file-selector-button {
 .header .item.search .btn {
 	grid-area: 1 / 1 / 2 / 2;
 	justify-self: end;
-	inline-size: var(--at-toolbar-control-height);
-	block-size: var(--at-toolbar-control-height);
-	min-block-size: var(--at-toolbar-control-height);
+	inline-size: var(--at-control-size);
+	block-size: var(--at-control-size);
+	min-block-size: var(--at-control-size);
 	margin: 0;
 	padding: 0;
 	border: none;
@@ -485,8 +504,6 @@ input[type="file"]::file-selector-button {
 	border-radius: var(--at-radius-s);
 }
 
-.header .item.search input:focus ~ .btn,
-.header .item.search input:hover ~ .btn,
 .header .item.search .btn:hover {
 	background-color: var(--accent);
 }
@@ -536,9 +553,9 @@ input[type="file"]::file-selector-button {
 	display: inline-grid;
 	place-items: center;
 	box-sizing: border-box;
-	inline-size: var(--at-toolbar-control-height);
-	block-size: var(--at-toolbar-control-height);
-	min-block-size: var(--at-toolbar-control-height);
+	inline-size: var(--at-control-size);
+	block-size: var(--at-control-size);
+	min-block-size: var(--at-control-size);
 	padding: 0;
 	border: 1px solid var(--at-button-border);
 	border-radius: var(--at-radius-m);
@@ -550,7 +567,8 @@ input[type="file"]::file-selector-button {
 	color: var(--foreground);
 }
 
-/* Toolbar: shadcn-style ghost buttons with a softly tinted active state. */
+/* Toolbar: one quiet surface per segmented group. Individual segments do not
+   draw their own cards, which keeps the control density legible. */
 .nav_menu .btn,
 .nav_menu .stick .btn,
 .nav_menu .group .btn,
@@ -559,7 +577,7 @@ input[type="file"]::file-selector-button {
 	border: none;
 	background-color: transparent;
 	box-shadow: none;
-	border-radius: var(--at-radius-s);
+	border-radius: 0;
 	transition: background-color 0.12s ease-out;
 }
 
@@ -577,19 +595,30 @@ input[type="file"]::file-selector-button {
 	background-color: var(--accent);
 }
 
-/* Toolbar groups read as raised chips, not outlined boxes. They used to be
-   filled with --background, the same tone as the bar behind them, so the
-   shadow had nothing to sit on and only the border was left to carry the
-   shape. Filling them with the card surface lets the hairline and the shadow
-   do the work together. */
 .nav_menu .stick,
 .nav_menu .group {
+	display: inline-flex;
 	align-items: center;
 	box-sizing: border-box;
-	block-size: var(--at-toolbar-control-height);
-	border-color: var(--at-button-border);
+	block-size: var(--at-control-size);
+	border: 1px solid var(--at-button-border);
+	border-radius: var(--at-radius-m);
 	background: var(--card);
 	box-shadow: var(--at-shadow-xs);
+	overflow: visible;
+}
+
+.nav_menu :is(.stick, .group) > :not(:first-child) {
+	border-inline-start: 1px solid var(--border);
+}
+
+/* A dropdown is a real segment, not merely a transparent wrapper. Giving the
+   wrapper the group's full height preserves the toggle's hit target, while
+   visible overflow lets its absolutely positioned menu leave the toolbar. */
+.nav_menu :is(.stick, .group) > .dropdown {
+	display: flex;
+	align-self: stretch;
+	block-size: 100%;
 }
 
 .nav_menu .btn,
@@ -601,10 +630,36 @@ input[type="file"]::file-selector-button {
 	align-items: center;
 	justify-content: center;
 	box-sizing: border-box;
-	block-size: calc(var(--at-toolbar-control-height) - 2px);
-	min-block-size: calc(var(--at-toolbar-control-height) - 2px);
+	block-size: 100%;
+	min-block-size: 100%;
+	min-inline-size: var(--at-control-size);
 	padding-block: 0;
+	padding-inline: var(--at-control-padding-inline);
 	line-height: 1;
+}
+
+.nav_menu :is(.btn:has(> .icon:only-child), .btn:empty),
+.nav_menu :is(.stick, .group) > .dropdown > a.dropdown-toggle {
+	inline-size: var(--at-control-size);
+	min-inline-size: var(--at-control-size);
+	padding-inline: 0;
+}
+
+.nav_menu :is(.stick, .group) > .dropdown:not(#dropdown-search-wrapper) >
+	a.dropdown-toggle {
+	background-image: url("icons/more.svg");
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 1rem;
+}
+
+/* Standalone toolbar controls use the same geometry and surface as a group. */
+.nav_menu > .btn,
+.nav_menu > :not(.stick, .group) > .btn {
+	border: 1px solid var(--at-button-border);
+	border-radius: var(--at-radius-m);
+	background: var(--card);
+	box-shadow: var(--at-shadow-xs);
 }
 
 @media (min-width: 841px) {
@@ -1147,6 +1202,9 @@ main.prompt h1,
    indented against the title and summary below it. A margin on the row shifts
    every column alike, so the eyebrow stays flush. */
 .flux .flux_header {
+	box-sizing: border-box;
+	inline-size: calc(100% - 1rem);
+	width: calc(100% - 1rem);
 	margin-inline: 0.5rem;
 	border-radius: var(--at-radius-m);
 }
@@ -1514,25 +1572,30 @@ main.prompt h1,
 	}
 }
 
-/* Date separator: label followed by a flexible hairline. */
+/* Date separator: a compact section header, not a label floating next to a
+   decorative rule. The full-width surface also gives the first row a clear
+   and stable starting edge. */
 .transition {
 	display: flex;
 	align-items: center;
-	gap: 0.75rem;
+	box-sizing: border-box;
+	min-block-size: 2.25rem;
+	margin: 0 0.5rem;
+	padding: 0.5rem 0.75rem;
+	border-block-end: 1px solid var(--border);
+	border-start-start-radius: var(--at-radius-m);
+	border-start-end-radius: var(--at-radius-m);
+	background: color-mix(in srgb, var(--muted) 58%, var(--card));
 	text-transform: none;
-	letter-spacing: 0.01em;
+	letter-spacing: 0;
 	font-weight: 600;
-	font-size: 0.8rem;
-	line-height: 2.5em;
+	font-size: 0.75rem;
+	line-height: 1.25rem;
 	color: var(--muted-foreground);
-	padding: 0.75rem 1.25rem 0;
 }
 
 .transition::after {
-	content: "";
-	flex: 1;
-	height: 1px;
-	background: var(--border);
+	content: none;
 }
 
 .transition .name {
@@ -1572,18 +1635,12 @@ main.prompt h1,
 	border-inline-start-width: 0;
 }
 
-/* rtl-safe: mirrored by the :dir(rtl) rule below. */
-/* The current row keeps a marker -- it is a position, not just a hover -- but
-   inside the rounded shape, where it reads as part of the chip.
-   rtl-safe: mirrored by the :dir(rtl) rule below. */
+/* Selection is communicated by one calm filled surface. The former leading
+   marker competed with thumbnails and unread typography for attention. */
 .flux.current .flux_header {
 	margin-inline: 0.5rem;
 	background: var(--at-row-current);
-	box-shadow: inset 2px 0 0 var(--primary);
-}
-
-:dir(rtl) .flux.current .flux_header {
-	box-shadow: inset -2px 0 0 var(--primary);
+	box-shadow: none;
 }
 
 /* Distinguish read and unread entries typographically. */
