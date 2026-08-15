@@ -177,7 +177,8 @@
 		color-scheme: dark;
 
 		/* The dark surfaces walk down the same ramp: page 900, cards 800,
-		   raised states between 800 and 700, separators 600. */
+		   raised states between 800 and 700. Decorative boundaries use step
+		   700; fields keep the higher-contrast --input role below. */
 		--background: var(--at-scale-900);
 		--foreground: var(--at-scale-50);
 		--card: var(--at-scale-800);
@@ -197,7 +198,7 @@
 		--destructive-foreground: var(--at-scale-900);
 		--destructive-muted: #351f1c;
 		--destructive-border: #7e3c34;
-		--border: var(--at-scale-600);
+		--border: var(--at-scale-700);
 		/* --input is deliberately absent: the mid-grey mixed in the light
 		   scheme is the one value that clears 3:1 in both directions, against
 		   white surfaces as the darker element and against dark surfaces as
@@ -222,7 +223,7 @@
 		--sidebar-primary-foreground: var(--at-scale-800);
 		--sidebar-accent: var(--at-scale-750);
 		--sidebar-accent-foreground: var(--at-scale-50);
-		--sidebar-border: var(--at-scale-600);
+		--sidebar-border: var(--at-scale-700);
 		--sidebar-ring: var(--at-scale-400);
 
 		/* Dark values for Mapco roles that are not pure semantic aliases. */

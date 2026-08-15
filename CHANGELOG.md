@@ -23,6 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- Enabled add and overflow-menu icons retain the same foreground weight as
+  their neighboring controls in dark mode instead of resembling disabled
+  actions.
+- The sort menu retains FreshRSS' directional up/down glyph instead of
+  replacing its state with a generic three-dot overflow icon.
 - Toolbar overflow no longer clips dropdown menus, and ellipsis toggles keep a
   full 40px hit target with an explicitly rendered three-dot icon instead of
   appearing as an empty segment.
@@ -57,6 +62,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- Dark-mode separators and decorative outlines now use a quieter neutral step
+  across the header, toolbar, sidebar, stream, cards, and menus. Inputs and
+  focus indicators retain their stronger, contrast-checked boundaries.
+- Feed action popovers now use a compact command-menu layout with a stable
+  icon column, solid popover surface, 36px rows, and a semantic divider before
+  refresh and mark-as-read actions. The styling follows FreshRSS link targets
+  and classes, so it remains independent of the selected interface language.
 - Article rows read as rounded chips inset from the card. Hover and current
   state use one continuous, softly tinted surface; the former leading marker,
   Mapco's current-row border, its compensating negative margin, and the rules
@@ -74,7 +86,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   and bottom divider replace the decorative trailing rule and establish a
   stable start edge for the first news row.
 - Dark surfaces walk down the ramp instead of using hand-picked values: page
-  900, cards 800, raised states between 800 and 700, separators 600. The two
+  900, cards 800, raised states between 800 and 700, separators 700. The two
   values that were tuned by hand are derived now, so a new scheme does not have
   to supply them.
 - The contrast guard covers the accent hues in the roles they are painted in:

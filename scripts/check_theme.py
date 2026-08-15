@@ -123,6 +123,16 @@ REQUIRED_LAYOUT_RULES = (
     LayoutRule(".flux .flux_header > .item:first-child", "padding-inline-start: 0"),
     LayoutRule(".flux.current", "border-inline-start-width: 0"),
     LayoutRule(".flux_header", "border-top: 0"),
+    # The feed popover is a compact command menu. Its item geometry must
+    # override Mapco's inherited 2.5em line height without changing markup.
+    LayoutRule(
+        ".aside_feed .tree-folder-items .feed > .dropdown > .dropdown-menu",
+        "min-inline-size: 15rem",
+    ),
+    LayoutRule(
+        ".aside_feed .tree-folder-items .feed > .dropdown > .dropdown-menu .item > :is( a, button, .as-link )",
+        "min-block-size: 2.25rem",
+    ),
     # Article rows and their subgrid cells.
     LayoutRule(
         ".flux_header",
@@ -248,9 +258,15 @@ REQUIRED_LAYOUT_RULES = (
         "block-size: 100%",
     ),
     LayoutRule(
-        ".nav_menu :is(.stick, .group) > .dropdown:not(#dropdown-search-wrapper) > a.dropdown-toggle",
-        'background-image: url("icons/more.svg")',
+        ".nav_menu :is(.stick, .group) .dropdown:not(#dropdown-search-wrapper) > a.dropdown-toggle",
+        "background-image: none",
     ),
+    LayoutRule(
+        ".nav_menu :is(.stick, .group) .dropdown:not(#dropdown-search-wrapper) > a.dropdown-toggle::before",
+        'mask: url("icons/more.svg") center / 1rem 1rem no-repeat',
+    ),
+    LayoutRule("#nav_menu_sort #toggle-order::before", "content: none"),
+    LayoutRule("#nav_menu_sort #toggle-order > .icon", "display: block"),
 )
 COLLAPSED_SIDEBAR_STATE = re.compile(
     r"#global\s*>\s*\.aside\.is-hidden\s*\{"
