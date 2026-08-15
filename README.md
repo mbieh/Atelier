@@ -1,51 +1,59 @@
 # Atelier
 
-A modern light and dark theme for [FreshRSS](https://freshrss.org/) inspired by
-contemporary shadcn/ui interfaces.
+A calm light and dark theme for [FreshRSS](https://freshrss.org/), inspired by
+shadcn/ui.
 
-Atelier combines the structure of FreshRSS's official Mapco theme with a
-separate visual override layer, a cool neutral Mist color palette, soft active
-states, subtle motion, and Lucide icons. It does not load web fonts, scripts,
-or other runtime assets from external services.
+![Atelier preview: sidebar beside a card of article rows](thumbs/original.png)
 
-![Atelier theme preview](thumbs/original.png)
+Atelier gives FreshRSS a cool neutral palette, a clear reading hierarchy, soft
+radii, and subtle motion. It follows your operating system's light or dark
+setting on its own, and everything it needs ships with the theme — no web
+fonts, no scripts, nothing loaded from an external service while you read.
 
 ## Features
 
-- Light and dark neutral interfaces that follow the operating-system preference
-- Responsive desktop and mobile layouts
-- Animated sidebar collapse without content reflow
-- Clear visual hierarchy for controls and content
-- Accessible focus states and reduced-motion support
-- Locally bundled SVG icons with no CDN dependency
-- RTL layout support
+- Light and dark interfaces that follow your system preference automatically
+- Layouts for desktop and mobile, including a collapsible sidebar
+- Locally bundled Lucide icons, so nothing is fetched from a CDN
+- Visible focus states and support for reduced-motion settings
+- Right-to-left layout support
 
-## Compatibility
+## Requirements
 
-Atelier 1.1 has been tested with FreshRSS 1.29.1 in Chromium, including list
-and article views, configuration pages, sidebar behavior, search, and a mobile
-viewport.
+**FreshRSS 1.29.1.** That is the version Atelier is built and tested against.
+Other versions will most likely work, but the theme follows FreshRSS's markup
+closely, so a larger FreshRSS update may need a matching theme update.
 
-The component layer has also been checked in Firefox with representative dark,
-mobile, and RTL fixtures. Complete FreshRSS workflows in Firefox and RTL
-layouts, and FreshRSS versions other than 1.29.1, have not yet been explicitly
-tested.
+**A browser from 2024 or later.** Atelier uses modern CSS — nesting, `:has()`,
+subgrid, `color-mix()` and `:dir()` — which in practice means Chrome or Edge
+120+, Firefox 121+, or Safari 17.2+. Older browsers will render the page, but
+parts of the layout will look wrong.
 
 ## Installation
 
-### Manual installation
+Atelier installs like any other FreshRSS theme: put the folder into
+`p/themes/` inside your FreshRSS installation and pick it in the settings.
+The repository root *is* the theme, so there is nothing to build first.
 
-1. Download or clone this repository.
-2. Ensure that the theme directory is named `Atelier`.
-3. Copy the complete directory to `<FreshRSS>/p/themes/Atelier`.
-4. Open FreshRSS and select **Configuration → Display → Theme → Atelier**.
+### Download as a ZIP
 
-The repository root is also the theme root. No build or copy step is required
-before installation.
+1. Download the repository as a ZIP archive and unpack it.
+2. **Rename the unpacked folder to `Atelier`.** Archives usually unpack to a
+   name like `Atelier-main`. FreshRSS stores the folder name as the theme's
+   identity, so renaming it later resets your theme selection.
+3. Move the folder to `<FreshRSS>/p/themes/Atelier`.
 
-### Docker Compose bind mount
+### Clone with Git
 
-Replace the host path with the absolute path to your checkout:
+```console
+cd /path/to/FreshRSS/p/themes
+git clone https://github.com/mbieh/Atelier.git Atelier
+```
+
+### Docker Compose
+
+Mount your checkout into the container. Read-only (`:ro`) keeps the container
+from writing to it:
 
 ```yaml
 services:
@@ -54,48 +62,84 @@ services:
       - /absolute/path/to/Atelier:/var/www/FreshRSS/p/themes/Atelier:ro
 ```
 
-Select Atelier in FreshRSS after starting or restarting the container. The
-read-only mount prevents the container from modifying the checkout.
+Restart the container afterwards.
 
-## Customization
+### Activate it
 
-Theme colors are defined centrally in [`_variables.css`](_variables.css). The
-commented Mist values can be replaced with another neutral palette without
-changing the component rules.
+Open FreshRSS and choose **Configuration → Display → Theme → Atelier**.
 
-Atelier follows the browser's `prefers-color-scheme` value automatically. It
-does not require JavaScript or store a separate theme preference.
+### Updating
 
-Every stylesheet is direction-neutral, so the RTL sheets FreshRSS loads are
-verbatim copies. FreshRSS requests only the files listed in `metadata.json`,
-so `atelier.rtl.css` and `atelier-ui.rtl.css` are the only two mirrors that
-exist; the `_*.css` partials are reached through `@import` and need none.
-Regenerate the mirrors after editing any stylesheet instead of touching them
-by hand:
+Pull the latest version, or download and unpack it over the existing folder:
+
+```console
+cd /path/to/FreshRSS/p/themes/Atelier
+git pull
+```
+
+Then reload FreshRSS. If the page still looks unchanged, force-reload it with
+`Ctrl`/`Cmd` + `Shift` + `R`.
+
+### Removing
+
+Switch to another theme under **Configuration → Display**, then delete
+`<FreshRSS>/p/themes/Atelier`.
+
+## Light and dark mode
+
+Atelier follows your operating system's appearance setting. Switch your system
+to dark mode and FreshRSS turns dark on the next page load. There is no
+separate switch inside FreshRSS, and no preference is stored.
+
+## Changing the colors
+
+All colors live in one place: [`_variables.css`](_variables.css). The values
+are grouped by role — background, foreground, borders, accents, sidebar — so
+you can swap the palette without touching any component rules.
+
+After editing a stylesheet, regenerate the right-to-left copies that FreshRSS
+loads for RTL languages:
 
 ```console
 python3 scripts/generate_rtl.py
 ```
 
-`python3 scripts/check_theme.py` runs the same release checks as CI, including
-a guard that rejects direction-sensitive CSS before it can reach a mirror.
+## Troubleshooting
+
+**Atelier does not show up in the theme list.** Check that
+`<FreshRSS>/p/themes/Atelier/metadata.json` exists, and that your web server
+user is allowed to read the folder.
+
+**The page looks unstyled or the layout is broken.** Usually an outdated
+browser — see [Requirements](#requirements). Otherwise force-reload the page.
+
+**Dark mode does not turn on.** Atelier follows the system setting, not a
+FreshRSS setting. Check your operating system's appearance preference.
+
+**Some pages still look like the previous theme.** Force-reload the page;
+browsers hold on to stylesheets aggressively.
+
+## Development
+
+`python3 scripts/check_theme.py` runs the same checks as CI: CSS structure,
+metadata, links, icon licenses, and a guard that rejects direction-sensitive
+CSS before it can reach a right-to-left copy.
+
+See [`CHANGELOG.md`](CHANGELOG.md) for release notes and
+[`docs/component-coverage.md`](docs/component-coverage.md) for the component
+matrix.
 
 ## License and credits
 
 Atelier is derived from the official
 [Mapco theme](https://github.com/FreshRSS/FreshRSS/tree/1.29.1/p/themes/Mapco)
-by Thomas Guesnon and the FreshRSS project. The theme is distributed under the
-[GNU Affero General Public License version 3](LICENSE).
+by Thomas Guesnon and the FreshRSS project, and is distributed under the
+[GNU Affero General Public License v3](LICENSE).
 
-The 55 Lucide UI icons retain their `lucide-static` 1.31.0 ISC headers. The
-complete Lucide and Feather license notices are available in
-[`icons/LICENSE`](icons/LICENSE). The remaining logo assets are derived from
-FreshRSS and Mapco. See [`THIRD-PARTY.md`](THIRD-PARTY.md) for detailed
-attribution.
+The bundled Lucide icons keep their `lucide-static` 1.31.0 ISC headers; the
+full Lucide and Feather notices are in [`icons/LICENSE`](icons/LICENSE). See
+[`THIRD-PARTY.md`](THIRD-PARTY.md) for detailed attribution.
 
-Credits:
-
-- Thomas Guesnon and the FreshRSS project for Mapco and the theme foundation
-- Lucide Contributors for the Lucide icon set
-- Cole Bemis and Feather Contributors for icons inherited through Lucide
-- shadcn/ui and Tailwind CSS as design and color references
+Thanks to Thomas Guesnon and the FreshRSS project for Mapco, to the Lucide
+contributors and to Cole Bemis and the Feather contributors for the icons, and
+to shadcn/ui and Tailwind CSS as design and color references.
