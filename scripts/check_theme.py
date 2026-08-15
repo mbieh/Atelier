@@ -75,7 +75,24 @@ PROTECTED_NOTES = (
     "desktop CSS Grid",
     "base theme adds 100vh of whitespace",
     "width: auto !important",
-    "195px",
+)
+REQUIRED_LAYOUT_RULES = (
+    "grid-template-rows: auto minmax(min-content, 1fr);",
+    "grid-row: 1 / -1;",
+    "#global > .nav_menu ~ main",
+    'grid-template-areas: "read favorite website thumbnail content labels share link";',
+    "grid-template-columns: fit-content(14rem) minmax(0, 1fr);",
+    "grid-template-columns: subgrid;",
+    "grid-template-columns: var(--width-aside, 300px) minmax(0, 1fr) auto;",
+    "grid-template-columns: auto minmax(0, 1fr) auto;",
+    ".aside_feed .tree-folder.category[data-unread]",
+    ".tree-folder-title[data-unread]:not([data-unread=",
+    "#sidebar .tree-folder > .tree-folder-title > button.dropdown-toggle",
+    "padding-block: 0;",
+    "max-inline-size: none;",
+)
+REQUIRED_DARK_ICON_SELECTORS = (
+    '#sidebar img.icon:not([src$="/starred.svg"])',
 )
 FORBIDDEN_PHYSICAL_DECLARATIONS = (
     "padding-left:",
@@ -260,6 +277,28 @@ def main() -> int:
         if declaration in ui_css:
             errors.append(
                 f"atelier-ui.css: use a logical property instead of {declaration}"
+            )
+
+    for rule in REQUIRED_LAYOUT_RULES:
+        if rule not in ui_css:
+            errors.append("atelier-ui.css: missing desktop grid rule: " + rule)
+    if "grid-row: 1 / span" in ui_css:
+        errors.append("atelier-ui.css: do not use an arbitrary sidebar row span")
+    for obsolete_layout in (
+        "margin-inline-start: -2.5rem",
+        "width: 195px",
+        ".tree-folder-title:not([data-unread=",
+    ):
+        if obsolete_layout in ui_css:
+            errors.append(
+                "atelier-ui.css: obsolete fixed layout remains: "
+                + obsolete_layout
+            )
+
+    for selector in REQUIRED_DARK_ICON_SELECTORS:
+        if selector not in ui_css:
+            errors.append(
+                "atelier-ui.css: missing dark-mode icon selector: " + selector
             )
 
     svg_files = sorted((ROOT / "icons").glob("*.svg"))

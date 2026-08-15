@@ -402,7 +402,26 @@ input[type="file"]::file-selector-button {
 	background: transparent;
 }
 
+.header .item.search form,
+.header .item.search .stick {
+	inline-size: min(100%, 22rem);
+}
+
+.header .item.search .stick {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	align-items: center;
+}
+
 .header .item.search input {
+	grid-area: 1 / 1 / 2 / 2;
+	box-sizing: border-box;
+	justify-self: stretch;
+	inline-size: auto;
+	width: auto;
+	max-inline-size: none;
+	max-width: none;
+	block-size: var(--at-toolbar-control-height);
 	border-radius: var(--at-radius-m);
 	border: 1px solid var(--at-control-border);
 	background-color: var(--card);
@@ -423,11 +442,12 @@ input[type="file"]::file-selector-button {
 }
 
 .header .item.search .btn {
-	width: 30px;
-	height: 30px;
-	min-height: 30px;
-	margin: 4px 0 0;
-	margin-inline-start: -2.5rem;
+	grid-area: 1 / 1 / 2 / 2;
+	justify-self: end;
+	inline-size: var(--at-toolbar-control-height);
+	block-size: var(--at-toolbar-control-height);
+	min-block-size: var(--at-toolbar-control-height);
+	margin: 0;
 	padding: 0;
 	border: none;
 	background-color: transparent;
@@ -554,6 +574,30 @@ input[type="file"]::file-selector-button {
 }
 
 @media (min-width: 841px) {
+	.header {
+		display: grid;
+		grid-template-columns: var(--width-aside, 300px) minmax(0, 1fr) auto;
+		align-items: center;
+		block-size: auto;
+		min-block-size: calc(2.5rem + 2 * var(--frss-padding-top-bottom));
+	}
+
+	.header > .item {
+		display: block;
+		min-inline-size: 0;
+	}
+
+	.header > .item.search {
+		justify-self: end;
+		inline-size: min(100%, 22rem);
+	}
+
+	.header > .item.configure {
+		inline-size: auto;
+		width: auto;
+		padding-inline-end: 0.5rem;
+	}
+
 	.nav_menu {
 		display: flex;
 		align-items: center;
@@ -615,10 +659,125 @@ input[type="file"]::file-selector-button {
 	letter-spacing: 0;
 }
 
+/* Sidebar rows reserve intrinsic columns for controls, labels, and counters.
+   This replaces the base theme's percentage-minus-pixels calculations. */
+.aside_feed .tree-folder .tree-folder-title {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr) auto;
+	align-items: center;
+	column-gap: 0.5rem;
+}
+
+.aside_feed .tree-folder .tree-folder-title > .icon,
+.aside_feed .tree-folder .tree-folder-title > .dropdown-toggle {
+	grid-column: 1;
+	margin: 0;
+}
+
+.aside_feed .tree-folder .tree-folder-title > .dropdown-toggle {
+	display: inline-grid;
+	place-items: center;
+	align-self: center;
+	inline-size: 2rem;
+	block-size: 2rem;
+	padding: 0;
+	line-height: 0;
+	vertical-align: middle;
+}
+
+#sidebar .tree-folder > .tree-folder-title > button.dropdown-toggle {
+	/* Override Mapco's higher-specificity vertical padding. Its asymmetric
+	   content box prevented CSS Grid from centering the icon in the button. */
+	padding-block: 0;
+}
+
+.aside_feed .tree-folder .tree-folder-title > .dropdown-toggle > .icon {
+	display: block;
+	inline-size: 1rem;
+	block-size: 1rem;
+	margin: 0;
+}
+
+.aside_feed .tree-folder .tree-folder-title > .title {
+	grid-column: 2;
+	min-inline-size: 0;
+	width: auto;
+}
+
+.aside_feed .tree-folder.category .tree-folder-title > .title:not([data-unread="0"])::after {
+	content: none;
+}
+
+.aside_feed .tree-folder .tree-folder-title[data-unread]:not([data-unread="0"])::after {
+	grid-column: 3;
+	content: attr(data-unread);
+	position: static;
+	inset: auto;
+	margin: 0;
+}
+
+/* Named categories expose their count on the list item rather than the link.
+   Keep the nested feed list on its own row and reserve a real counter column. */
+.aside_feed .tree-folder.category[data-unread] {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	align-items: center;
+}
+
+.aside_feed .tree-folder.category[data-unread] > .tree-folder-title {
+	grid-column: 1;
+	grid-row: 1;
+}
+
+.aside_feed .tree-folder.category[data-unread] > .tree-folder-items {
+	grid-column: 1 / -1;
+}
+
+.aside_feed .tree-folder.category[data-unread]:not([data-unread="0"])::after {
+	grid-column: 2;
+	grid-row: 1;
+	justify-self: end;
+	content: attr(data-unread);
+	margin-inline-end: 0.75rem;
+}
+
 /* Feed entries use lightweight ghost rows. */
 .aside_feed .tree-folder-items .item {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr);
+	align-items: center;
 	border-radius: var(--at-radius-s);
 	margin: 1px 6px;
+}
+
+.aside_feed .tree-folder-items .item > .item-title {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr) auto;
+	align-items: center;
+	column-gap: 0.375rem;
+	min-inline-size: 0;
+	width: auto;
+	padding-block: var(--frss-padding-top-bottom);
+	padding-inline: 0.25rem 0.5rem;
+}
+
+.aside_feed .tree-folder-items .item > .item-title > .favicon,
+.aside_feed .tree-folder-items .item > .item-title > .icon {
+	grid-column: 1;
+}
+
+.aside_feed .tree-folder-items .item > .item-title > .title {
+	grid-column: 2;
+	min-inline-size: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.aside_feed .tree-folder-items .item > .item-title:not([data-unread="0"])::after {
+	grid-column: 3;
+	position: static;
+	inset: auto;
+	margin: 0;
 }
 
 .aside_feed .tree-folder-items .item a {
@@ -696,12 +855,20 @@ input[type="file"]::file-selector-button {
 }
 
 /* Unread counters use pill shapes. */
-.aside_feed .tree-folder-title .title:not([data-unread="0"])::after,
+.aside_feed .tree-folder-title[data-unread]:not([data-unread="0"])::after,
+.aside_feed .tree-folder.category[data-unread]:not([data-unread="0"])::after,
 .aside_feed .feed .item-title:not([data-unread="0"])::after {
+	display: block;
+	box-sizing: border-box;
+	min-inline-size: 2rem;
+	padding: 0.25rem 0.5rem;
 	border-radius: 999px;
 	background: var(--sidebar-accent);
 	color: var(--sidebar-accent-foreground);
+	font-size: 0.9rem;
 	font-weight: 600;
+	line-height: 1;
+	text-align: center;
 }
 
 /* Animate collapse instead of using the base theme's hard display:none. */
@@ -759,6 +926,7 @@ body {
 	#global {
 		display: grid;
 		grid-template-columns: auto minmax(0, 1fr);
+		grid-template-rows: auto minmax(min-content, 1fr);
 		align-items: start;
 		flex: 1;
 	}
@@ -766,13 +934,28 @@ body {
 	#global > .aside {
 		display: block;
 		grid-column: 1;
-		grid-row: 1 / span 9;
+		grid-row: 1 / -1;
 		align-self: stretch;
 		width: var(--width-aside, 300px);
 	}
 
 	#global > :not(.aside) {
 		grid-column: 2;
+	}
+
+	/* FreshRSS emits the toolbar and main content as sibling elements. Assign
+	   them to explicit rows so free viewport height stays below the content
+	   instead of being distributed between anonymous grid tracks. */
+	#global > .nav_menu {
+		grid-row: 1;
+	}
+
+	#global > main {
+		align-self: start;
+	}
+
+	#global > .nav_menu ~ main {
+		grid-row: 2;
 	}
 
 	/* More specific than "#global > .aside" so the ID rule cannot keep
@@ -837,6 +1020,83 @@ main.prompt h1,
 }
 
 /*=== 7. List view ===================================================*/
+
+@media (min-width: 841px) {
+	/* Optional article controls occupy named intrinsic columns. Empty areas
+	   collapse, while feed and title columns yield before actions or dates. */
+	.flux_header {
+		display: grid;
+		grid-template-columns:
+			auto auto fit-content(20%) auto minmax(0, 1fr) auto auto auto;
+		grid-template-areas: "read favorite website thumbnail content labels share link";
+		align-items: center;
+		list-style: none;
+	}
+
+	.flux_header > .item.manage:has(.read) {
+		grid-area: read;
+	}
+
+	.flux_header > .item.manage:has(.bookmark) {
+		grid-area: favorite;
+	}
+
+	.flux_header > .item.website {
+		grid-area: website;
+		min-inline-size: 0;
+		width: auto;
+		overflow: hidden;
+	}
+
+	.flux_header > .item.thumbnail {
+		grid-area: thumbnail;
+	}
+
+	.flux_header > .item.titleAuthorSummaryDate {
+		grid-area: content;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) max-content;
+		grid-template-areas: "title date" "summary summary";
+		align-items: center;
+		min-inline-size: 0;
+	}
+
+	.flux_header > .item.labels {
+		grid-area: labels;
+	}
+
+	.flux_header > .item.share {
+		grid-area: share;
+	}
+
+	.flux_header > .item.link {
+		grid-area: link;
+	}
+
+	.flux .flux_header .item.titleAuthorSummaryDate > .title {
+		grid-area: title;
+		position: static;
+		display: block;
+		min-inline-size: 0;
+		max-inline-size: 100%;
+		padding-inline-end: 0;
+	}
+
+	.flux .flux_header .item.titleAuthorSummaryDate > .date {
+		grid-area: date;
+		position: static;
+		inline-size: max-content;
+		width: auto;
+		padding-inline: 1rem var(--frss-padding-flux-items);
+		white-space: nowrap;
+	}
+
+	.flux .flux_header .item.titleAuthorSummaryDate > .summary {
+		grid-area: summary;
+		max-inline-size: 100%;
+		margin-block: 0 0.5rem;
+	}
+}
 
 /* Date separator: label followed by a flexible hairline. */
 .transition {
@@ -924,13 +1184,6 @@ main.prompt h1,
 #stream .flux:not(.not_read) .flux_header .item.website a {
 	color: var(--muted-foreground);
 	font-weight: 500;
-}
-
-/* The base theme positions dates absolutely. Apply spacing to the date itself;
-   its original 155px width is too narrow for long German date strings. */
-.flux .flux_header .item .date {
-	width: 195px;
-	padding-inline-end: 14px;
 }
 
 /* Article content */
@@ -1292,6 +1545,59 @@ legend,
 /* Configuration choices should form one stable field column instead of
    changing width with each option label. Multiple selects keep their native
    list-box sizing. */
+.post {
+	container-name: at-settings;
+	container-type: inline-size;
+}
+
+.post .form-group::after {
+	content: none;
+}
+
+.post .form-group .group-name {
+	float: none;
+	inline-size: auto;
+	text-align: start;
+}
+
+.post .form-group .group-controls {
+	min-inline-size: 0;
+	margin-inline-start: 0;
+}
+
+.post .form-advanced-title {
+	inline-size: auto;
+	text-align: start;
+}
+
+@container at-settings (min-width: 42rem) {
+	.post :is(form, fieldset) {
+		display: grid;
+		grid-template-columns: fit-content(14rem) minmax(0, 1fr);
+		column-gap: 1rem;
+	}
+
+	.post :is(form, fieldset) > :not(.form-group) {
+		grid-column: 1 / -1;
+	}
+
+	.post :is(form, fieldset) > .form-group {
+		grid-column: 1 / -1;
+		display: grid;
+		grid-template-columns: subgrid;
+		align-items: start;
+	}
+
+	.post :is(form, fieldset) > .form-group .group-name {
+		grid-column: 1;
+		text-align: end;
+	}
+
+	.post :is(form, fieldset) > .form-group .group-controls {
+		grid-column: 2;
+	}
+}
+
 .post .form-group .group-controls select:not([multiple]):not([size]) {
 	inline-size: min(100%, 20rem);
 }
@@ -1308,6 +1614,78 @@ legend,
 .box .box-title h3 {
 	font-weight: 600;
 	letter-spacing: -0.01em;
+}
+
+.box .box-title form {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	align-items: center;
+}
+
+.box .box-title form input {
+	grid-area: 1 / 1 / 2 / 2;
+	box-sizing: border-box;
+	min-inline-size: 0;
+	max-inline-size: none;
+	width: 100%;
+	max-width: none;
+	padding-inline-end: 2.75rem;
+}
+
+.box .box-title form .dropdown {
+	grid-area: 1 / 1 / 2 / 2;
+	display: grid;
+	float: none;
+	justify-self: end;
+	inline-size: var(--at-toolbar-control-height);
+	block-size: var(--at-toolbar-control-height);
+	place-items: center;
+	margin: 0;
+	padding: 0;
+	position: relative;
+}
+
+.box .box-title form .dropdown > .dropdown-toggle {
+	display: grid;
+	inline-size: 100%;
+	block-size: 100%;
+	place-items: center;
+	padding: 0;
+}
+
+#stream.global .box.category .box-title > .title {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	align-items: center;
+	column-gap: 0.75rem;
+}
+
+#stream.global .box.category .box-title > .title:not([data-unread="0"])::after {
+	position: static;
+	inset: auto;
+	margin: 0;
+}
+
+#stream.global .box-content > .item.feed {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr);
+	align-items: center;
+	column-gap: 0.375rem;
+	text-indent: 0;
+}
+
+#stream.global .box-content > .item.feed > .item-title {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	align-items: center;
+	min-inline-size: 0;
+	width: auto;
+}
+
+#stream.global .box-content > .item.feed > .item-title:not([data-unread="0"])::after {
+	position: static;
+	inset: auto;
+	margin: 0;
 }
 
 .box .box-content {
@@ -1711,7 +2089,10 @@ summary:focus-visible {
 	/* Locally bundled neutral SVGs use a fixed light-theme stroke because
 	   external SVG files cannot inherit the page's currentColor. Keep these
 	   rules last so they win over Mapco's component-specific icon filters. */
-	img.icon:not([src$="/starred.svg"]) {
+	img.icon:not([src$="/starred.svg"]),
+	/* The ID raises specificity above the light-theme sidebar reset without
+	   affecting feed favicons or the intentionally gold favorite icon. */
+	#sidebar img.icon:not([src$="/starred.svg"]) {
 		filter: brightness(0) saturate(100%) invert(84%) !important;
 	}
 

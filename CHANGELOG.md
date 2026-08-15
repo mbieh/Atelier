@@ -46,6 +46,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   legible in dark mode, with a matching adaptive surface for theme metadata.
 - Softened dark outline controls and toolbar groups with translucent borders
   and a lighter control shadow while preserving the light-theme contrast.
+- Restored dark-mode contrast for the main-stream, important-feed, category,
+  label, and feed-action icons in the sidebar while preserving feed favicons
+  and the gold favorite state.
+- Replaced the sidebar's arbitrary grid-row span with an explicit two-row
+  desktop layout so short article lists remain directly below the toolbar.
+- Replaced inherited table, float, absolute-position, and fixed-width layout
+  assumptions in the header, article rows, settings forms, sidebar rows, and
+  global feed cards with intrinsic CSS Grid and container-query layouts.
 
 ### Development
 
