@@ -55,10 +55,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   assumptions in the header, article rows, settings forms, sidebar rows, and
   global feed cards with intrinsic CSS Grid and container-query layouts.
 
+- Kept the tick visible on disabled checkboxes and radios, whose muted fill
+  previously covered the checked state.
+- Rounded only the outer edges of button groups again, so middle segments no
+  longer render as pills between flat end caps.
+- Removed the sidebar dropdown toggle's inherited negative margins and inline
+  padding, which pushed the button out of its grid row and off-center.
+
 ### Development
 
 - Expanded local checks for manifest order, imports, local Markdown links,
   runtime asset URLs, SVG validity, RTL token parity, and license files.
+- Replaced the RTL blocklist with a parser-based direction check that flags
+  physical properties, left/right keywords, horizontal translations and
+  shadows, and asymmetric box and radius shorthands, exempting `:dir()` rules
+  and declarations marked `rtl-safe`.
 - Added a FreshRSS 1.29.1 component coverage matrix and enforced the required
   semantic token contract in local checks.
 
