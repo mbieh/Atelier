@@ -22,7 +22,7 @@ or other runtime assets from external services.
 
 ## Compatibility
 
-Atelier 1.0 has been tested with FreshRSS 1.29.1 in Chromium, including list
+Atelier 1.1 has been tested with FreshRSS 1.29.1 in Chromium, including list
 and article views, configuration pages, sidebar behavior, search, and a mobile
 viewport.
 

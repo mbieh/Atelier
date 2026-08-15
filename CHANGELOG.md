@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+## 1.1.0 - 2026-08-15
+
 ### Added
 
 - Aligned the sidebar's category rows with its feed rows. The control column is
@@ -24,6 +26,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- Refined fully populated article rows into a dense, predictable desktop grid.
+  Optional controls now share one action rhythm, feed names truncate cleanly,
+  thumbnails retain their configured footprint including borders and a stable
+  text gutter, and right-edge actions use a deliberate outer inset. Title,
+  author, summary, and date retain a clear hierarchy without animating favicons
+  on row hover. Feed names now sit above the title, giving every thumbnail a
+  stable shared axis regardless of source-name length, while icon-only sources
+  retain their compact inline placement. Rows without thumbnails keep the same
+  separation between their actions and textual content, and source metadata
+  shares one type scale with publication dates. Image rows without summaries
+  no longer reserve an empty content line, keeping their thumbnails and text
+  blocks vertically centered; rows with summaries align publication dates with
+  their source metadata instead. Expanded article footers now anchor their
+  publication date to the trailing edge instead of distributing it across
+  FreshRSS's empty fixed-width option cells.
 - Removed the redundant “Back to your RSS feeds” action from configuration,
   subscription, statistics, and authenticated error views. The FreshRSS logo
   remains the consistent route back to the feed list. Advanced Search now
