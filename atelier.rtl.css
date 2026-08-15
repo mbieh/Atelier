@@ -1,41 +1,40 @@
 @charset "UTF-8";
 
-@import "_fonts.rtl.css";
+@import "_fonts.css";
 
-@import "_variables.rtl.css";
+@import "_variables.css";
 
-@import "_forms.rtl.css";
+@import "_forms.css";
 
-@import "_tables.rtl.css";
+@import "_tables.css";
 
-@import "_components.rtl.css";
+@import "_components.css";
 
-@import "_divers.rtl.css";
+@import "_divers.css";
 
-@import "_sidebar.rtl.css";
+@import "_sidebar.css";
 
-@import "_layout.rtl.css";
+@import "_layout.css";
 
-@import "_list-view.rtl.css";
+@import "_list-view.css";
 
-@import "_global-view.rtl.css";
+@import "_global-view.css";
 
-@import "_reader-view.rtl.css";
+@import "_reader-view.css";
 
-@import "_configuration.rtl.css";
+@import "_configuration.css";
 
-@import "_logs.rtl.css";
+@import "_logs.css";
 
-@import "_stats.rtl.css";
+@import "_stats.css";
 
-@import "_mobile.rtl.css";
+@import "_mobile.css";
 
 /*=== GENERAL */
 /*============*/
 html, body {
 	background: var(--grey-light);
 	color: var(--main-font-color);
-	font-family: "lato", "Helvetica", "Arial", sans-serif;
 	font-size: 0.875rem;
 }
 

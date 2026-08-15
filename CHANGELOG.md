@@ -7,6 +7,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+### Fixed
+
+- The feed eyebrow above an article title is flush with the title again. Mapco
+  insets the first item of every horizontal list, which is a row inset only as
+  long as that item sits in a column of its own. With the read and favorite
+  controls switched off in the topline settings, the first item is
+  `.item.website`, which shares its grid column with the title, so the eyebrow
+  was indented by 7px against the title and summary. The row now carries the
+  inset itself, where it shifts every column alike; layouts that do show those
+  controls render identically to before.
+- Notification toasts now derive their status marker from `--success` and
+  `--destructive` instead of two literal colors. The toast paints itself in
+  `--foreground`, so it inverts with the color scheme; the literals only held
+  up in light mode and dropped the success dot to 1.68:1 and the failure dot
+  to 2.66:1 against a dark-mode toast, which left the two variants — otherwise
+  identical in background and text color — practically indistinguishable. The
+  failure marker is now a diamond as well, so state no longer rests on hue
+  alone.
+- Fixed the hover state of a toast's close button, which used a near-white
+  overlay and disappeared on the light dark-mode toast. It is now mixed from
+  `--background`, the toast's own text color, so it inverts along with it.
+- Removed a stray yellow fallback from the sidebar scrollbar. Every browser
+  that supports the `:dir()`, `:has()` and subgrid rules this theme relies on
+  also supports `color-mix()`, so the fallback only ever shadowed the intended
+  value.
+- The unread counter of the active feed no longer keeps the base theme's
+  border, which made it the only pill in the tree with an outline.
+- Drag-and-drop feedback follows the palette instead of the base theme's
+  literal `#ff0`, which clashed with the Mist neutrals when reordering feeds.
+
+### Changed
+
+- `metadata.json` now carries the version as the semver string `1.1.0`.
+  FreshRSS accepts a string or a number, but a JSON number cannot express a
+  patch release and made `1.1` and a future `1.10` the same value.
+- Dropped the 15 `_*.rtl.css` partial mirrors. FreshRSS rewrites only the
+  filenames listed in `metadata.json` to `.rtl.css`, so the partials — reached
+  through `@import`, which resolves relative to the importing sheet — never
+  needed a mirror. `atelier.rtl.css` now imports the same partials as
+  `atelier.css` and is a verbatim copy of it.
+- Removed the leftover `lato` font stack from `atelier.css` and `_forms.css`.
+  Nothing has declared an `@font-face` for it since `_fonts.css` was emptied,
+  and both declarations were already overridden by `--at-sans`.
+- Removed the `.form-group::after` clearfix, which declared no `content` and
+  so never generated a box.
+- The release checks now anchor each layout invariant to the selector and
+  at-rule context that is meant to carry it, rather than testing for a raw
+  substring anywhere in the file. Declarations such as `flex-direction:
+  column` occur up to eight times and a selector as short as `.btn` is a
+  substring of a dozen others, so a third of the assertions passed no matter
+  which rule was deleted.
+- `check_theme.py` reads the expected theme version from the changelog, guards
+  `atelier.css` for direction neutrality as well, and rejects partial RTL
+  mirrors if they reappear.
+
 ## 1.1.0 - 2026-08-15
 
 ### Added

@@ -61,15 +61,24 @@ read-only mount prevents the container from modifying the checkout.
 
 Theme colors are defined centrally in [`_variables.css`](_variables.css). The
 commented Mist values can be replaced with another neutral palette without
-changing the component rules. Run the RTL generator after changing these
-tokens instead of editing `_variables.rtl.css` manually.
+changing the component rules.
 
 Atelier follows the browser's `prefers-color-scheme` value automatically. It
 does not require JavaScript or store a separate theme preference.
 
+Every stylesheet is direction-neutral, so the RTL sheets FreshRSS loads are
+verbatim copies. FreshRSS requests only the files listed in `metadata.json`,
+so `atelier.rtl.css` and `atelier-ui.rtl.css` are the only two mirrors that
+exist; the `_*.css` partials are reached through `@import` and need none.
+Regenerate the mirrors after editing any stylesheet instead of touching them
+by hand:
+
 ```console
 python3 scripts/generate_rtl.py
 ```
+
+`python3 scripts/check_theme.py` runs the same release checks as CI, including
+a guard that rejects direction-sensitive CSS before it can reach a mirror.
 
 ## License and credits
 

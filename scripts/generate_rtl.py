@@ -9,11 +9,16 @@ from pathlib import Path
 import sys
 
 
-from check_theme import RTL_SOURCE_FILES, check_direction_neutral
+from check_theme import (
+    DIRECTION_NEUTRAL_FILES,
+    RTL_MIRRORED_FILES,
+    check_direction_neutral,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCES = tuple(ROOT / name for name in RTL_SOURCE_FILES)
+SOURCES = tuple(ROOT / name for name in RTL_MIRRORED_FILES)
+GUARDED = tuple(ROOT / name for name in DIRECTION_NEUTRAL_FILES)
 
 
 def rtl_target(source: Path) -> Path:
@@ -31,9 +36,11 @@ def main() -> int:
 
     # A verbatim copy is only a valid RTL sheet while the source is
     # direction-neutral, and unlike the old transform table this copy cannot
-    # fail on its own when the source changes. Guard it explicitly instead.
+    # fail on its own when the source changes. Guard it explicitly instead --
+    # across every stylesheet, because the mirrored sheets pull the partials in
+    # by @import and inherit whatever direction bugs those carry.
     direction_errors: list[str] = []
-    for source in SOURCES:
+    for source in GUARDED:
         direction_errors.extend(
             check_direction_neutral(
                 source.relative_to(ROOT), source.read_text(encoding="utf-8")
@@ -67,7 +74,7 @@ def main() -> int:
 
     # Logical properties handle spacing, borders, and radii. The few
     # direction-sensitive transforms and shadows use :dir(rtl), so FreshRSS can
-    # load byte-identical counterparts for these project-owned stylesheets.
+    # load byte-identical counterparts for the two sheets it requests by name.
     for source in SOURCES:
         target = rtl_target(source)
         target.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")

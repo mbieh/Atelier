@@ -35,7 +35,6 @@
 html, body {
 	background: var(--grey-light);
 	color: var(--main-font-color);
-	font-family: "lato", "Helvetica", "Arial", sans-serif;
 	font-size: 0.875rem;
 }
 

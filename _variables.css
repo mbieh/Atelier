@@ -123,6 +123,14 @@
 	--frss-border-color-error: var(--destructive);
 	--frss-switch-accent-color: var(--success);
 	--frss-noThumbnailImage-background-color: var(--muted);
+	/* The base theme drags and drops in #ff0. Route it through the palette so
+	   reordering feeds reads as a highlight rather than raw yellow. */
+	--frss-dragdrop-color: var(--accent);
+	--frss-dragdrop-color-transparent: color-mix(
+		in srgb,
+		var(--ring) 30%,
+		transparent
+	);
 	--frss-darken-background-hover-transparent: color-mix(
 		in srgb,
 		var(--foreground) 12%,

@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import re
 import sys
+from typing import NamedTuple
 from urllib.parse import unquote
 import xml.etree.ElementTree as ElementTree
 
@@ -54,6 +55,8 @@ EXTERNAL_OR_COMPAT_PROPERTIES = {
     "--frss-border-color",
     "--frss-border-color-error",
     "--frss-darken-background-hover-transparent",
+    "--frss-dragdrop-color",
+    "--frss-dragdrop-color-transparent",
     "--frss-font-color-dark",
     "--frss-font-color-disabled",
     "--frss-font-color-error",
@@ -79,48 +82,149 @@ PROTECTED_NOTES = (
     # button entries, which stay content-sized under width: auto.
     "width: calc(100% - 8px) !important",
 )
+DESKTOP = "@media (min-width: 841px)"
+DARK = "@media (prefers-color-scheme: dark)"
+SETTINGS_CONTAINER = "@container at-settings"
+
+
+class LayoutRule(NamedTuple):
+    """A layout invariant, anchored to the rule that is meant to carry it.
+
+    `selector` has to equal one entry of a parsed rule's selector list, and
+    `declaration` has to match a declaration of that same rule, both after
+    whitespace normalisation; `context` matches as a substring of one of the
+    rule's enclosing at-rule preludes. Anchoring matters twice over: bare
+    declarations such as "flex-direction: column" occur all over the file, and
+    a short selector like ".btn" is a substring of a dozen others, so neither
+    guards anything on its own.
+
+    Set `partial` for the handful of anchors that are deliberately a fragment
+    of a longer selector -- a descendant tail, or a selector nested inside
+    :has(). Those match as a substring instead.
+    """
+
+    selector: str
+    declaration: str | None = None
+    context: str | None = None
+    partial: bool = False
+
+
 REQUIRED_LAYOUT_RULES = (
-    "grid-template-rows: auto minmax(min-content, 1fr);",
-    "grid-row: 1 / -1;",
-    "#global > .nav_menu ~ main",
-    'grid-template-areas: "read favorite thumbnail content labels share link";',
-    'grid-template-areas: "read favorite thumbnail website content labels share link";',
-    "grid-template-columns: subgrid;",
-    "grid-template-rows: subgrid;",
-    "--at-form-label-width: 13rem;",
-    "--at-dashboard-width: 96rem;",
-    ".prompt .form-group:not([hidden])",
-    ".post .form-group:not([hidden]):not(.hidden)",
-    "main.post.content",
-    "html.controller_stats main.post",
-    "grid-template-columns: var(--at-form-label-width) minmax(0, 1fr);",
-    ".post .group-controls > .stick",
-    ".post .form-group.form-actions",
-    "backdrop-filter: none;",
-    "block-size: var(--at-header-height);",
-    "grid-template-columns: var(--width-aside, 300px) minmax(0, 1fr) auto;",
-    "grid-template-columns: auto minmax(0, 1fr) auto;",
-    ".nav_menu.nav_mobile",
-    ".aside_feed .tree-folder.category[data-unread]",
-    ".tree-folder-title[data-unread]:not([data-unread=",
-    "#sidebar .tree-folder > .tree-folder-title > button.dropdown-toggle",
-    ".flux_content .content > header h1.title",
-    "#stream .flux .flux_header:hover .item.titleAuthorSummaryDate > .title",
-    ".flux_header > :is(.item.manage, .item.labels, .item.share, .item.link)",
-    ".item.titleAuthorSummaryDate > .title .author::before",
-    ".item.titleAuthorSummaryDate > .summary",
-    ".flux_header:not(.has-thumbnail)",
-    ".flux_header.websiteicon:not(.has-thumbnail)",
-    ".flux_header:is(.websitename, .websitefull):not(.has-summary)",
-    ".flux_header:is(.websitename, .websitefull).has-summary >",
-    "grid-row: 1 / var(--at-article-row-end);",
-    ".flux .flux_content > footer > .bottom > .item.date",
-    "margin-inline-start: auto;",
-    ".item.nav-section:first-child:not(",
-    "flex-direction: column;",
-    'a[href*="c=index"][href*="a=index"]',
-    "padding-block: 0;",
-    "max-inline-size: none;",
+    # Desktop shell: sidebar column and content card.
+    LayoutRule("#global", "grid-template-rows: auto minmax(min-content, 1fr)", DESKTOP),
+    LayoutRule("#global > .aside", "grid-row: 1 / -1", DESKTOP),
+    LayoutRule("#global > .nav_menu ~ main", context=DESKTOP),
+    LayoutRule("body", "flex-direction: column", DESKTOP),
+    # The row carries its own leading inset, so the feed eyebrow stays flush
+    # with the title even when the topline hides the read and favorite
+    # controls and .item.website becomes the first child.
+    LayoutRule(".flux .flux_header", "padding-inline-start: 0.5rem"),
+    LayoutRule(".flux .flux_header > .item:first-child", "padding-inline-start: 0"),
+    # Article rows and their subgrid cells.
+    LayoutRule(
+        ".flux_header",
+        'grid-template-areas: "read favorite thumbnail content labels share link"',
+        DESKTOP,
+    ),
+    LayoutRule(
+        ".flux_header.websiteicon",
+        'grid-template-areas: "read favorite thumbnail website content labels share'
+        ' link"',
+        DESKTOP,
+    ),
+    LayoutRule(
+        ".flux_header:is(.websitename, .websitefull) > .item.titleAuthorSummaryDate",
+        "grid-template-columns: subgrid",
+        DESKTOP,
+    ),
+    LayoutRule(
+        ".flux_header:is(.websitename, .websitefull) > .item.titleAuthorSummaryDate",
+        "grid-template-rows: subgrid",
+        DESKTOP,
+    ),
+    LayoutRule(
+        ".flux_header:is(.websitename, .websitefull) > .item.manage:has(.read)",
+        "grid-row: 1 / var(--at-article-row-end)",
+        DESKTOP,
+    ),
+    LayoutRule(
+        ".flux_header:is(.websitename, .websitefull) > .item.thumbnail",
+        "grid-row: 1 / var(--at-article-row-end)",
+        DESKTOP,
+    ),
+    LayoutRule(
+        ".flux_header:is(.websitename, .websitefull) > .item.titleAuthorSummaryDate",
+        "grid-row: 1 / var(--at-article-row-end)",
+        DESKTOP,
+    ),
+    LayoutRule(".flux_header:not(.has-thumbnail)", context=DESKTOP),
+    LayoutRule(".flux_header.websiteicon:not(.has-thumbnail)", context=DESKTOP),
+    LayoutRule(
+        ".flux_header:is(.websitename, .websitefull):not(.has-summary)", context=DESKTOP
+    ),
+    LayoutRule(
+        ".flux_header:is(.websitename, .websitefull).has-summary >",
+        context=DESKTOP,
+        partial=True,
+    ),
+    LayoutRule(
+        ".flux_header > :is(.item.manage, .item.labels, .item.share, .item.link)",
+        context=DESKTOP,
+    ),
+    LayoutRule("#stream .flux .flux_header:hover .item.titleAuthorSummaryDate > .title"),
+    LayoutRule(
+        ".item.titleAuthorSummaryDate > .title .author::before",
+        context=DESKTOP,
+        partial=True,
+    ),
+    LayoutRule(
+        ".item.titleAuthorSummaryDate > .summary", context=DESKTOP, partial=True
+    ),
+    LayoutRule(
+        ".flux .flux_content > footer > .bottom > .item.date",
+        "margin-inline-start: auto",
+        DESKTOP,
+    ),
+    LayoutRule(".flux_content .content > header h1.title"),
+    # Header and sidebar.
+    LayoutRule(
+        ".header",
+        "grid-template-columns: var(--width-aside, 300px) minmax(0, 1fr) auto",
+        DESKTOP,
+    ),
+    LayoutRule(".header", "block-size: var(--at-header-height)", DESKTOP),
+    LayoutRule(".nav_menu.nav_mobile", context=DESKTOP),
+    LayoutRule(
+        ".aside_feed .tree-folder-items .item > .item-title",
+        "grid-template-columns: auto minmax(0, 1fr) auto",
+    ),
+    LayoutRule(".aside_feed .tree-folder.category[data-unread]"),
+    LayoutRule(".tree-folder-title[data-unread]:not([data-unread=", partial=True),
+    LayoutRule("#sidebar .tree-folder > .tree-folder-title > button.dropdown-toggle"),
+    # Configuration sidebar: the duplicated back link and its empty section.
+    LayoutRule(".item.nav-section:first-child:not(", partial=True),
+    LayoutRule('a[href*="c=index"][href*="a=index"]', partial=True),
+    LayoutRule(
+        ".aside.nav-list > ul:has( > .item.nav-section:first-child > ul >"
+        " .item:nth-child(2) )",
+        "flex-direction: column",
+    ),
+    # Forms, dashboards and controls.
+    LayoutRule(":root", "--at-form-label-width: 13rem"),
+    LayoutRule(":root", "--at-dashboard-width: 96rem"),
+    LayoutRule(".prompt .form-group:not([hidden])"),
+    LayoutRule(".post .form-group:not([hidden]):not(.hidden)"),
+    LayoutRule("main.post.content"),
+    LayoutRule("html.controller_stats main.post"),
+    LayoutRule(
+        ".post .form-group",
+        "grid-template-columns: var(--at-form-label-width) minmax(0, 1fr)",
+        SETTINGS_CONTAINER,
+    ),
+    LayoutRule(".post .group-controls > .stick"),
+    LayoutRule(".post .form-group.form-actions", "backdrop-filter: none"),
+    LayoutRule(".btn", "padding-block: 0"),
+    LayoutRule(".header .item.search input", "max-inline-size: none"),
 )
 COLLAPSED_SIDEBAR_STATE = re.compile(
     r"#global\s*>\s*\.aside\.is-hidden\s*\{"
@@ -140,10 +244,13 @@ OBSOLETE_FORM_SUBGRID = re.compile(
     r"[^}]*grid-template-columns:\s*subgrid;",
     re.DOTALL,
 )
-REQUIRED_DARK_ICON_SELECTORS = (
-    '#sidebar img.icon:not([src$="/starred.svg"])',
+REQUIRED_DARK_ICON_RULES = (
+    LayoutRule('#sidebar img.icon:not([src$="/starred.svg"])', context=DARK),
 )
-RTL_SOURCE_FILES = (
+
+# Every stylesheet Atelier owns. All of them have to stay direction-neutral,
+# whether FreshRSS requests them by name or atelier.css pulls them in.
+DIRECTION_NEUTRAL_FILES = (
     "_components.css",
     "_configuration.css",
     "_divers.css",
@@ -159,15 +266,22 @@ RTL_SOURCE_FILES = (
     "_stats.css",
     "_tables.css",
     "_variables.css",
+    "atelier.css",
     "atelier-ui.css",
 )
 
-# Atelier ships byte-identical RTL counterparts, which is only correct while
-# these sources stay direction-neutral. Every construct below either has a
-# logical-property equivalent or needs a hand-written mirror, so it has to live
-# in a :dir(...) rule or carry an "rtl-safe:" comment stating why it already
-# reads correctly in both directions. The marker is accepted on the
-# declaration's own line, the line above it, or the rule's selector line.
+# FreshRSS rewrites only the filenames listed in metadata.json to ".rtl.css",
+# with no existence check and no fallback (app/FreshRSS.php), so exactly these
+# two need a mirror on disk. The partials above are reached through atelier.css
+# @import rules, which resolve relative to the sheet, so they need none.
+RTL_MIRRORED_FILES = ("atelier.css", "atelier-ui.css")
+
+# Because the sources stay direction-neutral, each mirror is a verbatim copy.
+# Every construct the direction check rejects either has a logical-property
+# equivalent or needs a hand-written mirror, so it has to live in a :dir(...)
+# rule or carry an "rtl-safe:" comment stating why it already reads correctly
+# in both directions. The marker is accepted on the declaration's own line, the
+# line above it, or the rule's selector line.
 RTL_SAFE_MARKER = "rtl-safe"
 
 # CSS property names are case-insensitive, so every pattern below has to be.
@@ -212,72 +326,13 @@ def fail(message: str) -> None:
     print(f"error: {message}", file=sys.stderr)
 
 
-def strip_css_comments_and_strings(css: str) -> str:
-    output: list[str] = []
-    index = 0
-    state = "code"
-    quote = ""
-    while index < len(css):
-        char = css[index]
-        following = css[index + 1] if index + 1 < len(css) else ""
-        if state == "code" and char == "/" and following == "*":
-            output.extend("  ")
-            index += 2
-            state = "comment"
-            continue
-        if state == "comment":
-            if char == "*" and following == "/":
-                output.extend("  ")
-                index += 2
-                state = "code"
-            else:
-                output.append("\n" if char == "\n" else " ")
-                index += 1
-            continue
-        if state == "code" and char in {'"', "'"}:
-            quote = char
-            output.append(" ")
-            index += 1
-            state = "string"
-            continue
-        if state == "string":
-            if char == "\\" and following:
-                output.extend("  ")
-                index += 2
-            elif char == quote:
-                output.append(" ")
-                index += 1
-                state = "code"
-            else:
-                output.append("\n" if char == "\n" else " ")
-                index += 1
-            continue
-        output.append(char)
-        index += 1
-    if state != "code":
-        raise ValueError(f"unterminated CSS {state}")
-    return "".join(output)
-
-
-def check_balanced_braces(path: Path, css: str) -> list[str]:
-    errors: list[str] = []
+def check_css_syntax(path: Path, css: str) -> list[str]:
+    """Report the first structural defect the parser trips over, if any."""
     try:
-        stripped = strip_css_comments_and_strings(css)
+        parse_rules(css)
     except ValueError as error:
         return [f"{path}: {error}"]
-    stack: list[int] = []
-    for line_number, line in enumerate(stripped.splitlines(), start=1):
-        for character in line:
-            if character == "{":
-                stack.append(line_number)
-            elif character == "}":
-                if not stack:
-                    errors.append(f"{path}:{line_number}: unmatched closing brace")
-                else:
-                    stack.pop()
-    for line_number in stack:
-        errors.append(f"{path}:{line_number}: unmatched opening brace")
-    return errors
+    return []
 
 
 def split_top_level(value: str, separator: str = " ") -> list[str]:
@@ -299,38 +354,116 @@ def split_top_level(value: str, separator: str = " ") -> list[str]:
     return [part.strip() for part in parts if part.strip()]
 
 
-def iter_declarations(stripped: str):
-    """Yield (line, text, inside_dir_rule, selector_line) for each declaration.
+class Declaration(NamedTuple):
+    text: str
+    """Whitespace-normalised source text, strings intact."""
+    sanitized: str
+    """Same declaration with string literals blanked, for pattern matching."""
+    line: int
 
-    Works on comment- and string-stripped CSS, so line numbers still line up
-    with the original file. Nesting and at-rules are handled by treating every
-    brace-delimited block the same way.
+
+class Rule(NamedTuple):
+    selector: str
+    line: int
+    context: tuple[str, ...]
+    """Enclosing selectors and at-rule preludes, outermost first."""
+    declarations: tuple[Declaration, ...]
+
+    @property
+    def dir_scoped(self) -> bool:
+        """True when the rule only applies to one writing direction."""
+        return any(":dir(" in part for part in (*self.context, self.selector))
+
+
+def normalize(text: str) -> str:
+    return " ".join(text.split()).rstrip(";").rstrip()
+
+
+def parse_rules(css: str) -> list[Rule]:
+    """Return a Rule for every brace-delimited block, nesting and at-rules alike.
+
+    Comments are skipped and string literals are consumed whole, so neither can
+    hide a brace or a semicolon from the block structure. Line numbers refer to
+    the original source.
     """
+    rules: list[Rule] = []
+    stack: list[tuple[str, int, list[Declaration]]] = []
     buffer: list[str] = []
+    sanitized: list[str] = []
     start_line = 1
     line = 1
-    blocks: list[tuple[bool, int]] = []
-    for char in stripped:
+    index = 0
+    length = len(css)
+
+    def take() -> tuple[str, str]:
+        nonlocal buffer, sanitized
+        pending = ("".join(buffer), "".join(sanitized))
+        buffer = []
+        sanitized = []
+        return pending
+
+    while index < length:
+        char = css[index]
+        following = css[index + 1] if index + 1 < length else ""
+        if char == "/" and following == "*":
+            end = css.find("*/", index + 2)
+            end = length if end == -1 else end + 2
+            line += css.count("\n", index, end)
+            index = end
+            continue
+        if char in {'"', "'"}:
+            end = index + 1
+            while end < length:
+                if css[end] == "\\":
+                    end += 2
+                    continue
+                if css[end] == char:
+                    end += 1
+                    break
+                end += 1
+            else:
+                raise ValueError("unterminated CSS string")
+            if not buffer:
+                start_line = line
+            buffer.append(css[index:end])
+            sanitized.append(" " * (end - index))
+            line += css.count("\n", index, end)
+            index = end
+            continue
         if char == "{":
-            selector = "".join(buffer)
-            inherited = bool(blocks and blocks[-1][0])
-            blocks.append((inherited or ":dir(" in selector, start_line))
-            buffer = []
+            selector_text, _ = take()
+            stack.append((normalize(selector_text), start_line, []))
         elif char in {"}", ";"}:
-            text = "".join(buffer).strip()
-            if text and blocks:
-                yield start_line, text, blocks[-1][0], blocks[-1][1]
-            buffer = []
-            if char == "}" and blocks:
-                blocks.pop()
+            raw, clean = take()
+            text = normalize(raw)
+            if text and stack:
+                stack[-1][2].append(Declaration(text, normalize(clean), start_line))
+            if char == "}":
+                if not stack:
+                    raise ValueError(f"unmatched closing brace on line {line}")
+                selector, selector_line, declarations = stack.pop()
+                rules.append(
+                    Rule(
+                        selector,
+                        selector_line,
+                        tuple(entry[0] for entry in stack),
+                        tuple(declarations),
+                    )
+                )
         elif buffer or not char.isspace():
             # Leading whitespace is dropped so start_line marks the first real
             # character of the selector or declaration.
             if not buffer:
                 start_line = line
             buffer.append(char)
+            sanitized.append(char)
         if char == "\n":
             line += 1
+        index += 1
+
+    if stack:
+        raise ValueError(f"unmatched opening brace on line {stack[-1][1]}")
+    return rules
 
 
 def describe_direction_risk(declaration: str) -> str | None:
@@ -380,7 +513,7 @@ def describe_direction_risk(declaration: str) -> str | None:
 
 def check_direction_neutral(path: Path, css: str) -> list[str]:
     try:
-        stripped = strip_css_comments_and_strings(css)
+        rules = parse_rules(css)
     except ValueError as error:
         return [f"{path}: {error}"]
     raw_lines = css.splitlines()
@@ -405,19 +538,60 @@ def check_direction_neutral(path: Path, css: str) -> list[str]:
         return False
 
     errors: list[str] = []
-    for line, declaration, inside_dir, selector_line in iter_declarations(stripped):
-        if inside_dir:
+    for rule in rules:
+        if rule.dir_scoped:
             continue
-        risk = describe_direction_risk(declaration)
-        if risk is None:
-            continue
-        if marked(line, selector_line):
-            continue
-        errors.append(
-            f"{path}:{line}: {risk}; use a logical property, mirror it in a "
-            f":dir(rtl) rule, or add an /* {RTL_SAFE_MARKER}: ... */ comment"
-        )
+        for declaration in rule.declarations:
+            risk = describe_direction_risk(declaration.sanitized)
+            if risk is None:
+                continue
+            if marked(declaration.line, rule.line):
+                continue
+            errors.append(
+                f"{path}:{declaration.line}: {risk}; use a logical property, "
+                f"mirror it in a :dir(rtl) rule, or add an "
+                f"/* {RTL_SAFE_MARKER}: ... */ comment"
+            )
+    return sorted(errors, key=lambda entry: int(entry.split(":")[1]))
+
+
+def check_required_rules(
+    path: Path, rules: list[Rule], required: tuple[LayoutRule, ...], label: str
+) -> list[str]:
+    """Report every invariant that no parsed rule satisfies."""
+    errors: list[str] = []
+    for wanted in required:
+        for rule in rules:
+            if wanted.partial:
+                if wanted.selector not in rule.selector:
+                    continue
+            elif wanted.selector not in split_top_level(rule.selector, ","):
+                continue
+            if wanted.context is not None and not any(
+                wanted.context in part for part in rule.context
+            ):
+                continue
+            if wanted.declaration is not None and not any(
+                wanted.declaration == declaration.text
+                for declaration in rule.declarations
+            ):
+                continue
+            break
+        else:
+            detail = wanted.selector
+            if wanted.declaration is not None:
+                detail += f" {{ {wanted.declaration}; }}"
+            if wanted.context is not None:
+                detail += f" inside {wanted.context}"
+            errors.append(f"{path}: missing {label}: {detail}")
     return errors
+
+
+def released_version(changelog: str) -> str | None:
+    """Return the newest released version heading from the changelog."""
+    for match in re.finditer(r"(?m)^##\s+(\d+\.\d+\.\d+)\b", changelog):
+        return match.group(1)
+    return None
 
 
 def check_local_markdown_links(path: Path, content: str) -> list[str]:
@@ -459,7 +633,7 @@ def main() -> int:
             if line.rstrip() != line:
                 errors.append(f"{relative}:{line_number}: trailing whitespace")
         if path.suffix == ".css":
-            errors.extend(check_balanced_braces(relative, content))
+            errors.extend(check_css_syntax(relative, content))
         if path.suffix == ".md":
             errors.extend(check_local_markdown_links(path, content))
 
@@ -469,10 +643,20 @@ def main() -> int:
         errors.append(f"metadata.json: {error}")
         metadata = {}
 
+    # The changelog is the single source of truth for the released version, so
+    # cutting a release does not mean editing this script as well.
+    expected_version = released_version(
+        (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    )
+    if expected_version is None:
+        errors.append("CHANGELOG.md: no released version heading found")
     if metadata.get("name") != "Atelier":
         errors.append("metadata.json: name must be Atelier")
-    if metadata.get("version") != 1.1:
-        errors.append("metadata.json: version must match release 1.1")
+    if expected_version is not None and metadata.get("version") != expected_version:
+        errors.append(
+            f"metadata.json: version must be the string {expected_version!r} to match "
+            "the newest CHANGELOG release"
+        )
     if metadata.get("files") != EXPECTED_THEME_FILES:
         errors.append(
             "metadata.json: files must preserve the verified FreshRSS load order"
@@ -501,13 +685,25 @@ def main() -> int:
     if unused:
         errors.append("unused custom properties: " + ", ".join(sorted(unused)))
 
-    for filename in RTL_SOURCE_FILES:
+    expected_mirrors = set()
+    for filename in RTL_MIRRORED_FILES:
         source = ROOT / filename
         mirror = source.with_name(f"{source.stem}.rtl{source.suffix}")
+        expected_mirrors.add(mirror.name)
         if not mirror.is_file():
             errors.append(f"{mirror.name}: missing generated RTL counterpart")
         elif source.read_bytes() != mirror.read_bytes():
             errors.append(f"{mirror.name} must be identical to {filename}")
+
+    # Only the sheets FreshRSS requests by name need a mirror. Partials are
+    # reached through @import, so a mirror there is dead weight that has to be
+    # kept in sync by hand.
+    for path in css_paths:
+        if path.name.endswith(".rtl.css") and path.name not in expected_mirrors:
+            errors.append(
+                f"{path.name}: stray RTL mirror; only "
+                f"{', '.join(sorted(expected_mirrors))} are loaded by FreshRSS"
+            )
 
     for path in css_paths:
         content = path.read_text(encoding="utf-8")
@@ -522,15 +718,29 @@ def main() -> int:
             )
 
     ui_css = (ROOT / "atelier-ui.css").read_text(encoding="utf-8")
-    for filename in RTL_SOURCE_FILES:
+    for filename in DIRECTION_NEUTRAL_FILES:
         path = ROOT / filename
         errors.extend(
             check_direction_neutral(Path(filename), path.read_text(encoding="utf-8"))
         )
 
-    for rule in REQUIRED_LAYOUT_RULES:
-        if rule not in ui_css:
-            errors.append("atelier-ui.css: missing desktop grid rule: " + rule)
+    try:
+        ui_rules = parse_rules(ui_css)
+    except ValueError:
+        ui_rules = []
+    errors.extend(
+        check_required_rules(
+            Path("atelier-ui.css"), ui_rules, REQUIRED_LAYOUT_RULES, "layout rule"
+        )
+    )
+    errors.extend(
+        check_required_rules(
+            Path("atelier-ui.css"),
+            ui_rules,
+            REQUIRED_DARK_ICON_RULES,
+            "dark-mode icon rule",
+        )
+    )
     if not COLLAPSED_SIDEBAR_STATE.search(ui_css):
         errors.append(
             "atelier-ui.css: collapsed sidebar must have a hidden zero-width state"
@@ -555,12 +765,6 @@ def main() -> int:
             )
     if OBSOLETE_FORM_SUBGRID.search(ui_css):
         errors.append("atelier-ui.css: obsolete form subgrid layout remains")
-
-    for selector in REQUIRED_DARK_ICON_SELECTORS:
-        if selector not in ui_css:
-            errors.append(
-                "atelier-ui.css: missing dark-mode icon selector: " + selector
-            )
 
     svg_files = sorted((ROOT / "icons").glob("*.svg"))
     lucide_files = [path for path in svg_files if path.name not in NON_LUCIDE_SVGS]

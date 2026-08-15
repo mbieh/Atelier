@@ -15,18 +15,21 @@ The Mapco structural modules remain the foundation. A comparison against the
 tag above shows the following intentional differences outside Atelier's
 override layer:
 
-- `_components.css` and `_components.rtl.css` cover nested `.as-link` elements
-  and add `.alert-info`.
-- `_forms.css` and `_forms.rtl.css` use `:user-invalid` instead of `:invalid`
-  so fields are not presented as invalid before user interaction.
-- `_fonts.css` and `_fonts.rtl.css` do not load Mapco web fonts.
-- `_logs.css` and `_logs.rtl.css` use a valid semantic error background instead
-  of passing a hexadecimal custom property to `rgba()`.
-- `_variables.css` and `_variables.rtl.css` contain Atelier's color palette.
-- `atelier.css` and `atelier.rtl.css` are the renamed Mapco entry points.
+- `_components.css` covers nested `.as-link` elements and adds `.alert-info`.
+- `_forms.css` uses `:user-invalid` instead of `:invalid` so fields are not
+  presented as invalid before user interaction, and drops Mapco's `lato`
+  font stack together with the empty `.form-group::after` clearfix.
+- `_fonts.css` does not load Mapco web fonts.
+- `_logs.css` uses a valid semantic error background instead of passing a
+  hexadecimal custom property to `rgba()`.
+- `_sidebar.css` routes the sidebar scrollbar through the palette instead of
+  Mapco's literal fallback pair.
+- `_variables.css` contains Atelier's color palette.
+- `atelier.css` is the renamed Mapco entry point.
 
-These differences remain identical between each LTR and RTL pair. The visual
-redesign itself lives in `atelier-ui.css` and `atelier-ui.rtl.css`.
+Every module above is direction-neutral, so `atelier.rtl.css` and
+`atelier-ui.rtl.css` are verbatim copies of their sources rather than
+hand-mirrored variants. The visual redesign itself lives in `atelier-ui.css`.
 
 ## Lucide
 

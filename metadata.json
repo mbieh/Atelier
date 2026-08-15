@@ -2,7 +2,7 @@
 	"name": "Atelier",
 	"author": "Mario (based on Mapco by Thomas Guesnon)",
 	"description": "Modern light and dark theme inspired by shadcn/ui, with a neutral Mist palette, clear reading hierarchy, soft radii, and subtle motion.",
-	"version": 1.1,
+	"version": "1.1.0",
 	"files": ["_frss.css", "atelier.css", "atelier-ui.css"],
 	"theme-color": "#f1f3f3"
 }

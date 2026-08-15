@@ -3,7 +3,6 @@
 	margin: 10px 0;
 
 	&#sidebar {
-		scrollbar-color: rgba(255,255, 0, 0.1) rgba(0, 0, 0, 0.05);
 		scrollbar-color: color-mix(in srgb, var(--sid-font-color) 20%, transparent) color-mix(in srgb, var(--sid-font-color) 13%, transparent);
 	}
 

@@ -926,6 +926,9 @@ input[type="file"]::file-selector-button {
 	box-sizing: border-box;
 	min-inline-size: 2rem;
 	padding: 0.25rem 0.5rem;
+	/* The base theme outlines the active feed's counter only. Reset it here so
+	   every counter in the tree keeps the same pill silhouette. */
+	border: none;
 	border-radius: 999px;
 	background: var(--sidebar-accent);
 	color: var(--sidebar-accent-foreground);
@@ -1117,6 +1120,23 @@ main.prompt h1,
 }
 
 /*=== 7. List view ===================================================*/
+
+/* Mapco insets the first item of every horizontal list. In an article row that
+   inset lands on whichever item happens to come first, so it is a row inset
+   only as long as that item sits in a column of its own. With the read and
+   favorite controls switched off in the topline settings, the first item is
+   .item.website, which shares its grid column with the title -- and the feed
+   eyebrow ends up indented against the title and summary below it. Carry the
+   inset on the row instead, where it shifts every column alike. The row keeps
+   the same leading inset it had, so layouts that do show those controls are
+   unaffected. */
+.flux .flux_header {
+	padding-inline-start: 0.5rem;
+}
+
+.flux .flux_header > .item:first-child {
+	padding-inline-start: 0;
+}
 
 @media (min-width: 841px) {
 	/* Optional article controls occupy named intrinsic columns. The source feed
@@ -2032,7 +2052,11 @@ main.post .alert > p:last-child:has(
 	font-weight: 600;
 }
 
-/* Keep status variants dark and identify their state with a bright dot. */
+/* The toast paints itself in --foreground and writes in --background, so it
+   inverts with the color scheme. Every marker on it therefore has to be mixed
+   towards --background: that is the toast's own text color, so the mix always
+   moves away from the toast surface in both schemes. A literal color would
+   only hold in one of them. */
 .notification.good,
 .notification.bad {
 	background: var(--foreground);
@@ -2047,17 +2071,23 @@ main.post .alert > p:last-child:has(
 	border-radius: 999px;
 	margin-inline-end: 0.6rem;
 	vertical-align: middle;
-	background: var(--muted-foreground);
+	background: color-mix(in srgb, var(--muted-foreground) 70%, var(--background));
 }
 
+/* State is carried by shape as well as hue, so the two variants stay
+   distinguishable without color vision (WCAG 1.4.1): success keeps the round
+   dot, failure turns it into a diamond. The rotation is symmetric, so it needs
+   no RTL mirror. */
 .notification.good .msg::before {
-	background: #4ade80;
-	box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+	background: color-mix(in srgb, var(--success) 70%, var(--background));
+	box-shadow: 0 0 8px color-mix(in srgb, var(--success) 60%, transparent);
 }
 
 .notification.bad .msg::before {
-	background: #f87171;
-	box-shadow: 0 0 8px rgba(248, 113, 113, 0.6);
+	border-radius: 1px;
+	transform: rotate(45deg);
+	background: color-mix(in srgb, var(--destructive) 70%, var(--background));
+	box-shadow: 0 0 8px color-mix(in srgb, var(--destructive) 60%, transparent);
 }
 
 .notification .close {
@@ -2080,7 +2110,7 @@ main.post .alert > p:last-child:has(
 .notification .close:hover,
 .notification.good .close:hover,
 .notification.bad .close:hover {
-	background: rgba(241, 243, 243, 0.14);
+	background: color-mix(in srgb, var(--background) 14%, transparent);
 }
 
 @keyframes at-toast {

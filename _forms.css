@@ -72,7 +72,6 @@ input, select, textarea, button {
 	padding: 5px 10px;
 	background: var(--white);
 	color: var(--grey-dark);
-	font-family: "lato", "Helvetica", "Arial", sans-serif;
 	font-size: 1rem;
 	border: 1px solid var(--grey-light);
 	border-radius: 2px;
@@ -107,11 +106,6 @@ input:disabled, select:disabled {
 .form-group {
 	padding: 5px;
 	border-radius: 3px;
-
-	&::after {
-		display: block;
-		clear: both;
-	}
 
 	.group-name {
 		padding: 10px 0;
