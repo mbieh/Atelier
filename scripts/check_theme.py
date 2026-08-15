@@ -629,7 +629,30 @@ CONTRAST_PAIRS = (
     ("--ring", "--card", 3.0),
     ("--ring", "--background", 3.0),
     ("--sidebar-ring", "--sidebar", 3.0),
+    # Accent hues, in the roles they are actually painted in. Alert text sits
+    # on its own tint; --destructive doubles as error text; --favorite is the
+    # star that marks a favorited article and has to read as a graphical
+    # indicator on every row background it can land on.
+    ("--success-foreground", "--success-muted", 4.5),
+    ("--warning-foreground", "--warning-muted", 4.5),
+    ("--info-foreground", "--info-muted", 4.5),
+    ("--destructive", "--card", 4.5),
+    ("--destructive", "--background", 4.5),
+    ("--favorite", "--card", 3.0),
+    ("--favorite", "--background", 3.0),
+    ("--favorite", "--favorite-muted", 3.0),
 )
+
+# Deliberately not checked: the border of an alert against its own tint. The
+# alert is identified by that tint and its text, both of which are checked
+# above, so the border is a delimiter rather than the carrier of the state.
+
+# The favorite star is an external SVG, which cannot inherit currentColor and
+# is excluded from the dark-mode icon filter on purpose. Its color therefore
+# lives in the asset, out of reach of the contrast pairs above, and would
+# drift away from the token without anyone noticing.
+FAVORITE_ICON = Path("icons") / "starred.svg"
+SVG_COLOR = re.compile(r'(?:fill|stroke)="(#[0-9a-fA-F]{3,6})"')
 
 HEX_COLOR = re.compile(r"^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$")
 COLOR_MIX = re.compile(
@@ -749,6 +772,28 @@ def check_contrast(rules: list[Rule]) -> list[str]:
                     f"{scheme} scheme: {foreground} on {background} is "
                     f"{ratio:.2f}:1, below the required {minimum}:1"
                 )
+
+    light = scheme_declarations(rules, dark=False)
+    token = resolve_color("--favorite", light)
+    icon = (ROOT / FAVORITE_ICON).read_text(encoding="utf-8")
+    painted = {match.lower() for match in SVG_COLOR.findall(icon)}
+    if token is None:
+        errors.append("--favorite must reduce to sRGB so the star can be checked")
+    elif len(painted) != 1:
+        errors.append(
+            f"{FAVORITE_ICON}: expected a single color, found "
+            + (", ".join(sorted(painted)) or "none")
+        )
+    else:
+        expected = "#%02x%02x%02x" % tuple(round(part) for part in token)
+        actual = painted.pop()
+        if len(actual) == 4:
+            actual = "#" + "".join(channel * 2 for channel in actual[1:])
+        if actual != expected:
+            errors.append(
+                f"{FAVORITE_ICON} is {actual} but --favorite is {expected}; the "
+                "star cannot inherit currentColor, so the two have to agree"
+            )
     return errors
 
 

@@ -54,7 +54,10 @@
 	--success-foreground: #1f6b45;
 	--success-muted: #f0f9f4;
 	--success-border: #bfe3cf;
-	--favorite: #d99e04;
+	/* Matches icons/starred.svg exactly. An external SVG cannot inherit
+	   currentColor, so the favorite star is a fixed asset and one value has
+	   to clear 3:1 on light and dark rows alike (WCAG 1.4.11). */
+	--favorite: #ad7d09;
 	--favorite-muted: #fdf6e0;
 
 	/* shadcn/ui sidebar roles. */
@@ -138,7 +141,9 @@
 	);
 	--frss-border-color: var(--input);
 	--frss-border-color-error: var(--destructive);
-	--frss-switch-accent-color: var(--success);
+	/* Atelier paints .switch.active with --primary, so the base theme's
+	   accent has to name the same color instead of a green nothing renders. */
+	--frss-switch-accent-color: var(--primary);
 	--frss-noThumbnailImage-background-color: var(--muted);
 	/* The base theme drags and drops in #ff0. Route it through the palette so
 	   reordering feeds reads as a highlight rather than raw yellow. */
@@ -209,7 +214,6 @@
 		--success-foreground: #7bd5a6;
 		--success-muted: #1a3025;
 		--success-border: #2f6f50;
-		--favorite: #e0c04f;
 		--favorite-muted: #342b17;
 
 		--sidebar: var(--at-scale-800);

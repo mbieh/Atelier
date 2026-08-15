@@ -37,12 +37,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   mid-grey works as the darker element on light surfaces and as the lighter one
   on dark surfaces.
 
+- The favorite star is legible on a light row. `icons/starred.svg` was
+  `#d99e04`, which reached only 2.13 to 2.37:1 against the row backgrounds it
+  can land on — below the 3:1 that WCAG 1.4.11 asks of a graphical indicator.
+  It is `#ad7d09` now, the one gold that clears the bar on light and dark rows
+  alike; an external SVG cannot inherit `currentColor` and the star is
+  deliberately exempt from the dark-mode icon filter, so a single value has to
+  serve both. `--favorite` matches the asset and no longer differs per scheme,
+  and the contrast guard compares the two so they cannot drift apart.
+- `--frss-switch-accent-color` named `--success`, but Atelier paints
+  `.switch.active` with `--primary` and has done all along. The token now names
+  the color that is actually rendered.
+
 ### Changed
 
 - Dark surfaces walk down the ramp instead of using hand-picked values: page
   900, cards 800, raised states between 800 and 700, separators 600. The two
   values that were tuned by hand are derived now, so a new scheme does not have
   to supply them.
+- The contrast guard covers the accent hues in the roles they are painted in:
+  alert text on its own tint, `--destructive` as error text, and the favorite
+  star on every row background. The border of an alert against its own tint is
+  deliberately excluded — the tint and the text identify the alert, so the
+  border delimits rather than informs.
 
 - The feed eyebrow above an article title is flush with the title again. Mapco
   insets the first item of every horizontal list, which is a row inset only as
