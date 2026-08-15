@@ -958,10 +958,15 @@ body {
 
 	#global > .aside {
 		display: block;
+		box-sizing: border-box;
 		grid-column: 1;
 		grid-row: 1 / -1;
 		align-self: stretch;
 		width: var(--width-aside, 300px);
+		min-width: 0;
+		overflow: hidden;
+		opacity: 1;
+		visibility: visible;
 	}
 
 	#global > :not(.aside) {
@@ -984,9 +989,45 @@ body {
 	}
 
 	/* FreshRSS restores the persisted state from sessionStorage after parsing.
-	   Hide atomically so a reload cannot animate the initial expanded markup. */
+	   The resting states therefore remain transition-free. A transition is
+	   enabled only while an actual sidebar control owns focus, which preserves
+	   atomic restoration on reload while keeping explicit toggles animated. */
 	#global > .aside.is-hidden {
-		display: none;
+		display: block;
+		width: 0;
+		border-inline-end-width: 0;
+		opacity: 0;
+		/* rtl-safe: mirrored by the :dir(rtl) rule below. */
+		transform: translateX(-0.75rem);
+		visibility: hidden;
+		pointer-events: none;
+	}
+
+	:dir(rtl) #global > .aside.is-hidden {
+		transform: translateX(0.75rem);
+	}
+
+	#global:has(#nav_menu_toggle_aside button:focus) > .aside,
+	#global:has(> .aside .toggle_aside:focus) > .aside,
+	#global:has(> .aside .close-aside:focus) > .aside {
+		transition:
+			width 240ms cubic-bezier(0.22, 1, 0.36, 1),
+			border-inline-end-width 160ms ease-out,
+			opacity 160ms ease-out,
+			transform 240ms cubic-bezier(0.22, 1, 0.36, 1),
+			visibility 0s linear;
+		will-change: width, opacity, transform;
+	}
+
+	#global:has(#nav_menu_toggle_aside button:focus) > .aside.is-hidden,
+	#global:has(> .aside .toggle_aside:focus) > .aside.is-hidden,
+	#global:has(> .aside .close-aside:focus) > .aside.is-hidden {
+		transition:
+			width 240ms cubic-bezier(0.22, 1, 0.36, 1),
+			border-inline-end-width 160ms ease-out,
+			opacity 160ms ease-out,
+			transform 240ms cubic-bezier(0.22, 1, 0.36, 1),
+			visibility 0s linear 240ms;
 	}
 }
 

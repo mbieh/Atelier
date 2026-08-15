@@ -27,6 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- Added a smooth, direction-aware sidebar reveal for explicit toggle actions.
+  Persisted collapsed-state restoration remains transition-free, preventing the
+  sidebar from flashing open during reloads and feed refreshes. Child controls
+  retain their native sizing and spacing throughout the open state.
 - Reworked statistics into a responsive full-width dashboard grid and gave
   informational text views a wide, readable content measure instead of fixed
   legacy box widths.
@@ -79,8 +83,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Replaced inherited table, float, absolute-position, and fixed-width layout
   assumptions in the header, article rows, settings forms, sidebar rows, and
   global feed cards with intrinsic CSS Grid and container-query layouts.
-- Prevented the persisted collapsed sidebar from briefly sliding into view
-  during page reloads and feed refreshes by restoring atomic state changes.
 - Kept the tick visible on disabled checkboxes and radios, whose muted fill
   previously covered the checked state.
 - Rounded only the outer edges of button groups again, so middle segments no

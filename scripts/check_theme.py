@@ -103,8 +103,17 @@ REQUIRED_LAYOUT_RULES = (
     "padding-block: 0;",
     "max-inline-size: none;",
 )
-ATOMIC_SIDEBAR_COLLAPSE = re.compile(
-    r"#global\s*>\s*\.aside\.is-hidden\s*\{[^}]*display:\s*none;",
+COLLAPSED_SIDEBAR_STATE = re.compile(
+    r"#global\s*>\s*\.aside\.is-hidden\s*\{"
+    r"(?=[^}]*display:\s*block;)"
+    r"(?=[^}]*width:\s*0;)"
+    r"(?=[^}]*visibility:\s*hidden;)"
+    r"[^}]*\}",
+    re.DOTALL,
+)
+FOCUS_GATED_SIDEBAR_TRANSITION = re.compile(
+    r"#global:has\([^{}]*#nav_menu_toggle_aside\s+button:focus[^{}]*\)"
+    r"\s*>\s*\.aside(?:\.is-hidden)?\s*\{[^}]*transition:",
     re.DOTALL,
 )
 REQUIRED_DARK_ICON_SELECTORS = (
@@ -498,9 +507,13 @@ def main() -> int:
     for rule in REQUIRED_LAYOUT_RULES:
         if rule not in ui_css:
             errors.append("atelier-ui.css: missing desktop grid rule: " + rule)
-    if not ATOMIC_SIDEBAR_COLLAPSE.search(ui_css):
+    if not COLLAPSED_SIDEBAR_STATE.search(ui_css):
         errors.append(
-            "atelier-ui.css: collapsed sidebar must use atomic display:none"
+            "atelier-ui.css: collapsed sidebar must have a hidden zero-width state"
+        )
+    if not FOCUS_GATED_SIDEBAR_TRANSITION.search(ui_css):
+        errors.append(
+            "atelier-ui.css: sidebar transition must be gated by toggle focus"
         )
     if "grid-row: 1 / span" in ui_css:
         errors.append("atelier-ui.css: do not use an arbitrary sidebar row span")
