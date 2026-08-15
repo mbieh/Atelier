@@ -78,7 +78,7 @@ Atelier is derived from the official
 by Thomas Guesnon and the FreshRSS project. The theme is distributed under the
 [GNU Affero General Public License version 3](LICENSE).
 
-The 46 Lucide UI icons retain their `lucide-static` 1.31.0 ISC headers. The
+The 55 Lucide UI icons retain their `lucide-static` 1.31.0 ISC headers. The
 complete Lucide and Feather license notices are available in
 [`icons/LICENSE`](icons/LICENSE). The remaining logo assets are derived from
 FreshRSS and Mapco. See [`THIRD-PARTY.md`](THIRD-PARTY.md) for detailed

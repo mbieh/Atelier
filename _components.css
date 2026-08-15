@@ -82,12 +82,6 @@
 			& ~ .dropdown-section {
 				border-top-color: var(--grey-light);
 			}
-
-			.item {
-				a, .as-link {
-					padding-inline-start: 2rem;
-				}
-			}
 		}
 
 		&[aria-checked="true"] {

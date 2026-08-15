@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- Aligned the sidebar's category rows with its feed rows. The control column is
+  now pinned, so a category's collapse button no longer widens it and staggers
+  the chevrons and titles against the rows above.
+- Gave the settings sidebar's back link the same icon slot as its neighbours.
+  FreshRSS bakes an arrow into the translated label, which `::first-letter`
+  suppresses so the row can carry a normal icon.
+- Added leading Lucide icons to every entry of the settings dropdown, the
+  settings sidebar and the subscription sidebar, statistics included. FreshRSS
+  emits no icons there, so each entry is keyed off its target URL and drawn as
+  a mask tinted with `currentColor`, which follows the hover, active and
+  dark-theme foreground without a second asset. Nine new icons join the
+  bundle; the rest reuse existing glyphs.
 - Added a system-controlled dark color scheme using the existing semantic
   shadcn/ui token layer and locally bundled dark variants for CSS background
   icons.
@@ -60,6 +72,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   longer render as pills between flat end caps.
 - Removed the sidebar dropdown toggle's inherited negative margins and inline
   padding, which pushed the button out of its grid row and off-center.
+- Gave dropdown menus the settings sidebar's inset, so entries, section labels
+  and icons share one rhythm across both. Mapco's 2rem left every entry
+  indented past its own heading, and a second, redundant 2rem rule scoped to
+  `.dropdown-section` restated the same value at a higher specificity; it was
+  removed. Sort menus now draw their ✓ in a reserved slot instead of a
+  negative margin, which at the smaller inset would have placed the glyph
+  outside the entry's hover surface.
+- Extended dropdown hover surfaces across the full menu width for button
+  entries such as logout and the mark-as-read choices. A button stays
+  content-sized at `display: block`, so the previous `width: auto` stretched
+  only the link and span entries.
 - Made the mobile sidebar's close icon visible. Its bundled SVG stroke is
   `#394447`, the exact light-theme `--primary` that Mapco paints the close bar
   with, so the icon was invisible against its own background; in dark mode the

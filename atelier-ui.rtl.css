@@ -668,10 +668,13 @@ input[type="file"]::file-selector-button {
 }
 
 /* Sidebar rows reserve intrinsic columns for controls, labels, and counters.
-   This replaces the base theme's percentage-minus-pixels calculations. */
+   This replaces the base theme's percentage-minus-pixels calculations. The
+   control column is pinned rather than intrinsic: a category row holds a 2rem
+   collapse button where a feed row holds a 1rem icon, so an auto track sized
+   them differently and staggered both the glyphs and the titles. */
 .aside_feed .tree-folder .tree-folder-title {
 	display: grid;
-	grid-template-columns: auto minmax(0, 1fr) auto;
+	grid-template-columns: 1rem minmax(0, 1fr) auto;
 	align-items: center;
 	column-gap: 0.5rem;
 }
@@ -686,6 +689,10 @@ input[type="file"]::file-selector-button {
 	display: inline-grid;
 	place-items: center;
 	align-self: center;
+	/* Overflows the 1rem track evenly on both sides, so the button keeps a
+	   comfortable hit area while its centred chevron lands exactly where a
+	   feed row's icon sits. */
+	justify-self: center;
 	inline-size: 2rem;
 	block-size: 2rem;
 	line-height: 0;
@@ -1290,12 +1297,25 @@ main.prompt h1,
 
 /* Rounded shadcn-style menu items with an inset hover surface. Mapco applies
    its primary hover fill to the full-width .item; neutralize it and move the
-   hover treatment to the link. */
+   hover treatment to the link.
+
+   The width must be explicit: a button sizes to its content even at
+   display:block, so width:auto stretched only the a and span entries and left
+   every button one — logout, the mark-as-read choices — with a hover surface
+   that stopped at its label. The 8px matches the inline margins below.
+
+   The inset matches the settings sidebar: 0.75rem plus the 4px margin equals
+   the 1rem that .nav-list uses for both its entries and its headings, so the
+   two menus share one rhythm. Mapco's 2rem left every entry indented past its
+   own heading. */
 .dropdown-menu .item > a,
 .dropdown-menu .item > span,
+.dropdown-menu .item > button,
 .dropdown-menu .item .as-link {
 	display: block;
-	width: auto !important;
+	box-sizing: border-box;
+	width: calc(100% - 8px) !important;
+	padding-inline: 0.75rem;
 	border-radius: var(--at-radius-s);
 	margin: 0 4px;
 }
@@ -1320,11 +1340,30 @@ main.prompt h1,
 
 .dropdown-menu .dropdown-header,
 .dropdown-menu .dropdown-section .dropdown-section-title {
+	padding-inline: 1rem;
 	text-transform: none;
 	letter-spacing: 0;
 	font-weight: 600;
 	font-size: 0.8rem;
 	color: var(--muted-foreground);
+}
+
+/* Sort menus mark the active entry with a ✓ that Mapco pulls back into the
+   inset with a negative margin. At this inset that would drop the glyph
+   outside the entry's hover surface, so it gets its own slot instead — the
+   same box the settings icons use. Unchecked entries reserve the slot so the
+   labels of a menu stay on one line. */
+.dropdown-menu .item[aria-checked] > a::before {
+	content: "✓";
+	display: inline-block;
+	inline-size: 1rem;
+	margin-inline: 0 0.625rem;
+	text-align: center;
+	visibility: hidden;
+}
+
+.dropdown-menu .item[aria-checked="true"] > a::before {
+	visibility: visible;
 }
 
 .dropdown-menu .item.separator,
@@ -1343,9 +1382,224 @@ main.prompt h1,
 	pointer-events: none;
 }
 
-.signout .icon {
-	margin-inline-start: 0.5rem;
-	vertical-align: -0.125rem;
+/* Settings menus carry no icons in FreshRSS's markup, so they are keyed off
+   each entry's target URL. Drawing them as masks tinted with currentColor
+   keeps them in step with the hover, active and dark-theme foreground, which
+   a bundled <img> could not do. The header dropdown and the settings sidebar
+   link to the same targets, so one selector list serves both. */
+:is(.dropdown-menu, .aside.nav-list) .item > :is(
+	button.signout,
+	a[href*="c=user"][href*="a=profile"],
+	a[href*="c=configure"][href*="a=display"],
+	a[href*="c=configure"][href*="a=reading"],
+	a[href*="c=configure"][href*="a=archiving"],
+	a[href*="c=configure"][href*="a=integration"],
+	a[href*="c=configure"][href*="a=shortcut"],
+	a[href*="c=configure"][href*="a=queries"],
+	a[href*="c=extension"],
+	a[href*="c=configure"][href*="a=privacy"],
+	a[href*="c=configure"][href*="a=system"],
+	a[href*="c=user"][href*="a=manage"],
+	a[href*="c=auth"],
+	a[href*="c=update"][href*="a=checkInstall"],
+	a[href*="c=update"]:not([href*="&a="]),
+	a[href*="a=logs"],
+	a[href*="a=about"],
+	a[href*="c=search"],
+	a[href*="c=subscription"][href*="a=add"],
+	a[href*="c=subscription"]:not([href*="&a="]),
+	a[href*="c=tag"],
+	a[href*="c=importExport"],
+	a[href*="c=subscription"][href*="a=bookmarklet"],
+	a[href*="c=stats"]:not([href*="&a="]),
+	a[href*="c=stats"][href*="a=idle"],
+	a[href*="c=stats"][href*="a=repartition"],
+	a[href*="c=stats"][href*="a=unreadDates"]
+)::before {
+	content: "";
+	display: inline-block;
+	inline-size: 1rem;
+	block-size: 1rem;
+	margin-inline-end: 0.625rem;
+	vertical-align: -0.1875rem;
+	background-color: currentColor;
+	mask-position: center;
+	mask-repeat: no-repeat;
+	mask-size: 1rem 1rem;
+}
+
+/* Logout */
+:is(.dropdown-menu, .aside.nav-list) .item > button.signout::before {
+	mask-image: url("icons/logout.svg");
+}
+
+/* Profile */
+:is(.dropdown-menu, .aside.nav-list) .item > a[href*="c=user"][href*="a=profile"]::before {
+	mask-image: url("icons/user.svg");
+}
+
+/* Display */
+:is(.dropdown-menu, .aside.nav-list) .item > a[href*="c=configure"][href*="a=display"]::before {
+	mask-image: url("icons/look.svg");
+}
+
+/* Reading */
+:is(.dropdown-menu, .aside.nav-list) .item > a[href*="c=configure"][href*="a=reading"]::before {
+	mask-image: url("icons/view-reader.svg");
+}
+
+/* Archiving */
+:is(.dropdown-menu, .aside.nav-list) .item > a[href*="c=configure"][href*="a=archiving"]::before {
+	mask-image: url("icons/archive.svg");
+}
+
+/* Sharing */
+:is(.dropdown-menu, .aside.nav-list) .item > a[href*="c=configure"][href*="a=integration"]::before {
+	mask-image: url("icons/share.svg");
+}
+
+/* Shortcuts */
+:is(.dropdown-menu, .aside.nav-list) .item > a[href*="c=configure"][href*="a=shortcut"]::before {
+	mask-image: url("icons/keyboard.svg");
+}
+
+/* User queries */
+:is(.dropdown-menu, .aside.nav-list) .item > a[href*="c=configure"][href*="a=queries"]::before {
+	mask-image: url("icons/search.svg");
+}
+
+/* Extensions */
+:is(.dropdown-menu, .aside.nav-list) .item > a[href*="c=extension"]::before {
+	mask-image: url("icons/puzzle.svg");
+}
+
+/* Privacy */
+:is(.dropdown-menu, .aside.nav-list) .item > a[href*="c=configure"][href*="a=privacy"]::before {
+	mask-image: url("icons/shield.svg");
+}
+
+/* System settings */
+:is(.dropdown-menu, .aside.nav-list) .item > a[href*="c=configure"][href*="a=system"]::before {
+	mask-image: url("icons/configure.svg");
+}
+
+/* User management */
+:is(.dropdown-menu, .aside.nav-list) .item > a[href*="c=user"][href*="a=manage"]::before {
+	mask-image: url("icons/users.svg");
+}
+
+/* Authentication */
+:is(.dropdown-menu, .aside.nav-list) .item > a[href*="c=auth"]::before {
+	mask-image: url("icons/key.svg");
+}
+
+/* Install check */
+:is(.dropdown-menu, .aside.nav-list) .item > a[href*="c=update"][href*="a=checkInstall"]::before {
+	mask-image: url("icons/clipboard-check.svg");
+}
+
+/* Update */
+:is(.dropdown-menu, .aside.nav-list) .item > a[href*="c=update"]:not([href*="&a="])::before {
+	mask-image: url("icons/refresh.svg");
+}
+
+/* Logs */
+:is(.dropdown-menu, .aside.nav-list) .item > a[href*="a=logs"]::before {
+	mask-image: url("icons/scroll-text.svg");
+}
+
+/* About */
+:is(.dropdown-menu, .aside.nav-list) .item > a[href*="a=about"]::before {
+	mask-image: url("icons/notice.svg");
+}
+
+/* Advanced search */
+:is(.dropdown-menu, .aside.nav-list) .item > a[href*="c=search"]::before {
+	mask-image: url("icons/search.svg");
+}
+
+/* Add feed or category */
+:is(.dropdown-menu, .aside.nav-list) .item > a[href*="c=subscription"][href*="a=add"]::before {
+	mask-image: url("icons/add.svg");
+}
+
+/* Subscription management */
+:is(.dropdown-menu, .aside.nav-list) .item > a[href*="c=subscription"]:not([href*="&a="])::before {
+	mask-image: url("icons/all.svg");
+}
+
+/* Label management */
+:is(.dropdown-menu, .aside.nav-list) .item > a[href*="c=tag"]::before {
+	mask-image: url("icons/label.svg");
+}
+
+/* Import / export */
+:is(.dropdown-menu, .aside.nav-list) .item > a[href*="c=importExport"]::before {
+	mask-image: url("icons/opml.svg");
+}
+
+/* Subscription tools */
+:is(.dropdown-menu, .aside.nav-list) .item > a[href*="c=subscription"][href*="a=bookmarklet"]::before {
+	mask-image: url("icons/bookmark-add.svg");
+}
+
+/* Main statistics */
+:is(.dropdown-menu, .aside.nav-list) .item > a[href*="c=stats"]:not([href*="&a="])::before {
+	mask-image: url("icons/stats.svg");
+}
+
+/* Idle feeds */
+:is(.dropdown-menu, .aside.nav-list) .item > a[href*="c=stats"][href*="a=idle"]::before {
+	mask-image: url("icons/disabled.svg");
+}
+
+/* Article repartition */
+:is(.dropdown-menu, .aside.nav-list) .item > a[href*="c=stats"][href*="a=repartition"]::before {
+	mask-image: url("icons/chart-pie.svg");
+}
+
+/* Unread articles */
+:is(.dropdown-menu, .aside.nav-list) .item > a[href*="c=stats"][href*="a=unreadDates"]::before {
+	mask-image: url("icons/unread.svg");
+}
+
+/* The logout button already ends with FreshRSS's own icon; drop it so the new
+   leading glyph does not duplicate it and every label keeps the same indent. */
+:is(.dropdown-menu, .aside.nav-list) .item > button.signout .icon {
+	display: none;
+}
+
+/* The back link is the sole entry of the settings sidebar's first section.
+   FreshRSS bakes an arrow into the translated label itself ("← Zurück zu
+   Ihren RSS-Feeds"), so no markup hook exists for it. Suppressing it through
+   ::first-letter frees the row to use the same icon slot as its neighbours.
+   Gecko and WebKit both treat the arrow as the first letter, and both drop
+   the space it leaves at the start of the line. */
+.aside.nav-list > ul > .item.nav-section:first-child > ul > .item:first-child > a {
+	position: relative;
+	/* Room for the out-of-flow icon: the row's own inset, the icon, its gap,
+	   less the space that trails the suppressed arrow and still occupies
+	   roughly a quarter em. */
+	padding-inline-start: calc(2.625rem - 0.28em);
+}
+
+.aside.nav-list > ul > .item.nav-section:first-child > ul > .item:first-child > a::first-letter {
+	font-size: 0;
+}
+
+/* Out of flow on purpose: ::first-letter is skipped when inline content
+   precedes the text, so an inline icon here would silently restore the arrow. */
+.aside.nav-list > ul > .item.nav-section:first-child > ul > .item:first-child > a::before {
+	content: "";
+	position: absolute;
+	inset-inline-start: 1rem;
+	inset-block: 0;
+	inline-size: 1rem;
+	background-color: currentColor;
+	mask-image: url("icons/rss.svg");
+	mask-position: center;
+	mask-repeat: no-repeat;
+	mask-size: 1rem 1rem;
 }
 
 /* rtl-safe: mirrored by the :dir(rtl) rule below. */

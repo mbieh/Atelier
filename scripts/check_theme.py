@@ -74,7 +74,10 @@ PROTECTED_NOTES = (
     "Do not add backdrop-filter",
     "desktop CSS Grid",
     "base theme adds 100vh of whitespace",
-    "width: auto !important",
+    # Menu items must keep overriding Mapco's width: 100%, which would overflow
+    # the menu by their inline margins. The explicit calc() also stretches
+    # button entries, which stay content-sized under width: auto.
+    "width: calc(100% - 8px) !important",
 )
 REQUIRED_LAYOUT_RULES = (
     "grid-template-rows: auto minmax(min-content, 1fr);",
@@ -503,8 +506,8 @@ def main() -> int:
 
     svg_files = sorted((ROOT / "icons").glob("*.svg"))
     lucide_files = [path for path in svg_files if path.name not in NON_LUCIDE_SVGS]
-    if len(lucide_files) != 46:
-        errors.append(f"expected 46 Lucide SVGs, found {len(lucide_files)}")
+    if len(lucide_files) != 55:
+        errors.append(f"expected 55 Lucide SVGs, found {len(lucide_files)}")
     for path in lucide_files:
         content = path.read_text(encoding="utf-8")
         first_line = content.splitlines()[0]
