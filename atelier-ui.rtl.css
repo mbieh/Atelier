@@ -48,11 +48,10 @@
 
 @media (prefers-color-scheme: dark) {
 	:root {
-		--at-control-border: color-mix(
-			in srgb,
-			var(--foreground) 20%,
-			transparent
-		);
+		/* No control-border override here. The dark scheme used to blend the
+		   foreground at 20%, which composited to 1.89:1 against the card and
+		   left control boundaries below WCAG 1.4.11. --input carries the
+		   contrast-checked value in both schemes now. */
 		--at-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.16);
 		--at-shadow-md: 0 1px 2px rgba(0, 0, 0, 0.28), 0 8px 24px rgba(0, 0, 0, 0.2);
 		--at-shadow-pop: 0 4px 12px rgba(0, 0, 0, 0.35), 0 12px 32px rgba(0, 0, 0, 0.28);

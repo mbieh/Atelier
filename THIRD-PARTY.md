@@ -24,7 +24,9 @@ override layer:
   hexadecimal custom property to `rgba()`.
 - `_sidebar.css` routes the sidebar scrollbar through the palette instead of
   Mapco's literal fallback pair.
-- `_variables.css` contains Atelier's color palette.
+- `_variables.css` maps shadcn/ui semantic roles onto the neutral ramp in
+  `_palette.css`, which holds Tailwind 4.3 "Mist" and is the only file a
+  color scheme changes.
 - `atelier.css` is the renamed Mapco entry point.
 
 Every module above is direction-neutral, so `atelier.rtl.css` and

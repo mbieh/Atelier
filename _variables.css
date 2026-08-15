@@ -1,29 +1,46 @@
+/* Semantic roles. Neutrals resolve through the ramp in _palette.css and never
+   through a literal, so a scheme swap is a one-file change. The accent hues
+   below are deliberately literal: success, warning and destructive keep their
+   meaning across every neutral scheme.
+
+   Where a role needs a value the ramp does not offer, it is mixed from two
+   adjacent steps rather than hand-picked, so the formula carries over to the
+   other schemes. Two roles need that today, both for contrast reasons noted
+   at the declaration. */
+
 :root {
 	color-scheme: light;
 
-	/* shadcn/ui semantic color roles using the Tailwind Mist palette. */
-	--background: #f1f3f3;
-	--foreground: #161b1d;
-	--card: #fff;
-	--card-foreground: #161b1d;
-	--popover: #fff;
-	--popover-foreground: #161b1d;
-	--primary: #394447;
-	--primary-foreground: #fff;
-	--primary-hover: #2b3336;
-	--secondary: #e3e7e8;
-	--secondary-foreground: #090b0c;
-	--muted: #f9fbfb;
-	--muted-foreground: #67787c;
-	--accent: #e3e7e8;
-	--accent-foreground: #090b0c;
+	/* shadcn/ui semantic color roles. */
+	--background: var(--at-scale-100);
+	--foreground: var(--at-scale-900);
+	--card: var(--at-scale-white);
+	--card-foreground: var(--at-scale-900);
+	--popover: var(--at-scale-white);
+	--popover-foreground: var(--at-scale-900);
+	--primary: var(--at-scale-700);
+	--primary-foreground: var(--at-scale-white);
+	--primary-hover: var(--at-scale-800);
+	--secondary: var(--at-scale-200);
+	--secondary-foreground: var(--at-scale-950);
+	--muted: var(--at-scale-50);
+	/* Step 600, not 500: secondary text has to clear WCAG AA on --background
+	   and --muted, not just on the white card. Step 500 reaches only 4.14:1
+	   and 4.44:1 there. */
+	--muted-foreground: var(--at-scale-600);
+	--accent: var(--at-scale-200);
+	--accent-foreground: var(--at-scale-950);
 	--destructive: #c0392b;
 	--destructive-foreground: #fff;
 	--destructive-muted: #fbf1ef;
 	--destructive-border: #eec4bc;
-	--border: #e3e7e8;
-	--input: #d0d6d8;
-	--ring: #67787c;
+	--border: var(--at-scale-200);
+	/* The boundary of a control carries information, so it needs 3:1 against
+	   the surfaces it sits on (WCAG 1.4.11). The ramp straddles that bar --
+	   step 400 reaches 2.19:1, step 500 jumps to 4.14:1 and reads as a hard
+	   outline -- so mix the two and land just above it. */
+	--input: color-mix(in srgb, var(--at-scale-500) 60%, var(--at-scale-400));
+	--ring: var(--at-scale-500);
 	--radius: 10px;
 
 	/* Additional semantic feedback roles used by FreshRSS. */
@@ -32,7 +49,7 @@
 	--warning-muted: #fdf9ec;
 	--warning-border: #ecd9a0;
 	--info-muted: #eef2f3;
-	--info-foreground: #394447;
+	--info-foreground: var(--at-scale-700);
 	--success: #45a878;
 	--success-foreground: #1f6b45;
 	--success-muted: #f0f9f4;
@@ -41,14 +58,14 @@
 	--favorite-muted: #fdf6e0;
 
 	/* shadcn/ui sidebar roles. */
-	--sidebar: #f9fbfb;
-	--sidebar-foreground: #394447;
-	--sidebar-primary: #394447;
-	--sidebar-primary-foreground: #fff;
-	--sidebar-accent: #e3e7e8;
-	--sidebar-accent-foreground: #090b0c;
-	--sidebar-border: #e3e7e8;
-	--sidebar-ring: #67787c;
+	--sidebar: var(--at-scale-50);
+	--sidebar-foreground: var(--at-scale-700);
+	--sidebar-primary: var(--at-scale-700);
+	--sidebar-primary-foreground: var(--at-scale-white);
+	--sidebar-accent: var(--at-scale-200);
+	--sidebar-accent-foreground: var(--at-scale-950);
+	--sidebar-border: var(--at-scale-200);
+	--sidebar-ring: var(--at-scale-500);
 
 	/* Mapco compatibility aliases. Keep upstream structural modules stable. */
 	--main-first: var(--primary);
@@ -60,7 +77,7 @@
 	--white: var(--card);
 
 	--grey-dark: var(--muted-foreground);
-	--grey-medium-dark: #9ca8ab;
+	--grey-medium-dark: var(--at-scale-400);
 	--grey-medium: var(--input);
 	--grey-medium-light: var(--border);
 	--grey-light: var(--background);
@@ -98,7 +115,7 @@
 	--sid-sep: var(--sidebar-border);
 	--sid-active: var(--sidebar-accent);
 	--sid-active-font: var(--sidebar-accent-foreground);
-	--sid-pills: rgba(22, 27, 29, 0.08);
+	--sid-pills: color-mix(in srgb, var(--at-scale-900) 8%, transparent);
 
 	/* FreshRSS base-theme aliases used outside Mapco's component modules. */
 	--frss-font-color-dark: var(--foreground);
@@ -154,29 +171,33 @@
 	:root {
 		color-scheme: dark;
 
-		/* Dark shadcn/ui roles using the same Tailwind Mist palette. */
-		--background: #161b1d;
-		--foreground: #f9fbfb;
-		--card: #242a2c;
-		--card-foreground: #f9fbfb;
-		--popover: #242a2c;
-		--popover-foreground: #f9fbfb;
-		--primary: #e3e7e8;
-		--primary-foreground: #242a2c;
-		--primary-hover: #f1f3f3;
-		--secondary: #2b3336;
-		--secondary-foreground: #f9fbfb;
-		--muted: #2b3336;
-		--muted-foreground: #9ca8ab;
-		--accent: #2b3336;
-		--accent-foreground: #f9fbfb;
+		/* The dark surfaces walk down the same ramp: page 900, cards 800,
+		   raised states between 800 and 700, separators 600. */
+		--background: var(--at-scale-900);
+		--foreground: var(--at-scale-50);
+		--card: var(--at-scale-800);
+		--card-foreground: var(--at-scale-50);
+		--popover: var(--at-scale-800);
+		--popover-foreground: var(--at-scale-50);
+		--primary: var(--at-scale-200);
+		--primary-foreground: var(--at-scale-800);
+		--primary-hover: var(--at-scale-100);
+		--secondary: var(--at-scale-750);
+		--secondary-foreground: var(--at-scale-50);
+		--muted: var(--at-scale-750);
+		--muted-foreground: var(--at-scale-400);
+		--accent: var(--at-scale-750);
+		--accent-foreground: var(--at-scale-50);
 		--destructive: #e56b5d;
-		--destructive-foreground: #161b1d;
+		--destructive-foreground: var(--at-scale-900);
 		--destructive-muted: #351f1c;
 		--destructive-border: #7e3c34;
-		--border: #394447;
-		--input: #67787c;
-		--ring: #9ca8ab;
+		--border: var(--at-scale-600);
+		/* --input is deliberately absent: the mid-grey mixed in the light
+		   scheme is the one value that clears 3:1 in both directions, against
+		   white surfaces as the darker element and against dark surfaces as
+		   the lighter one. One formula, one contrast check, both schemes. */
+		--ring: var(--at-scale-400);
 
 		--warning: #e0c04f;
 		--warning-foreground: #f3d77a;
@@ -191,23 +212,22 @@
 		--favorite: #e0c04f;
 		--favorite-muted: #342b17;
 
-		--sidebar: #242a2c;
-		--sidebar-foreground: #e3e7e8;
-		--sidebar-primary: #e3e7e8;
-		--sidebar-primary-foreground: #242a2c;
-		--sidebar-accent: #2b3336;
-		--sidebar-accent-foreground: #f9fbfb;
-		--sidebar-border: #394447;
-		--sidebar-ring: #9ca8ab;
+		--sidebar: var(--at-scale-800);
+		--sidebar-foreground: var(--at-scale-200);
+		--sidebar-primary: var(--at-scale-200);
+		--sidebar-primary-foreground: var(--at-scale-800);
+		--sidebar-accent: var(--at-scale-750);
+		--sidebar-accent-foreground: var(--at-scale-50);
+		--sidebar-border: var(--at-scale-600);
+		--sidebar-ring: var(--at-scale-400);
 
 		/* Dark values for Mapco roles that are not pure semantic aliases. */
-		--grey-medium-dark: #9ca8ab;
 		--alert-light: var(--destructive-muted);
 		--alert-text: #ffb4aa;
 		--code-text: #f08a74;
 		--code-bg: #2f2220;
 		--warning-light: var(--warning-muted);
 		--success-light: var(--success-muted);
-		--sid-pills: rgba(249, 251, 251, 0.1);
+		--sid-pills: color-mix(in srgb, var(--at-scale-50) 10%, transparent);
 	}
 }

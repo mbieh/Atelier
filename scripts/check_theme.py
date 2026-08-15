@@ -252,6 +252,7 @@ REQUIRED_DARK_ICON_RULES = (
 # whether FreshRSS requests them by name or atelier.css pulls them in.
 DIRECTION_NEUTRAL_FILES = (
     "_components.css",
+    "_palette.css",
     "_configuration.css",
     "_divers.css",
     "_fonts.css",
@@ -594,6 +595,163 @@ def released_version(changelog: str) -> str | None:
     return None
 
 
+# The neutral ramp every color scheme has to provide, plus the two rungs
+# Atelier derives from it. Roles pick a step by the contrast they need, so a
+# scheme that skips a step would silently shift whatever role points at it.
+SCALE_STEPS = (50, 100, 200, 300, 400, 500, 600, 700, 750, 800, 900, 950)
+SCALE_EXTRA = ("--at-scale-white",)
+
+# WCAG 2.2: 4.5:1 for body text (1.4.3), 3:1 for the boundary of a control
+# and for focus indicators (1.4.11). Each entry is a role painted on a
+# surface it actually meets in the UI. This is what keeps a new palette
+# honest -- the ramp guarantees nothing on its own.
+CONTRAST_PAIRS = (
+    ("--foreground", "--card", 4.5),
+    ("--foreground", "--background", 4.5),
+    ("--foreground", "--accent", 4.5),
+    ("--card-foreground", "--card", 4.5),
+    ("--popover-foreground", "--popover", 4.5),
+    ("--muted-foreground", "--card", 4.5),
+    ("--muted-foreground", "--background", 4.5),
+    ("--muted-foreground", "--muted", 4.5),
+    ("--muted-foreground", "--accent", 4.5),
+    ("--secondary-foreground", "--secondary", 4.5),
+    ("--accent-foreground", "--accent", 4.5),
+    ("--primary-foreground", "--primary", 4.5),
+    ("--destructive-foreground", "--destructive", 4.5),
+    ("--sidebar-foreground", "--sidebar", 4.5),
+    ("--sidebar-accent-foreground", "--sidebar-accent", 4.5),
+    ("--sidebar-primary-foreground", "--sidebar-primary", 4.5),
+    # Control boundaries and focus rings against the surfaces they sit on.
+    ("--input", "--card", 3.0),
+    ("--input", "--background", 3.0),
+    ("--input", "--muted", 3.0),
+    ("--ring", "--card", 3.0),
+    ("--ring", "--background", 3.0),
+    ("--sidebar-ring", "--sidebar", 3.0),
+)
+
+HEX_COLOR = re.compile(r"^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$")
+COLOR_MIX = re.compile(
+    r"^color-mix\(\s*in\s+srgb\s*,\s*(.+?)\s+([\d.]+)%\s*,\s*(.+?)\s*\)$",
+    re.IGNORECASE | re.DOTALL,
+)
+VAR_REFERENCE = re.compile(r"^var\(\s*(--[\w-]+)\s*\)$")
+
+
+def parse_hex(value: str) -> tuple[float, float, float]:
+    digits = value.lstrip("#")
+    if len(digits) == 3:
+        digits = "".join(channel * 2 for channel in digits)
+    return tuple(int(digits[i : i + 2], 16) for i in (0, 2, 4))
+
+
+def resolve_color(
+    name: str, declarations: dict[str, str], seen: frozenset[str] = frozenset()
+) -> tuple[float, float, float] | None:
+    """Resolve a custom property to sRGB, following var() and color-mix().
+
+    Returns None for anything outside that subset -- `transparent`, a gradient,
+    a color function the theme does not use -- so the caller can report it
+    rather than pass a role through unchecked.
+    """
+    if name in seen:
+        return None
+    value = declarations.get(name)
+    if value is None:
+        return None
+    return resolve_value(value, declarations, seen | {name})
+
+
+def resolve_value(
+    value: str, declarations: dict[str, str], seen: frozenset[str]
+) -> tuple[float, float, float] | None:
+    value = value.strip()
+    if HEX_COLOR.match(value):
+        return parse_hex(value)
+    reference = VAR_REFERENCE.match(value)
+    if reference:
+        return resolve_color(reference.group(1), declarations, seen)
+    mix = COLOR_MIX.match(value)
+    if mix:
+        first = resolve_value(mix.group(1), declarations, seen)
+        second = resolve_value(mix.group(3), declarations, seen)
+        if first is None or second is None:
+            return None
+        weight = float(mix.group(2)) / 100
+        return tuple(first[i] * weight + second[i] * (1 - weight) for i in range(3))
+    return None
+
+
+def relative_luminance(color: tuple[float, float, float]) -> float:
+    def channel(value: float) -> float:
+        value /= 255
+        return value / 12.92 if value <= 0.04045 else ((value + 0.055) / 1.055) ** 2.4
+
+    red, green, blue = (channel(part) for part in color)
+    return 0.2126 * red + 0.7152 * green + 0.0722 * blue
+
+
+def contrast_ratio(
+    first: tuple[float, float, float], second: tuple[float, float, float]
+) -> float:
+    lighter, darker = sorted(
+        (relative_luminance(first), relative_luminance(second)), reverse=True
+    )
+    return (lighter + 0.05) / (darker + 0.05)
+
+
+def scheme_declarations(rules: list[Rule], dark: bool) -> dict[str, str]:
+    """Collect :root custom properties for one color scheme.
+
+    Later declarations win, and the dark scheme is layered on top of the light
+    one exactly as the cascade applies it.
+    """
+    values: dict[str, str] = {}
+    for rule in rules:
+        if ":root" not in split_top_level(rule.selector, ","):
+            continue
+        in_dark = any("prefers-color-scheme: dark" in part for part in rule.context)
+        if in_dark and not dark:
+            continue
+        for declaration in rule.declarations:
+            if not declaration.text.startswith("--"):
+                continue
+            name, _, value = declaration.text.partition(":")
+            values[name.strip()] = value.strip()
+    return values
+
+
+def check_contrast(rules: list[Rule]) -> list[str]:
+    errors: list[str] = []
+    for dark in (False, True):
+        scheme = "dark" if dark else "light"
+        declarations = scheme_declarations(rules, dark)
+        for step in SCALE_STEPS:
+            name = f"--at-scale-{step}"
+            if name not in declarations:
+                errors.append(f"{scheme} scheme: palette is missing {name}")
+        for name in SCALE_EXTRA:
+            if name not in declarations:
+                errors.append(f"{scheme} scheme: palette is missing {name}")
+        for foreground, background, minimum in CONTRAST_PAIRS:
+            front = resolve_color(foreground, declarations)
+            back = resolve_color(background, declarations)
+            if front is None or back is None:
+                errors.append(
+                    f"{scheme} scheme: cannot resolve {foreground} on {background}; "
+                    "the contrast guard needs both to reduce to sRGB"
+                )
+                continue
+            ratio = contrast_ratio(front, back)
+            if ratio + 0.005 < minimum:
+                errors.append(
+                    f"{scheme} scheme: {foreground} on {background} is "
+                    f"{ratio:.2f}:1, below the required {minimum}:1"
+                )
+    return errors
+
+
 def check_local_markdown_links(path: Path, content: str) -> list[str]:
     errors: list[str] = []
     for raw_target in re.findall(r"\[[^\]]+\]\(([^)]+)\)", content):
@@ -681,7 +839,11 @@ def main() -> int:
             "missing shadcn semantic properties: "
             + ", ".join(sorted(missing_semantic_properties))
         )
-    unused = definitions - uses - EXTERNAL_OR_COMPAT_PROPERTIES
+    # A palette ships the whole ramp on purpose: a scheme that only defined
+    # the steps today's roles happen to use would break the next role change.
+    # check_contrast() enforces completeness instead.
+    scale = {name for name in definitions if name.startswith("--at-scale-")}
+    unused = definitions - uses - EXTERNAL_OR_COMPAT_PROPERTIES - scale
     if unused:
         errors.append("unused custom properties: " + ", ".join(sorted(unused)))
 
@@ -733,6 +895,16 @@ def main() -> int:
             Path("atelier-ui.css"), ui_rules, REQUIRED_LAYOUT_RULES, "layout rule"
         )
     )
+
+    token_rules: list[Rule] = []
+    for filename in ("_palette.css", "_variables.css", "atelier-ui.css"):
+        try:
+            token_rules.extend(
+                parse_rules((ROOT / filename).read_text(encoding="utf-8"))
+            )
+        except ValueError:
+            pass
+    errors.extend(check_contrast(token_rules))
     errors.extend(
         check_required_rules(
             Path("atelier-ui.css"),

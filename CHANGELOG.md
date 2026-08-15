@@ -7,7 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+### Added
+
+- `_palette.css` holds the neutral ramp on its own, as the eleven canonical
+  Tailwind 4.3 "Mist" steps plus a derived rung for dark raised surfaces. It is
+  the only file a color scheme changes; semantic roles, component rules and the
+  accent hues for success, warning and destructive are shared. Steps 50 to 700
+  were already exactly Mist, so the light scheme keeps its values.
+- `check_theme.py` verifies WCAG contrast. It resolves every semantic role
+  through `var()` and `color-mix()` down to sRGB and checks it against the
+  surfaces it is painted on, separately for the light and the dark scheme —
+  4.5:1 for text, 3:1 for control boundaries and focus rings. A role that
+  cannot be reduced to sRGB is reported rather than skipped. The palette must
+  also be complete, so a scheme cannot omit a step that a role depends on.
+
 ### Fixed
+
+- Secondary text now uses ramp step 600 instead of 500. Step 500 met 4.5:1 only
+  on the white card and missed it on `--background` (4.14:1) and `--muted`
+  (4.44:1). This was not specific to Mist: step 500 misses the mark in eight of
+  the nine Tailwind neutrals, step 600 clears it in all nine.
+- Control boundaries meet the 3:1 of WCAG 1.4.11. `--input` was ramp step 300,
+  which reached 1.47:1 against a white card. Since no step lands near 3:1 — 400
+  gives 2.19:1, 500 jumps to 4.14:1 and reads as a hard outline — the role is
+  mixed from the two and lands at 3.16 to 3.52:1.
+- The dark scheme no longer overrides the control boundary with a 20% blend of
+  the foreground, which composited to 1.89:1 against a card and was the worst
+  contrast in the theme. Both schemes share one contrast-checked value: a
+  mid-grey works as the darker element on light surfaces and as the lighter one
+  on dark surfaces.
+
+### Changed
+
+- Dark surfaces walk down the ramp instead of using hand-picked values: page
+  900, cards 800, raised states between 800 and 700, separators 600. The two
+  values that were tuned by hand are derived now, so a new scheme does not have
+  to supply them.
 
 - The feed eyebrow above an article title is flush with the title again. Mapco
   insets the first item of every horizontal list, which is a row inset only as

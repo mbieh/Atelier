@@ -93,9 +93,16 @@ separate switch inside FreshRSS, and no preference is stored.
 
 ## Changing the colors
 
-All colors live in one place: [`_variables.css`](_variables.css). The values
-are grouped by role — background, foreground, borders, accents, sidebar — so
-you can swap the palette without touching any component rules.
+Atelier's color scheme is a single neutral ramp of eleven steps in
+[`_palette.css`](_palette.css) — currently Tailwind's *Mist*. Replace those
+eleven values with another neutral ramp (Slate, Zinc, Stone, …) and the whole
+theme follows, light and dark alike. Nothing else needs touching.
+
+That works because no component ever names a color. Every rule asks for a
+role — background, foreground, border, accent — and
+[`_variables.css`](_variables.css) maps those roles onto steps of the ramp.
+Which step a role gets is chosen by the contrast it needs, so a swapped
+palette keeps the theme readable instead of only recoloring it.
 
 After editing a stylesheet, regenerate the right-to-left copies that FreshRSS
 loads for RTL languages:
@@ -122,8 +129,10 @@ browsers hold on to stylesheets aggressively.
 ## Development
 
 `python3 scripts/check_theme.py` runs the same checks as CI: CSS structure,
-metadata, links, icon licenses, and a guard that rejects direction-sensitive
-CSS before it can reach a right-to-left copy.
+metadata, links, icon licenses, a guard that rejects direction-sensitive CSS
+before it can reach a right-to-left copy, and a WCAG contrast check that
+resolves every semantic role against the surfaces it is painted on, in both
+color schemes.
 
 See [`CHANGELOG.md`](CHANGELOG.md) for release notes and
 [`docs/component-coverage.md`](docs/component-coverage.md) for the component
