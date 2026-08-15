@@ -760,7 +760,18 @@ input[type="file"]::file-selector-button {
 	margin: 1px 6px;
 }
 
+/* Both children need explicit placement. FreshRSS omits the dropdown entirely
+   beyond simplify_over_n_feeds and hides it below 840px via .no-mobile, and a
+   display:none grid item claims no cell. Without this, .item-title auto-places
+   into the intrinsic first column, collapses to its zero min-content width,
+   and the empty 1fr column swallows the row. */
+.aside_feed .tree-folder-items .item > .dropdown,
+.aside_feed .tree-folder-items .item > .no-dropdown-toggle {
+	grid-column: 1;
+}
+
 .aside_feed .tree-folder-items .item > .item-title {
+	grid-column: 2;
 	display: grid;
 	grid-template-columns: auto minmax(0, 1fr) auto;
 	align-items: center;
@@ -1027,6 +1038,26 @@ main.prompt h1,
 		border-radius: 0;
 		border-inline: none;
 		box-shadow: none;
+	}
+
+	/* Mapco paints these close bars with --main-first, so their icons sit on a
+	   primary surface and need the primary foreground, not the sidebar's
+	   filter reset. The bundled SVG stroke is #394447 — the exact light-theme
+	   --primary — so the icon rendered invisibly against its own bar. */
+	.aside .toggle_aside img.icon,
+	.dropdown-menu .toggle_aside img.icon,
+	#slider .toggle_aside img.icon {
+		filter: brightness(0) invert(1) !important;
+	}
+}
+
+/* Dark mode inverts the primary surface to a light tone, so the icon keeps its
+   native stroke instead — the same exemption .btn.btn-important already uses. */
+@media (max-width: 840px) and (prefers-color-scheme: dark) {
+	.aside .toggle_aside img.icon,
+	.dropdown-menu .toggle_aside img.icon,
+	#slider .toggle_aside img.icon {
+		filter: none !important;
 	}
 }
 
@@ -1725,7 +1756,15 @@ legend,
 	text-indent: 0;
 }
 
+/* Same placement requirement as the sidebar rows: the favicon is only emitted
+   when show_favicons is enabled, so relying on auto-placement would drop the
+   title into the intrinsic column whenever a user turns favicons off. */
+#stream.global .box-content > .item.feed > .favicon {
+	grid-column: 1;
+}
+
 #stream.global .box-content > .item.feed > .item-title {
+	grid-column: 2;
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) auto;
 	align-items: center;

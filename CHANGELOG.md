@@ -60,6 +60,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   longer render as pills between flat end caps.
 - Removed the sidebar dropdown toggle's inherited negative margins and inline
   padding, which pushed the button out of its grid row and off-center.
+- Made the mobile sidebar's close icon visible. Its bundled SVG stroke is
+  `#394447`, the exact light-theme `--primary` that Mapco paints the close bar
+  with, so the icon was invisible against its own background; in dark mode the
+  global icon inversion left it at 1.17:1 on the inverted bar. It now uses the
+  primary foreground in light mode and its native stroke in dark mode.
+- Restored sidebar feed names below 840px, where the hidden `.no-mobile`
+  dropdown left the title auto-placed in the intrinsic grid column and
+  collapsed it to a few characters. Feed rows in the global view had the same
+  defect whenever favicons were disabled. Both now place their children
+  explicitly.
 
 ### Development
 
