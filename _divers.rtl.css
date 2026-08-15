@@ -6,9 +6,9 @@
 }
 
 .aside.aside_feed .nav-form .dropdown .dropdown-menu {
-	left: -20px;
+	inset-inline-end: -20px;
 }
 
 .aside.aside_feed .nav-form .dropdown .dropdown-menu::after {
-	left: 33px;
+	inset-inline-end: 33px;
 }

@@ -54,7 +54,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Replaced inherited table, float, absolute-position, and fixed-width layout
   assumptions in the header, article rows, settings forms, sidebar rows, and
   global feed cards with intrinsic CSS Grid and container-query layouts.
-
 - Kept the tick visible on disabled checkboxes and radios, whose muted fill
   previously covered the checked state.
 - Rounded only the outer edges of button groups again, so middle segments no
@@ -69,7 +68,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Replaced the RTL blocklist with a parser-based direction check that flags
   physical properties, left/right keywords, horizontal translations and
   shadows, and asymmetric box and radius shorthands, exempting `:dir()` rules
-  and declarations marked `rtl-safe`.
+  and declarations marked `rtl-safe`. The check ignores a trailing
+  `!important`, matches property names case-insensitively, and covers shadow
+  values held in custom properties.
+- Converted the inherited Mapco partials to logical properties, so all 15
+  stylesheets are direction-neutral and every RTL counterpart is generated
+  rather than hand-maintained. RTL parity is now asserted for all of them
+  instead of only `_variables.css`.
 - Added a FreshRSS 1.29.1 component coverage matrix and enforced the required
   semantic token contract in local checks.
 

@@ -21,8 +21,10 @@
 			text-transform: uppercase;
 
 			button.dropdown-toggle {
-				margin: -0.75rem 0.25rem -0.75rem -1rem;
-				padding: 0.75rem 0 0.75rem 1rem;
+				margin: -0.75rem 0;
+				margin-inline: -1rem 0.25rem;
+				padding: 0.75rem 0;
+				padding-inline-start: 1rem;
 
 				&:hover {
 					.icon {
@@ -33,7 +35,7 @@
 			}
 
 			.icon {
-				margin-right: 0.5rem;
+				margin-inline-end: 0.5rem;
 			}
 
 			.title {
@@ -88,7 +90,7 @@
 
 					&.dropdown-toggle {
 						.icon {
-							margin-right: 0.25rem;
+							margin-inline-end: 0.25rem;
 						}
 					}
 				}
@@ -105,11 +107,17 @@
 	}
 
 	.btn:first-child {
-		border-radius: 5px 0 0 5px;
+		border-start-start-radius: 5px;
+		border-start-end-radius: 0;
+		border-end-start-radius: 5px;
+		border-end-end-radius: 0;
 	}
 
 	.btn:last-child, input:last-child, .dropdown:last-child > .btn {
-		border-radius: 0 5px 5px 0;
+		border-start-start-radius: 0;
+		border-start-end-radius: 5px;
+		border-end-start-radius: 0;
+		border-end-end-radius: 5px;
 	}
 
 	.btn + .btn,
@@ -121,7 +129,7 @@
 	.dropdown + .btn,
 	.dropdown + input,
 	.dropdown + .dropdown > .btn {
-		border-left: 1px solid var(--grey-medium-light);
+		border-inline-start: 1px solid var(--grey-medium-light);
 	}
 
 }
@@ -262,7 +270,7 @@
 }
 
 .aside_feed .tree-folder-items .dropdown-menu::after {
-	left: 2px;
+	inset-inline-start: 2px;
 }
 
 .aside_feed .tree-folder-items .item .dropdown-target:target ~ .dropdown-toggle > .icon,
@@ -272,5 +280,5 @@
 }
 
 .aside_feed .stick #btn-add {
-	border-left-color: var(--sid-bg);
+	border-inline-start-color: var(--sid-bg);
 }

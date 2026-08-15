@@ -16,12 +16,13 @@
 
 	&.current {
 		background: var(--grey-lighter);
-		border-right: 2px solid var(--main-first);
+		border-inline-start: 2px solid var(--main-first);
 		transition: unset;
 
 		.flux_header {
 			background-color: unset;
-			margin-right: -2px; /* Compensate increased border-left-width */
+			/* Compensate increased border-inline-start-width */
+			margin-inline-start: -2px;
 		}
 	}
 
@@ -53,7 +54,7 @@
 	}
 
 	&.favorite {
-		border-right-color: var(--fav-bg);
+		border-inline-start-color: var(--fav-bg);
 	}
 
 	&.favorite:not(.current) {

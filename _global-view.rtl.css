@@ -15,18 +15,19 @@
 				font-size: 1rem;
 				font-weight: normal;
 				text-decoration: none;
-				text-align: right;
+				text-align: start;
 				text-transform: uppercase;
 				letter-spacing: 1px;
 
 				&:not([data-unread="0"])::after {
-					margin: -0.5rem 0 0 1rem;
+					margin: -0.5rem 0 0;
+					margin-inline-end: 1rem;
 					padding: 0 0.75rem;
 					background: var(--grey-light);
 					border-radius: 12px;
 					position: absolute;
 					top: 1.75rem;
-					left: 0;
+					inset-inline-end: 0;
 					line-height: 1.5rem;
 					text-align: center;
 				}
@@ -60,9 +61,6 @@
 }
 
 #panel {
-	top: 3rem;
-	left: 3rem;
-	bottom: 3rem;
-	right: 3rem;
+	inset: 3rem;
 	border-radius: 3px;
 }

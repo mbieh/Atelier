@@ -94,7 +94,24 @@ REQUIRED_LAYOUT_RULES = (
 REQUIRED_DARK_ICON_SELECTORS = (
     '#sidebar img.icon:not([src$="/starred.svg"])',
 )
-RTL_SOURCE_FILES = ("_fonts.css", "_variables.css", "atelier-ui.css")
+RTL_SOURCE_FILES = (
+    "_components.css",
+    "_configuration.css",
+    "_divers.css",
+    "_fonts.css",
+    "_forms.css",
+    "_global-view.css",
+    "_layout.css",
+    "_list-view.css",
+    "_logs.css",
+    "_mobile.css",
+    "_reader-view.css",
+    "_sidebar.css",
+    "_stats.css",
+    "_tables.css",
+    "_variables.css",
+    "atelier-ui.css",
+)
 
 # Atelier ships byte-identical RTL counterparts, which is only correct while
 # these sources stay direction-neutral. Every construct below either has a
@@ -104,31 +121,40 @@ RTL_SOURCE_FILES = ("_fonts.css", "_variables.css", "atelier-ui.css")
 # declaration's own line, the line above it, or the rule's selector line.
 RTL_SAFE_MARKER = "rtl-safe"
 
+# CSS property names are case-insensitive, so every pattern below has to be.
 PHYSICAL_PROPERTY = re.compile(
     r"(?<![\w-])(?:"
     r"(?:padding|margin|scroll-margin|scroll-padding)-(?:left|right)"
     r"|border-(?:left|right)(?:-(?:width|style|color))?"
     r"|border-(?:top|bottom)-(?:left|right)-radius"
     r"|left|right"
-    r")(?![\w-])\s*:"
+    r")(?![\w-])\s*:",
+    re.IGNORECASE,
 )
 PHYSICAL_KEYWORD = re.compile(
     r"(?<![\w-])(?:text-align|float|clear|background|background-position"
     r"|object-position|transform-origin|perspective-origin)"
-    r"(?![\w-])\s*:[^;]*?(?<![\w-])(?:left|right)(?![\w-])"
+    r"(?![\w-])\s*:[^;]*?(?<![\w-])(?:left|right)(?![\w-])",
+    re.IGNORECASE,
 )
 HORIZONTAL_TRANSLATE = re.compile(
-    r"(?<![\w-])(?:translate(?:X|3d)?\s*\(|translate\s*:)"
+    r"(?<![\w-])(?:translate(?:X|3d)?\s*\(|translate\s*:)", re.IGNORECASE
 )
 BOX_SHORTHAND = re.compile(
     r"(?<![\w-])(padding|margin|inset|scroll-margin|scroll-padding)"
     r"(?![\w-])\s*:\s*(.+)",
-    re.DOTALL,
+    re.DOTALL | re.IGNORECASE,
 )
-RADIUS_SHORTHAND = re.compile(r"(?<![\w-])border-radius(?![\w-])\s*:\s*(.+)", re.DOTALL)
+RADIUS_SHORTHAND = re.compile(
+    r"(?<![\w-])border-radius(?![\w-])\s*:\s*(.+)", re.DOTALL | re.IGNORECASE
+)
+# Shadow values also reach the page through --*-shadow-* custom properties,
+# which no box-shadow declaration would reveal to this check.
 SHADOW_SHORTHAND = re.compile(
-    r"(?<![\w-])(?:box|text)-shadow(?![\w-])\s*:\s*(.+)", re.DOTALL
+    r"(?<![\w-])(?:(?:box|text)-shadow|--[\w-]*shadow[\w-]*)(?![\w-])\s*:\s*(.+)",
+    re.DOTALL | re.IGNORECASE,
 )
+IMPORTANT_SUFFIX = re.compile(r"\s*!\s*important\s*$", re.IGNORECASE)
 LENGTH_TOKEN = re.compile(r"^[+-]?(?:\d+\.?\d*|\.\d+)")
 ZERO_LENGTH = re.compile(r"^[+-]?0*\.?0*(?:[a-z%]*)$", re.IGNORECASE)
 
@@ -260,6 +286,9 @@ def iter_declarations(stripped: str):
 
 def describe_direction_risk(declaration: str) -> str | None:
     """Return why a declaration needs a mirror, or None if it is neutral."""
+    # An !important suffix is an extra value token that would otherwise hide
+    # asymmetric shorthands from the arity checks below.
+    declaration = IMPORTANT_SUFFIX.sub("", declaration)
     if PHYSICAL_PROPERTY.search(declaration):
         return "physical property without a logical equivalent"
     if PHYSICAL_KEYWORD.search(declaration):
@@ -423,10 +452,13 @@ def main() -> int:
     if unused:
         errors.append("unused custom properties: " + ", ".join(sorted(unused)))
 
-    if (ROOT / "_variables.css").read_bytes() != (
-        ROOT / "_variables.rtl.css"
-    ).read_bytes():
-        errors.append("_variables.rtl.css must be identical to _variables.css")
+    for filename in RTL_SOURCE_FILES:
+        source = ROOT / filename
+        mirror = source.with_name(f"{source.stem}.rtl{source.suffix}")
+        if not mirror.is_file():
+            errors.append(f"{mirror.name}: missing generated RTL counterpart")
+        elif source.read_bytes() != mirror.read_bytes():
+            errors.append(f"{mirror.name} must be identical to {filename}")
 
     for path in css_paths:
         content = path.read_text(encoding="utf-8")

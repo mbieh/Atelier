@@ -28,7 +28,10 @@
 				width: 350px;
 				color: var(--sid-font-color);
 				border: none;
-				border-radius: 0 2px 2px 0;
+				border-start-start-radius: 2px;
+				border-start-end-radius: 0;
+				border-end-start-radius: 2px;
+				border-end-end-radius: 0;
 				background-color: var(--sid-bg-alt);
 
 				transition: all 0.15s ease-in-out;
@@ -54,9 +57,12 @@
 
 			.btn {
 				width: 3rem;
-				border-radius: 2px 0 0 2px;
+				border-start-start-radius: 0;
+				border-start-end-radius: 2px;
+				border-end-start-radius: 0;
+				border-end-end-radius: 2px;
 				background-color: var(--sid-bg-alt);
-				border-right-width: 0;
+				border-inline-start-width: 0;
 				min-height: 35px;
 
 				&:hover {
@@ -120,7 +126,8 @@ main.prompt {
 
 /*=== Transition indication, e.g. day */
 .transition {
-	padding: 1rem 1.25rem 0 0;
+	padding: 1rem 0 0;
+	padding-inline-start: 1.25rem;
 	color: var(--light-font-color);
 	font-size: 0.875rem;
 	font-weight: 700;
@@ -133,13 +140,13 @@ main.prompt {
 		color: var(--main-font-color);
 		font-size: 0.875rem;
 		position: relative;
-		right: 0;
+		inset-inline-start: 0;
 		text-transform: uppercase;
 	}
 }
 
 .btn {
-	border-right-width: 0;
+	border-inline-start-width: 0;
 	padding: 0.5rem 1rem;
 	background-color: var(--grey-light);
 	background-position: center;
@@ -163,10 +170,11 @@ main.prompt {
 /*=== Index menu */
 .nav_menu {
 	text-align: center;
-	padding: 5px 3.75rem 5px 0;
+	padding: 5px 0;
+	padding-inline-start: 3.75rem;
 
 	.btn {
-		border-right-width: 0;
+		border-inline-start-width: 0;
 		padding: 0.5rem 1rem;
 		background-color: var(--grey-lighter);
 		background-position: center;
@@ -180,7 +188,7 @@ main.prompt {
 	.stick,
 	.group {
 		.btn {
-			border-right-width: 0;
+			border-inline-start-width: 0;
 			padding: 0.5rem 1rem;
 			background-color: var(--grey-lighter);
 			background-position: center;
@@ -225,7 +233,7 @@ main.prompt {
 
 		.dropdown:not(#dropdown-search-wrapper) {
 			a.dropdown-toggle {
-				border-right-width: 0;
+				border-inline-start-width: 0;
 				background-image: url(icons/more.svg);
 
 				.icon {
@@ -236,7 +244,7 @@ main.prompt {
 
 		#dropdown-search-wrapper.dropdown {
 			a.dropdown-toggle {
-				border-right-width: 0;
+				border-inline-start-width: 0;
 			}
 		}
 	}
@@ -306,7 +314,7 @@ main.prompt {
 		background: var(--grey-lighter);
 		display: block;
 		color: var(--light-font-color);
-		border-right: 4px solid var(--grey-medium-light);
+		border-inline-start: 4px solid var(--grey-medium-light);
 
 		p {
 			margin: 0;
@@ -329,8 +337,7 @@ main.prompt {
 	position: fixed;
 	top: auto;
 	bottom: 0;
-	right: 0;
-	left: 0;
+	inset-inline: 0;
 	text-align: center;
 	line-height: 3em;
 	vertical-align: middle;

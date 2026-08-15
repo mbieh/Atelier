@@ -9,7 +9,7 @@
 
 	& > .item {
 		&:first-child {
-			padding-right: 0.5rem;
+			padding-inline-start: 0.5rem;
 		}
 
 	}
@@ -30,18 +30,18 @@
 	border: none;
 	border-radius: 3px;
 	box-shadow: 0px 6px 8px 0px rgba(0,0,0,0.35);
-	text-align: right;
+	text-align: start;
 
 	&::after {
 		border: none;
-		left: 18px;
+		inset-inline-end: 18px;
 	}
 
 	.dropdown-header,
 	.dropdown-section .dropdown-section-title {
 		padding: 1rem 1.5rem;
 		font-weight: bold;
-		text-align: right;
+		text-align: start;
 		color: var(--grey-dark);
 		text-transform: uppercase;
 		letter-spacing: 1px;
@@ -85,14 +85,15 @@
 
 			.item {
 				a, .as-link {
-					padding-right: 2rem;
+					padding-inline-start: 2rem;
 				}
 			}
 		}
 
 		&[aria-checked="true"] {
 			a::before {
-				margin: 0 -14px 0 0;
+				margin: 0;
+				margin-inline-start: -14px;
 				font-weight: bold;
 			}
 		}
@@ -235,14 +236,19 @@
 			}
 
 			.dropdown {
-				float: left;
+				float: inline-end;
 
 				a.dropdown-toggle {
 					padding: 0;
 					border-radius: 0;
 					background-image: url(icons/more.svg);
 					background-repeat: no-repeat;
-					background-position: left 8px;
+					/* rtl-safe: mirrored by the :dir(rtl) rule below. */
+					background-position: right 8px;
+
+					&:dir(rtl) {
+						background-position: left 8px;
+					}
 
 					img {
 						display: none;
@@ -253,7 +259,7 @@
 	}
 
 	.box-content {
-		padding-right: 30px;
+		padding-inline-start: 30px;
 
 		.item {
 			padding: 0.25rem 0;

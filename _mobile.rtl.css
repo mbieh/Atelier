@@ -39,7 +39,7 @@
 			&.configure {
 				position: absolute;
 				top: 0;
-				left: 0;
+				inset-inline-end: 0;
 			}
 
 		}
@@ -50,10 +50,7 @@
 	}
 
 	#panel {
-		top: 0;
-		left: 0;
-		bottom: 0;
-		right: 0;
+		inset: 0;
 	}
 
 	main.prompt {
@@ -63,12 +60,11 @@
 	}
 
 	.post {
-		padding-right: 1rem;
-		padding-left: 1rem;
+		padding-inline: 1rem;
 	}
 
 	.nav_menu {
-		padding-right: 0;
+		padding-inline-start: 0;
 
 		.btn {
 			margin: 0;
@@ -106,7 +102,7 @@
 	}
 
 	.nav_menu .stick #mark-read-menu .dropdown-toggle.btn {
-		border-right-width: 0;
+		border-inline-start-width: 0;
 		border-radius: 5px;
 	}
 
@@ -122,8 +118,8 @@
 		& ~ .dropdown-toggle::after {
 			background-color: var(--grey-lighter);
 			border-top: 1px solid var(--grey-light);
-			border-right: 1px solid var(--grey-light);
-			left: 21px;
+			border-inline-start: 1px solid var(--grey-light);
+			inset-inline-end: 21px;
 			bottom: -14px;
 		}
 
@@ -160,7 +156,7 @@
 		a.close {
 			background: transparent;
 			display: block;
-			right: 0;
+			inset-inline-start: 0;
 		}
 
 		a.close:hover {
