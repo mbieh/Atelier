@@ -94,16 +94,43 @@ REQUIRED_LAYOUT_RULES = (
 REQUIRED_DARK_ICON_SELECTORS = (
     '#sidebar img.icon:not([src$="/starred.svg"])',
 )
-FORBIDDEN_PHYSICAL_DECLARATIONS = (
-    "padding-left:",
-    "padding-right:",
-    "margin-left:",
-    "margin-right:",
-    "border-left:",
-    "border-right:",
-    "text-align: left",
-    "text-align: right",
+RTL_SOURCE_FILES = ("_fonts.css", "_variables.css", "atelier-ui.css")
+
+# Atelier ships byte-identical RTL counterparts, which is only correct while
+# these sources stay direction-neutral. Every construct below either has a
+# logical-property equivalent or needs a hand-written mirror, so it has to live
+# in a :dir(...) rule or carry an "rtl-safe:" comment stating why it already
+# reads correctly in both directions. The marker is accepted on the
+# declaration's own line, the line above it, or the rule's selector line.
+RTL_SAFE_MARKER = "rtl-safe"
+
+PHYSICAL_PROPERTY = re.compile(
+    r"(?<![\w-])(?:"
+    r"(?:padding|margin|scroll-margin|scroll-padding)-(?:left|right)"
+    r"|border-(?:left|right)(?:-(?:width|style|color))?"
+    r"|border-(?:top|bottom)-(?:left|right)-radius"
+    r"|left|right"
+    r")(?![\w-])\s*:"
 )
+PHYSICAL_KEYWORD = re.compile(
+    r"(?<![\w-])(?:text-align|float|clear|background|background-position"
+    r"|object-position|transform-origin|perspective-origin)"
+    r"(?![\w-])\s*:[^;]*?(?<![\w-])(?:left|right)(?![\w-])"
+)
+HORIZONTAL_TRANSLATE = re.compile(
+    r"(?<![\w-])(?:translate(?:X|3d)?\s*\(|translate\s*:)"
+)
+BOX_SHORTHAND = re.compile(
+    r"(?<![\w-])(padding|margin|inset|scroll-margin|scroll-padding)"
+    r"(?![\w-])\s*:\s*(.+)",
+    re.DOTALL,
+)
+RADIUS_SHORTHAND = re.compile(r"(?<![\w-])border-radius(?![\w-])\s*:\s*(.+)", re.DOTALL)
+SHADOW_SHORTHAND = re.compile(
+    r"(?<![\w-])(?:box|text)-shadow(?![\w-])\s*:\s*(.+)", re.DOTALL
+)
+LENGTH_TOKEN = re.compile(r"^[+-]?(?:\d+\.?\d*|\.\d+)")
+ZERO_LENGTH = re.compile(r"^[+-]?0*\.?0*(?:[a-z%]*)$", re.IGNORECASE)
 
 
 def fail(message: str) -> None:
@@ -178,10 +205,151 @@ def check_balanced_braces(path: Path, css: str) -> list[str]:
     return errors
 
 
+def split_top_level(value: str, separator: str = " ") -> list[str]:
+    """Split on a separator that is not nested inside parentheses."""
+    parts: list[str] = []
+    current: list[str] = []
+    depth = 0
+    for char in value:
+        if char == "(":
+            depth += 1
+        elif char == ")":
+            depth = max(0, depth - 1)
+        elif depth == 0 and (char == separator or (separator == " " and char.isspace())):
+            parts.append("".join(current))
+            current = []
+            continue
+        current.append(char)
+    parts.append("".join(current))
+    return [part.strip() for part in parts if part.strip()]
+
+
+def iter_declarations(stripped: str):
+    """Yield (line, text, inside_dir_rule, selector_line) for each declaration.
+
+    Works on comment- and string-stripped CSS, so line numbers still line up
+    with the original file. Nesting and at-rules are handled by treating every
+    brace-delimited block the same way.
+    """
+    buffer: list[str] = []
+    start_line = 1
+    line = 1
+    blocks: list[tuple[bool, int]] = []
+    for char in stripped:
+        if char == "{":
+            selector = "".join(buffer)
+            inherited = bool(blocks and blocks[-1][0])
+            blocks.append((inherited or ":dir(" in selector, start_line))
+            buffer = []
+        elif char in {"}", ";"}:
+            text = "".join(buffer).strip()
+            if text and blocks:
+                yield start_line, text, blocks[-1][0], blocks[-1][1]
+            buffer = []
+            if char == "}" and blocks:
+                blocks.pop()
+        elif buffer or not char.isspace():
+            # Leading whitespace is dropped so start_line marks the first real
+            # character of the selector or declaration.
+            if not buffer:
+                start_line = line
+            buffer.append(char)
+        if char == "\n":
+            line += 1
+
+
+def describe_direction_risk(declaration: str) -> str | None:
+    """Return why a declaration needs a mirror, or None if it is neutral."""
+    if PHYSICAL_PROPERTY.search(declaration):
+        return "physical property without a logical equivalent"
+    if PHYSICAL_KEYWORD.search(declaration):
+        return "left/right keyword value"
+    if HORIZONTAL_TRANSLATE.search(declaration):
+        return "translate() with a horizontal component"
+
+    box = BOX_SHORTHAND.match(declaration)
+    if box:
+        values = split_top_level(box.group(2))
+        if len(values) == 4 and values[1] != values[3]:
+            return f"asymmetric {box.group(1)} shorthand"
+
+    radius = RADIUS_SHORTHAND.match(declaration)
+    if radius:
+        value = radius.group(1)
+        if "/" in value:
+            return "elliptical border-radius shorthand"
+        corners = split_top_level(value)
+        if len(corners) == 2:
+            corners = [corners[0], corners[1], corners[0], corners[1]]
+        elif len(corners) == 3:
+            corners = [corners[0], corners[1], corners[2], corners[1]]
+        if len(corners) == 4 and (
+            corners[0] != corners[1] or corners[2] != corners[3]
+        ):
+            return "horizontally asymmetric border-radius"
+
+    shadow = SHADOW_SHORTHAND.match(declaration)
+    if shadow:
+        for layer in split_top_level(shadow.group(1), ","):
+            for token in split_top_level(layer):
+                if not LENGTH_TOKEN.match(token):
+                    continue
+                if not ZERO_LENGTH.match(token):
+                    return "shadow with a horizontal offset"
+                break
+    return None
+
+
+def check_direction_neutral(path: Path, css: str) -> list[str]:
+    try:
+        stripped = strip_css_comments_and_strings(css)
+    except ValueError as error:
+        return [f"{path}: {error}"]
+    raw_lines = css.splitlines()
+
+    def marked(*anchors: int) -> bool:
+        """Look for the marker on an anchor line or in the comment above it."""
+        for anchor in anchors:
+            number = anchor
+            while 1 <= number <= len(raw_lines):
+                text = raw_lines[number - 1]
+                if RTL_SAFE_MARKER in text:
+                    return True
+                stripped_line = text.strip()
+                comment_like = (
+                    not stripped_line
+                    or stripped_line.startswith(("/*", "*"))
+                    or stripped_line.endswith("*/")
+                )
+                if number != anchor and not comment_like:
+                    break
+                number -= 1
+        return False
+
+    errors: list[str] = []
+    for line, declaration, inside_dir, selector_line in iter_declarations(stripped):
+        if inside_dir:
+            continue
+        risk = describe_direction_risk(declaration)
+        if risk is None:
+            continue
+        if marked(line, selector_line):
+            continue
+        errors.append(
+            f"{path}:{line}: {risk}; use a logical property, mirror it in a "
+            f":dir(rtl) rule, or add an /* {RTL_SAFE_MARKER}: ... */ comment"
+        )
+    return errors
+
+
 def check_local_markdown_links(path: Path, content: str) -> list[str]:
     errors: list[str] = []
-    for target in re.findall(r"\[[^\]]+\]\(([^)]+)\)", content):
-        target = target.split(maxsplit=1)[0]
+    for raw_target in re.findall(r"\[[^\]]+\]\(([^)]+)\)", content):
+        parts = raw_target.split(maxsplit=1)
+        if not parts:
+            errors.append(f"{path.relative_to(ROOT)}: empty link target")
+            continue
+        target = parts[0]
         if target.startswith(("#", "http://", "https://", "mailto:")):
             continue
         file_target = unquote(target.split("#", 1)[0])
@@ -273,11 +441,11 @@ def main() -> int:
             )
 
     ui_css = (ROOT / "atelier-ui.css").read_text(encoding="utf-8")
-    for declaration in FORBIDDEN_PHYSICAL_DECLARATIONS:
-        if declaration in ui_css:
-            errors.append(
-                f"atelier-ui.css: use a logical property instead of {declaration}"
-            )
+    for filename in RTL_SOURCE_FILES:
+        path = ROOT / filename
+        errors.extend(
+            check_direction_neutral(Path(filename), path.read_text(encoding="utf-8"))
+        )
 
     for rule in REQUIRED_LAYOUT_RULES:
         if rule not in ui_css:

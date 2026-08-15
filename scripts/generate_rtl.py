@@ -9,12 +9,11 @@ from pathlib import Path
 import sys
 
 
+from check_theme import RTL_SOURCE_FILES, check_direction_neutral
+
+
 ROOT = Path(__file__).resolve().parents[1]
-SOURCES = (
-    ROOT / "_fonts.css",
-    ROOT / "_variables.css",
-    ROOT / "atelier-ui.css",
-)
+SOURCES = tuple(ROOT / name for name in RTL_SOURCE_FILES)
 
 
 def rtl_target(source: Path) -> Path:
@@ -29,6 +28,21 @@ def main() -> int:
         help="fail if a generated RTL counterpart differs instead of updating it",
     )
     args = parser.parse_args()
+
+    # A verbatim copy is only a valid RTL sheet while the source is
+    # direction-neutral, and unlike the old transform table this copy cannot
+    # fail on its own when the source changes. Guard it explicitly instead.
+    direction_errors: list[str] = []
+    for source in SOURCES:
+        direction_errors.extend(
+            check_direction_neutral(
+                source.relative_to(ROOT), source.read_text(encoding="utf-8")
+            )
+        )
+    if direction_errors:
+        for error in direction_errors:
+            print(f"error: {error}", file=sys.stderr)
+        return 1
 
     if args.check:
         stale = False
