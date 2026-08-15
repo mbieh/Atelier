@@ -118,8 +118,10 @@ REQUIRED_LAYOUT_RULES = (
     # The row carries its own leading inset, so the feed eyebrow stays flush
     # with the title even when the topline hides the read and favorite
     # controls and .item.website becomes the first child.
-    LayoutRule(".flux .flux_header", "padding-inline-start: 0.5rem"),
+    LayoutRule(".flux .flux_header", "margin-inline: 0.5rem"),
     LayoutRule(".flux .flux_header > .item:first-child", "padding-inline-start: 0"),
+    LayoutRule(".flux.current", "border-inline-start-width: 0"),
+    LayoutRule(".flux_header", "border-top: 0"),
     # Article rows and their subgrid cells.
     LayoutRule(
         ".flux_header",
@@ -225,6 +227,19 @@ REQUIRED_LAYOUT_RULES = (
     LayoutRule(".post .form-group.form-actions", "backdrop-filter: none"),
     LayoutRule(".btn", "padding-block: 0"),
     LayoutRule(".header .item.search input", "max-inline-size: none"),
+    # Two boundary weights. Collapsing them back onto one token is what made
+    # the toolbar read as a row of hard-outlined boxes.
+    LayoutRule(":root", "--at-field-border: var(--input)"),
+    LayoutRule(":root", "--at-button-border: var(--border)"),
+    LayoutRule(".btn", "border: 1px solid var(--at-button-border)"),
+    LayoutRule("input", "border-block-end-color: var(--at-field-border)"),
+    LayoutRule(
+        ".header .item.search input", "border-block-end-color: var(--at-field-border)"
+    ),
+    # Toolbar groups need a surface of their own; filled with --background they
+    # matched the bar behind them and only the border carried the shape.
+    LayoutRule(".nav_menu .stick", "background: var(--card)"),
+    LayoutRule(".nav_menu .stick", "border-color: var(--at-button-border)"),
 )
 COLLAPSED_SIDEBAR_STATE = re.compile(
     r"#global\s*>\s*\.aside\.is-hidden\s*\{"
@@ -646,6 +661,10 @@ CONTRAST_PAIRS = (
 # Deliberately not checked: the border of an alert against its own tint. The
 # alert is identified by that tint and its text, both of which are checked
 # above, so the border is a delimiter rather than the carrier of the state.
+# Likewise --at-button-border: a button is identified by its label or icon,
+# which are checked as text on --card, and by a raised surface and a focus
+# ring that is checked. Only fields, whose empty boundary is the whole
+# affordance, are held to 3:1 through --input.
 
 # The favorite star is an external SVG, which cannot inherit currentColor and
 # is excluded from the dark-mode icon filter on purpose. Its color therefore

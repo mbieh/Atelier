@@ -31,7 +31,15 @@
 	--at-header-height: calc(
 		var(--at-toolbar-control-height) + 2 * var(--frss-padding-top-bottom)
 	);
-	--at-control-border: var(--input);
+	/* Two boundary weights, by what the boundary has to do. A field has to
+	   announce itself -- an empty input has nothing else to identify it --
+	   so one edge carries the 3:1 of WCAG 1.4.11 while the rest stays a
+	   hairline. Putting the whole box at 3:1 made every field shout; putting
+	   it nowhere left the field invisible. A button is identified by its
+	   label or icon on a raised surface, so a hairline is enough all round;
+	   six hard outlines in a row read as a cage rather than a toolbar. */
+	--at-field-border: var(--input);
+	--at-button-border: var(--border);
 	--at-form-layout-width: 64rem;
 	--at-form-label-width: 13rem;
 	--at-form-control-width: 20rem;
@@ -48,9 +56,9 @@
 
 @media (prefers-color-scheme: dark) {
 	:root {
-		/* No control-border override here. The dark scheme used to blend the
+		/* No field-border override here. The dark scheme used to blend the
 		   foreground at 20%, which composited to 1.89:1 against the card and
-		   left control boundaries below WCAG 1.4.11. --input carries the
+		   left field boundaries below WCAG 1.4.11. --input carries the
 		   contrast-checked value in both schemes now. */
 		--at-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.16);
 		--at-shadow-md: 0 1px 2px rgba(0, 0, 0, 0.28), 0 8px 24px rgba(0, 0, 0, 0.2);
@@ -104,7 +112,7 @@ body {
 	min-block-size: var(--at-toolbar-control-height);
 	padding-block: 0;
 	border-radius: var(--at-radius-m);
-	border: 1px solid var(--at-control-border);
+	border: 1px solid var(--at-button-border);
 	background-color: var(--card);
 	color: var(--card-foreground);
 	font-weight: 500;
@@ -114,9 +122,11 @@ body {
 		box-shadow 0.15s ease-in-out;
 }
 
+/* Hover moves the fill, not the boundary. Darkening the border as well made
+   the button jump a weight on hover once the resting state became a
+   hairline. */
 .btn:hover {
 	background-color: var(--accent);
-	border-color: var(--input);
 }
 
 /* Primary variant: shadcn "default" */
@@ -179,7 +189,8 @@ input,
 select,
 textarea {
 	border-radius: var(--at-radius-m);
-	border-color: var(--input);
+	border-color: var(--at-button-border);
+	border-block-end-color: var(--at-field-border);
 	background: var(--card);
 	color: var(--foreground);
 	font-family: var(--at-sans);
@@ -441,7 +452,8 @@ input[type="file"]::file-selector-button {
 	max-width: none;
 	block-size: var(--at-toolbar-control-height);
 	border-radius: var(--at-radius-m);
-	border: 1px solid var(--at-control-border);
+	border: 1px solid var(--at-button-border);
+	border-block-end-color: var(--at-field-border);
 	background-color: var(--card);
 	padding-inline-end: 2.75rem;
 	outline: none;
@@ -528,9 +540,9 @@ input[type="file"]::file-selector-button {
 	block-size: var(--at-toolbar-control-height);
 	min-block-size: var(--at-toolbar-control-height);
 	padding: 0;
-	border: 1px solid var(--at-control-border);
+	border: 1px solid var(--at-button-border);
 	border-radius: var(--at-radius-m);
-	background: var(--background);
+	background: var(--card);
 	box-shadow: var(--at-shadow-xs);
 }
 
@@ -565,14 +577,18 @@ input[type="file"]::file-selector-button {
 	background-color: var(--accent);
 }
 
-/* shadcn outline treatment for toolbar control groups. */
+/* Toolbar groups read as raised chips, not outlined boxes. They used to be
+   filled with --background, the same tone as the bar behind them, so the
+   shadow had nothing to sit on and only the border was left to carry the
+   shape. Filling them with the card surface lets the hairline and the shadow
+   do the work together. */
 .nav_menu .stick,
 .nav_menu .group {
 	align-items: center;
 	box-sizing: border-box;
 	block-size: var(--at-toolbar-control-height);
-	border-color: var(--at-control-border);
-	background: var(--background);
+	border-color: var(--at-button-border);
+	background: var(--card);
 	box-shadow: var(--at-shadow-xs);
 }
 
@@ -1120,17 +1136,19 @@ main.prompt h1,
 
 /*=== 7. List view ===================================================*/
 
-/* Mapco insets the first item of every horizontal list. In an article row that
-   inset lands on whichever item happens to come first, so it is a row inset
-   only as long as that item sits in a column of its own. With the read and
-   favorite controls switched off in the topline settings, the first item is
-   .item.website, which shares its grid column with the title -- and the feed
-   eyebrow ends up indented against the title and summary below it. Carry the
-   inset on the row instead, where it shifts every column alike. The row keeps
-   the same leading inset it had, so layouts that do show those controls are
-   unaffected. */
+/* The row is inset from the card and rounded, so its hover and current states
+   read as a soft chip rather than a full-bleed band.
+
+   The margin doubles as the fix for a Mapco inheritance: Mapco insets the
+   first item of every horizontal list, which is a row inset only as long as
+   that item sits in a column of its own. With the read and favorite controls
+   switched off in the topline settings, the first item is .item.website, which
+   shares its grid column with the title -- and the feed eyebrow ends up
+   indented against the title and summary below it. A margin on the row shifts
+   every column alike, so the eyebrow stays flush. */
 .flux .flux_header {
-	padding-inline-start: 0.5rem;
+	margin-inline: 0.5rem;
+	border-radius: var(--at-radius-m);
 }
 
 .flux .flux_header > .item:first-child {
@@ -1524,29 +1542,19 @@ main.prompt h1,
 	color: var(--muted-foreground);
 }
 
-/* Feed rows */
+/* Feed rows. No rules between them: the rounded hover and current states carry
+   the separation, and a line would cut across their corners. The reset is
+   explicit because Mapco draws one in --grey-light. */
 .flux_header {
-	border-top: 1px solid var(--muted);
+	border-top: 0;
 	transition: background-color 0.12s ease-in-out, box-shadow 0.12s ease-in-out;
 }
 
-/* rtl-safe: the inset marker bars are mirrored by the :dir(rtl) rules below. */
+/* Hover is the tinted chip alone. The marker bar it used to grow on the
+   leading edge was a slab against a square band -- the one detail that dated
+   the list. Unread rows are already distinguished typographically. */
 .flux:not(.current) .flux_header:hover {
 	background: var(--at-row-hover);
-	box-shadow: inset 2px 0 0 var(--border);
-}
-
-/* rtl-safe: mirrored by the :dir(rtl) rule below. */
-.flux.not_read:not(.current) .flux_header:hover {
-	box-shadow: inset 2px 0 0 var(--input);
-}
-
-:dir(rtl) .flux:not(.current) .flux_header:hover {
-	box-shadow: inset -2px 0 0 var(--border);
-}
-
-:dir(rtl) .flux.not_read:not(.current) .flux_header:hover {
-	box-shadow: inset -2px 0 0 var(--input);
 }
 
 /* Mapco colors the title sub-element separately on hover. Keep the row as one
@@ -1556,12 +1564,20 @@ main.prompt h1,
 	background: transparent;
 }
 
+/* Mapco marks the current row with a border on the wrapper and pulls the row
+   back by the same 2px to compensate. Both fight the inset chip, and at (0,3,0)
+   its negative margin would otherwise beat the row's own inset. */
 .flux.current {
 	background: var(--card);
+	border-inline-start-width: 0;
 }
 
 /* rtl-safe: mirrored by the :dir(rtl) rule below. */
+/* The current row keeps a marker -- it is a position, not just a hover -- but
+   inside the rounded shape, where it reads as part of the chip.
+   rtl-safe: mirrored by the :dir(rtl) rule below. */
 .flux.current .flux_header {
+	margin-inline: 0.5rem;
 	background: var(--at-row-current);
 	box-shadow: inset 2px 0 0 var(--primary);
 }

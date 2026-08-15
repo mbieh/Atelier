@@ -51,6 +51,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- Article rows read as rounded chips inset from the card. On hover the row used
+  to grow a 2px marker bar on its leading edge against a full-bleed band, with
+  a rule under every row — a slab-and-line pattern that dated the whole list.
+  Hover is the tinted chip alone now; unread rows were already distinguished
+  typographically. The current row keeps a marker, because it is a position
+  rather than a passing state, but inside the rounded shape. Mapco's own
+  current-row border and the negative margin compensating for it are reset,
+  along with the rule it draws between rows.
+- The toolbar reads as a row of raised chips instead of hard-outlined boxes.
+  Its groups were filled with `--background`, the same tone as the bar behind
+  them, so the shadow had nothing to sit on and the border alone had to carry
+  the shape — six dark outlines side by side. They are filled with the card
+  surface now, and the hairline and the shadow do the work together.
+- Control boundaries come in two weights, chosen by what the boundary has to
+  do. A field announces itself through one load-bearing edge: inputs, selects,
+  textareas and the search field are a hairline all round with the block-end
+  edge on `--at-field-border`, which carries the 3:1 of WCAG 1.4.11 against
+  both the surface behind it and its own fill. Putting the whole box at 3:1
+  made every field shout; a checkbox keeps the full box, because there the
+  square is the control. `--at-button-border` is a hairline for buttons and
+  toolbar groups, which are identified by their label or icon on a raised
+  surface and keep a contrast-checked focus ring. Hover moves the fill and no
+  longer darkens the boundary as well.
 - Dark surfaces walk down the ramp instead of using hand-picked values: page
   900, cards 800, raised states between 800 and 700, separators 600. The two
   values that were tuned by hand are derived now, so a new scheme does not have
