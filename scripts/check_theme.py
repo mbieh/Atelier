@@ -84,8 +84,17 @@ REQUIRED_LAYOUT_RULES = (
     "grid-row: 1 / -1;",
     "#global > .nav_menu ~ main",
     'grid-template-areas: "read favorite website thumbnail content labels share link";',
-    "grid-template-columns: fit-content(14rem) minmax(0, 1fr);",
-    "grid-template-columns: subgrid;",
+    "--at-form-label-width: 13rem;",
+    "--at-dashboard-width: 96rem;",
+    ".prompt .form-group:not([hidden])",
+    ".post .form-group:not([hidden]):not(.hidden)",
+    "main.post.content",
+    "html.controller_stats main.post",
+    "grid-template-columns: var(--at-form-label-width) minmax(0, 1fr);",
+    ".post .group-controls > .stick",
+    ".post .form-group.form-actions",
+    "backdrop-filter: none;",
+    "block-size: var(--at-header-height);",
     "grid-template-columns: var(--width-aside, 300px) minmax(0, 1fr) auto;",
     "grid-template-columns: auto minmax(0, 1fr) auto;",
     ".aside_feed .tree-folder.category[data-unread]",
@@ -93,6 +102,10 @@ REQUIRED_LAYOUT_RULES = (
     "#sidebar .tree-folder > .tree-folder-title > button.dropdown-toggle",
     "padding-block: 0;",
     "max-inline-size: none;",
+)
+ATOMIC_SIDEBAR_COLLAPSE = re.compile(
+    r"#global\s*>\s*\.aside\.is-hidden\s*\{[^}]*display:\s*none;",
+    re.DOTALL,
 )
 REQUIRED_DARK_ICON_SELECTORS = (
     '#sidebar img.icon:not([src$="/starred.svg"])',
@@ -485,12 +498,19 @@ def main() -> int:
     for rule in REQUIRED_LAYOUT_RULES:
         if rule not in ui_css:
             errors.append("atelier-ui.css: missing desktop grid rule: " + rule)
+    if not ATOMIC_SIDEBAR_COLLAPSE.search(ui_css):
+        errors.append(
+            "atelier-ui.css: collapsed sidebar must use atomic display:none"
+        )
     if "grid-row: 1 / span" in ui_css:
         errors.append("atelier-ui.css: do not use an arbitrary sidebar row span")
     for obsolete_layout in (
         "margin-inline-start: -2.5rem",
         "width: 195px",
         ".tree-folder-title:not([data-unread=",
+        "transition: width 0.25s ease",
+        "grid-template-columns: fit-content(14rem) minmax(0, 1fr);",
+        "grid-template-columns: subgrid;",
     ):
         if obsolete_layout in ui_css:
             errors.append(

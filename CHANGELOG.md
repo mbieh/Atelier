@@ -27,8 +27,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- Reworked statistics into a responsive full-width dashboard grid and gave
+  informational text views a wide, readable content measure instead of fixed
+  legacy box widths.
 - Replaced direction-specific spacing, borders, and radii in the Atelier UI
   layer with CSS logical properties.
+- Replaced view-specific form and fieldset sizing with unified responsive form
+  systems for authentication, settings, administration, subscription, profile,
+  search, and slider views, including consistent field widths, sections, help
+  text, compound controls, and non-sticky action rows.
 - Simplified RTL generation now that the UI source handles both directions.
 - Consolidated duplicate alert rules and centralized their palette tokens.
 - Added a semantic shadcn/ui token layer while preserving Mapco compatibility
@@ -40,6 +47,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- Prevented the About and Terms content column from collapsing to its
+  min-content width or centering itself vertically when combined with the form
+  container-query system.
+- Fixed the desktop application header to one shared block size and normalized
+  its item padding, so the sidebar and main content no longer shift vertically
+  between views.
 - Preserved the intended information-alert colors that were previously
   overwritten by a later generic alert rule.
 - Prevented toast notifications from exceeding very narrow viewports.
@@ -66,6 +79,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Replaced inherited table, float, absolute-position, and fixed-width layout
   assumptions in the header, article rows, settings forms, sidebar rows, and
   global feed cards with intrinsic CSS Grid and container-query layouts.
+- Prevented the persisted collapsed sidebar from briefly sliding into view
+  during page reloads and feed refreshes by restoring atomic state changes.
 - Kept the tick visible on disabled checkboxes and radios, whose muted fill
   previously covered the checked state.
 - Rounded only the outer edges of button groups again, so middle segments no

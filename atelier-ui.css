@@ -9,7 +9,7 @@
  *   2. Buttons (outline / ghost / primary)
  *   3. Forms & search
  *   4. Header & Toolbar
- *   5. Sidebar (including animated collapse)
+ *   5. Sidebar and navigation
  *   6. Layout: content card & page background
  *   7. List view
  *   8. Dropdowns, Panels, Overlays, Badges
@@ -28,7 +28,16 @@
 	--at-radius-m: calc(var(--radius) - 2px);
 	--at-radius-l: var(--radius);
 	--at-toolbar-control-height: 2.5rem;
+	--at-header-height: calc(
+		var(--at-toolbar-control-height) + 2 * var(--frss-padding-top-bottom)
+	);
 	--at-control-border: var(--input);
+	--at-form-layout-width: 64rem;
+	--at-form-label-width: 13rem;
+	--at-form-control-width: 20rem;
+	--at-form-wide-control-width: 36rem;
+	--at-dashboard-width: 96rem;
+	--at-reading-page-width: 72rem;
 	--at-shadow-xs: 0 1px 2px rgba(9, 11, 12, 0.05);
 	--at-shadow-md: 0 1px 2px rgba(9, 11, 12, 0.05), 0 8px 24px rgba(9, 11, 12, 0.06);
 	--at-shadow-pop: 0 4px 12px rgba(9, 11, 12, 0.1), 0 12px 32px rgba(9, 11, 12, 0.08);
@@ -586,21 +595,36 @@ input[type="file"]::file-selector-button {
 		display: grid;
 		grid-template-columns: var(--width-aside, 300px) minmax(0, 1fr) auto;
 		align-items: center;
-		block-size: auto;
-		min-block-size: calc(2.5rem + 2 * var(--frss-padding-top-bottom));
+		box-sizing: border-box;
+		block-size: var(--at-header-height);
+		min-block-size: var(--at-header-height);
 	}
 
 	.header > .item {
-		display: block;
+		display: flex;
+		align-items: center;
+		box-sizing: border-box;
+		block-size: 100%;
 		min-inline-size: 0;
+		padding-block: var(--frss-padding-top-bottom);
+	}
+
+	.header > .item.title {
+		justify-content: flex-start;
+	}
+
+	.header > .item.title a {
+		padding-block: 0.25rem;
 	}
 
 	.header > .item.search {
 		justify-self: end;
+		justify-content: flex-end;
 		inline-size: min(100%, 22rem);
 	}
 
 	.header > .item.configure {
+		justify-content: flex-start;
 		inline-size: auto;
 		width: auto;
 		padding-inline-end: 0.5rem;
@@ -900,34 +924,6 @@ input[type="file"]::file-selector-button {
 	text-align: center;
 }
 
-/* Animate collapse instead of using the base theme's hard display:none. */
-.aside {
-	transition: width 0.25s ease, min-width 0.25s ease, opacity 0.18s ease,
-		padding 0.25s ease;
-	overflow: hidden;
-}
-
-.aside.is-hidden {
-	display: table-cell;
-	width: 0;
-	min-width: 0;
-	opacity: 0;
-	padding: 0;
-	border-inline-end-width: 0;
-	pointer-events: none;
-}
-
-/* Keep the tree at full width so content slides under the clipping edge
-   instead of wrapping during the animation. */
-.aside.aside_feed .tree {
-	min-width: calc(var(--width-aside, 300px) - 1px);
-	box-sizing: border-box;
-}
-
-.aside .nav-form {
-	white-space: nowrap;
-}
-
 /*=== 6. Layout: content card & page background ======================*/
 
 /* Do not stretch #global artificially to the viewport height. */
@@ -987,10 +983,10 @@ body {
 		grid-row: 2;
 	}
 
-	/* More specific than "#global > .aside" so the ID rule cannot keep
-	   the collapsed column at 300px. */
+	/* FreshRSS restores the persisted state from sessionStorage after parsing.
+	   Hide atomically so a reload cannot animate the initial expanded markup. */
 	#global > .aside.is-hidden {
-		width: 0;
+		display: none;
 	}
 }
 
@@ -1878,64 +1874,306 @@ legend,
 	border-end-end-radius: 0;
 }
 
-/* Configuration choices should form one stable field column instead of
-   changing width with each option label. Multiple selects keep their native
-   list-box sizing. */
-.post {
+/* Authentication uses a deliberately compact vertical form rather than the
+   two-column .post structure, but shares the same control and spacing rhythm. */
+.prompt form {
+	display: grid;
+	gap: 1rem;
+	margin-block: 1.25rem 0;
+}
+
+.prompt .form-group {
+	margin: 0;
+	padding: 0;
+}
+
+.prompt .form-group:not([hidden]) {
+	display: grid;
+	gap: 0.375rem;
+}
+
+.prompt .form-group > label:not(.checkbox, .radio) {
+	min-block-size: 0;
+	padding: 0;
+	line-height: 1.4;
+}
+
+.prompt .form-group > :is(
+	input:not([type="hidden"], [type="checkbox"], [type="radio"]),
+	select,
+	textarea,
+	.stick
+) {
+	inline-size: 100%;
+	max-inline-size: none;
+}
+
+.prompt .form-group > .stick {
+	display: flex;
+}
+
+.prompt .form-group > .stick > :is(input, select, textarea) {
+	flex: 1 1 auto;
+	inline-size: auto;
+	min-inline-size: 0;
+	max-inline-size: none;
+}
+
+.prompt .form-group > :is(label.checkbox, label.radio) {
+	display: flex;
+	align-items: start;
+	gap: 0.5rem;
+	padding: 0;
+	line-height: 1.5;
+}
+
+.prompt .form-group > :is(label.checkbox, label.radio) > :is(
+	input[type="checkbox"],
+	input[type="radio"]
+) {
+	margin: 0;
+	margin-block-start: 0.2rem;
+}
+
+.prompt .form-group > .help {
+	margin-block: 0;
+}
+
+.prompt .form-group-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+/* FreshRSS composes settings, administration, subscription, and slider forms
+   from the same .post/.form-group primitives, but nests those rows in varying
+   combinations of forms, fieldsets, and details. Make each row own the grid
+   so every view shares one label track regardless of that nesting. */
+.post:not(.content) {
 	container-name: at-settings;
 	container-type: inline-size;
+}
+
+/* FreshRSS also uses .content on the About and Terms pages. Its inherited
+   auto margins would otherwise combine with inline-size containment and let
+   the grid item collapse to its min-content width. Keep these text views on a
+   generous but readable measure instead. */
+main.post.content {
+	box-sizing: border-box;
+	justify-self: start;
+	inline-size: min(100%, var(--at-reading-page-width));
+	max-inline-size: var(--at-reading-page-width);
+	margin-block: 0;
+	margin-inline: 0;
+}
+
+main.post.content.centered {
+	justify-self: center;
+	max-inline-size: 34rem;
+	margin-inline: auto;
+}
+
+.post form {
+	box-sizing: border-box;
+	inline-size: min(100%, var(--at-form-layout-width));
+	max-inline-size: 100%;
+	margin-block: 1.25rem 2rem;
+}
+
+.post :is(form, fieldset, details, .form-group, .group-controls) {
+	min-inline-size: 0;
+}
+
+.post fieldset {
+	margin: 0;
+	padding: 0;
+}
+
+.post fieldset + fieldset {
+	margin-block-start: 1.75rem;
+}
+
+.post legend {
+	box-sizing: border-box;
+	margin: 0;
+	margin-block-end: 0.625rem;
+	padding: 0;
+	padding-block-end: 0.625rem;
+	border-block-end: 1px solid var(--border);
 }
 
 .post .form-group::after {
 	content: none;
 }
 
+.post .form-group {
+	grid-template-columns: minmax(0, 1fr);
+	align-items: start;
+	column-gap: 1rem;
+	row-gap: 0.375rem;
+	margin: 0;
+	padding-block: 0.375rem;
+}
+
+/* Author CSS can otherwise override the browser's hidden-state rule. */
+.post .form-group:not([hidden]):not(.hidden) {
+	display: grid;
+}
+
 .post .form-group .group-name {
 	float: none;
+	grid-column: 1;
 	inline-size: auto;
+	min-block-size: 0;
+	margin: 0;
+	padding: 0;
+	line-height: 1.4;
 	text-align: start;
 }
 
 .post .form-group .group-controls {
+	grid-column: 1;
 	min-inline-size: 0;
+	min-block-size: 0;
 	margin-inline-start: 0;
+	padding: 0;
+	overflow: visible;
+}
+
+.post .form-group > :not(.group-name, .group-controls) {
+	grid-column: 1;
+}
+
+.post .group-controls > :is(
+	input:not([type]),
+	input[type="text"],
+	input[type="email"],
+	input[type="password"],
+	input[type="url"],
+	input[type="search"],
+	input[type="tel"],
+	input[type="date"],
+	input[type="time"],
+	input[type="month"],
+	input[type="week"],
+	input[type="datetime-local"],
+	input[type="file"],
+	select
+) {
+	inline-size: min(100%, var(--at-form-control-width));
+	max-inline-size: 100%;
+}
+
+.post .group-controls > :is(textarea, input.long, input.w50, input.w100),
+.post .group-controls > .stick:has(> :is(.long, .w50, .w100)) {
+	inline-size: min(100%, var(--at-form-wide-control-width));
+	max-inline-size: 100%;
+}
+
+.post input[type="number"] {
+	inline-size: 7rem;
+	max-inline-size: 100%;
+}
+
+.post select.number {
+	inline-size: 10rem;
+}
+
+.post .group-controls > .stick {
+	display: flex;
+	inline-size: min(100%, var(--at-form-control-width));
+	max-inline-size: 100%;
+}
+
+.post .group-controls > .stick > :is(input, select, textarea) {
+	flex: 1 1 auto;
+	inline-size: auto;
+	min-inline-size: 0;
+	max-inline-size: none;
+}
+
+.post .group-controls > :is(label.checkbox, label.radio),
+.post .group-controls > label:has(> :is(input, select, textarea)) {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem;
+	max-inline-size: var(--at-form-wide-control-width);
+	min-block-size: var(--at-toolbar-control-height);
+	padding: 0;
+}
+
+.post .group-controls > label input[type="checkbox"],
+.post .group-controls > label input[type="radio"] {
+	margin-inline-end: 0;
+}
+
+.post .group-controls > :is(.help, kbd) {
+	display: block;
+	max-inline-size: var(--at-form-wide-control-width);
+	margin-block: 0.375rem 0;
+}
+
+.post .group-controls > kbd {
+	overflow: auto;
+}
+
+.post .form-advanced {
+	margin-block: 1.25rem;
+	border-block: 1px solid var(--border);
 }
 
 .post .form-advanced-title {
-	inline-size: auto;
+	box-sizing: border-box;
+	inline-size: 100%;
+	padding: 0.75rem 0.5rem;
 	text-align: start;
 }
 
+.post .form-advanced[open] > .form-advanced-title {
+	margin-block-end: 0.5rem;
+}
+
+.post .form-group.form-actions {
+	position: static;
+	min-width: 0;
+	z-index: auto;
+	margin-block: 1rem 0;
+	padding-block: 1rem 0;
+	padding-inline: 0;
+	border: 0;
+	border-block-start: 1px solid var(--border);
+	border-radius: 0;
+	background: transparent;
+	backdrop-filter: none;
+}
+
+.post .form-actions .group-controls {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem;
+}
+
 @container at-settings (min-width: 42rem) {
-	.post :is(form, fieldset) {
-		display: grid;
-		grid-template-columns: fit-content(14rem) minmax(0, 1fr);
-		column-gap: 1rem;
+	.post .form-group {
+		grid-template-columns: var(--at-form-label-width) minmax(0, 1fr);
 	}
 
-	.post :is(form, fieldset) > :not(.form-group) {
-		grid-column: 1 / -1;
-	}
-
-	.post :is(form, fieldset) > .form-group {
-		grid-column: 1 / -1;
-		display: grid;
-		grid-template-columns: subgrid;
-		align-items: start;
-	}
-
-	.post :is(form, fieldset) > .form-group .group-name {
+	.post .form-group > .group-name {
 		grid-column: 1;
+		padding-block-start: 0.625rem;
 		text-align: end;
 	}
 
-	.post :is(form, fieldset) > .form-group .group-controls {
+	.post .form-group > .group-controls {
 		grid-column: 2;
 	}
-}
 
-.post .form-group .group-controls select:not([multiple]):not([size]) {
-	inline-size: min(100%, 20rem);
+	.post .form-group > :not(.group-name, .group-controls) {
+		grid-column: 1 / -1;
+	}
 }
 
 /* Card */
@@ -2324,6 +2562,48 @@ progress {
 
 .stat canvas {
 	max-width: 100%;
+}
+
+/* Statistics are a dashboard, not a sequence of the base theme's fixed
+   30rem inline blocks. Let compact cards share a row, let double-width cards
+   span it, and collapse naturally to one column when their minimum useful
+   width no longer fits. */
+html.controller_stats main.post {
+	display: grid;
+	grid-template-columns: repeat(
+		auto-fit,
+		minmax(min(100%, 36rem), 1fr)
+	);
+	align-content: start;
+	gap: 1.25rem;
+	box-sizing: border-box;
+	inline-size: min(100%, var(--at-dashboard-width));
+	max-inline-size: var(--at-dashboard-width);
+}
+
+html.controller_stats main.post > :is(h1, form, table, .alert, .double-width) {
+	grid-column: 1 / -1;
+}
+
+html.controller_stats main.post > h1 {
+	margin-block-end: 0;
+}
+
+html.controller_stats main.post > br {
+	display: none;
+}
+
+html.controller_stats main.post > .box {
+	display: block;
+	box-sizing: border-box;
+	inline-size: auto;
+	max-inline-size: none;
+	margin: 0;
+}
+
+html.controller_stats main.post > .box .box-content {
+	box-sizing: border-box;
+	inline-size: 100%;
 }
 
 .disabled-user {
