@@ -48,6 +48,11 @@
 	--at-form-wide-control-width: 36rem;
 	--at-dashboard-width: 96rem;
 	--at-reading-page-width: 72rem;
+	/* One step greyer than --muted-foreground, for a label whose state is
+	   already carried by a control beside it. 90% is where it stops: the mix
+	   holds 4.75:1 on a card and 4.71:1 on the hover surface, and the next
+	   step down drops both below the 4.5:1 of WCAG 1.4.3. */
+	--at-quiet-foreground: color-mix(in srgb, var(--muted-foreground) 90%, var(--card));
 	--at-row-hover: color-mix(in srgb, var(--accent) 45%, var(--card));
 	--at-row-current: color-mix(in srgb, var(--accent) 70%, var(--card));
 	--at-shadow-xs: 0 1px 2px rgba(9, 11, 12, 0.05);
@@ -3419,6 +3424,107 @@ tbody tr:hover {
 .manage-list > .item:hover,
 .box-content > .item:hover {
 	background: var(--accent);
+}
+
+/* The extension list is a settings list, not prose. FreshRSS emits each row as
+   switch, gear, name, which leaves the names behind a ragged column of
+   controls. One card, one row per extension, the name on the reading edge and
+   the controls collected on the trailing one: the switches then line up in a
+   column of their own. Columns are assigned explicitly, so a row without the
+   gear -- a system extension the user may not configure -- keeps its switch on
+   the same axis as the others. */
+.post .manage-list {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 0.5rem;
+	margin-block: 0.75rem 1.75rem;
+	padding: 0;
+	list-style: none;
+}
+
+/* Each extension is its own surface rather than a row inside one card. A
+   single card has to end on a full row: sixteen extensions in three columns
+   leave two empty cells that read as a hole in it, and the column boundaries
+   would be the only thing telling the columns apart. Separate surfaces make
+   the columns legible and let an incomplete row simply end. */
+/* The tiles hover on the softer row tint rather than on --accent: an inactive
+   switch is --input, and against --accent that track reads at 2.83:1 in the
+   light scheme -- below the 3:1 WCAG 1.4.11 asks of a control. On this tint it
+   holds 3.20:1, and the row still answers the pointer. */
+.post .manage-list > li:hover {
+	background: var(--at-row-hover);
+}
+
+.post .manage-list > li {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto auto;
+	align-items: center;
+	gap: 0.75rem;
+	box-sizing: border-box;
+	min-block-size: 2.75rem;
+	padding: 0.375rem 0.875rem;
+	border: 1px solid var(--border);
+	border-radius: var(--at-radius-m);
+	background: var(--card);
+	line-height: 1.5;
+}
+
+/* Every list on the page shares one column grid, so a section with a single
+   extension shows a tile of the same width as the others rather than one
+   stretched across the row. */
+@container at-settings (min-width: 40rem) {
+	.post .manage-list {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@container at-settings (min-width: 64rem) {
+	.post .manage-list {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
+.post .manage-list .ext_name {
+	grid-row: 1;
+	grid-column: 1;
+	min-inline-size: 0;
+	color: var(--foreground);
+	font-size: 0.9375rem;
+	font-weight: 600;
+	/* The base layer italicises a disabled extension. The switch beside it
+	   already carries that state, and in a list of twenty the slant is the
+	   loudest thing on the page. Weight and tone carry it instead. */
+	font-style: normal;
+}
+
+.post .manage-list .ext_name.disabled {
+	color: var(--at-quiet-foreground);
+	font-weight: 400;
+}
+
+.post .manage-list .open-slider.configure {
+	display: inline-grid;
+	grid-row: 1;
+	grid-column: 2;
+	place-items: center;
+	inline-size: 2rem;
+	block-size: 2rem;
+	border-radius: var(--at-radius-s);
+	opacity: 0.75;
+	transition: background-color 0.12s ease-out, opacity 0.12s ease-out;
+}
+
+.post .manage-list .open-slider.configure:hover,
+.post .manage-list .open-slider.configure:focus-visible {
+	background: var(--accent);
+	opacity: 1;
+}
+
+.post .manage-list .switch {
+	grid-row: 1;
+	grid-column: 3;
+	justify-self: end;
+	margin: 0;
 }
 
 .item.feed.mute,

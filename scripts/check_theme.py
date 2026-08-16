@@ -672,6 +672,9 @@ CONTRAST_PAIRS = (
     ("--muted-foreground", "--background", 4.5),
     ("--muted-foreground", "--muted", 4.5),
     ("--muted-foreground", "--accent", 4.5),
+    # The quiet label tone sits on a tile and on that tile's hover surface.
+    ("--at-quiet-foreground", "--card", 4.5),
+    ("--at-quiet-foreground", "--accent", 4.5),
     ("--secondary-foreground", "--secondary", 4.5),
     ("--accent-foreground", "--accent", 4.5),
     ("--primary-foreground", "--primary", 4.5),
@@ -683,6 +686,9 @@ CONTRAST_PAIRS = (
     ("--input", "--card", 3.0),
     ("--input", "--background", 3.0),
     ("--input", "--muted", 3.0),
+    # A switch track is --input, and it has to stay identifiable on the tint a
+    # row takes under the pointer -- the surface that let it slip to 2.83:1.
+    ("--input", "--at-row-hover", 3.0),
     ("--ring", "--card", 3.0),
     ("--ring", "--background", 3.0),
     ("--sidebar-ring", "--sidebar", 3.0),

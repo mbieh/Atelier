@@ -4,6 +4,20 @@ All notable changes to this project are documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+
+- `--at-quiet-foreground`, one step greyer than `--muted-foreground`, for a label whose state is carried by a control next to it. It is mixed 90% toward the surface, which is where the ramp stops: 4.75:1 on a card and 4.71:1 on that card's hover surface, with the next step down falling below the 4.5:1 of WCAG 1.4.3 in both schemes. The contrast guard covers it on both surfaces.
+
+### Fixed
+
+- An inactive switch stays identifiable while its row is hovered. The track is `--input`, and on `--accent` it read at 2.83:1 in the light scheme, below the 3:1 WCAG 1.4.11 asks of a control. Those rows hover on the softer row tint now, where it holds 3.20:1, and the contrast guard covers that pairing so it cannot slip again.
+
+### Changed
+
+- The extension list reads as a settings list and follows the width it is given. FreshRSS emits each row as switch, gear, name, which left the names behind a ragged column of controls. Each extension is its own surface now, the name on the reading edge and the controls collected on the trailing one, so the switches line up in a column of their own. The list takes two columns from 40rem and three from 64rem of container width, measured on the settings container rather than the viewport. Every list on the page shares that grid, so a section holding a single extension shows a tile the same width as the others rather than one stretched across the row. An enabled extension carries its name in semibold, a disabled one in `--at-quiet-foreground` at regular weight rather than in italics, since the switch beside it already carries that state.
+
 ## 1.2.2 - 2026-08-16
 
 ### Fixed
