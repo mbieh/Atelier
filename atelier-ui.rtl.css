@@ -415,6 +415,15 @@ input[type="file"]::file-selector-button {
 	background: var(--primary);
 }
 
+/* The base layer paints the state as a background image on the track and
+   resets it inside @supports selector(.switch::before) -- but only for the
+   resting states. The hover states kept theirs, so pointing at a switch faded
+   a glyph in behind the knob. The knob carries the state here. */
+.switch:not([disabled]):hover,
+.switch.active:not([disabled]):hover {
+	background-image: none;
+}
+
 .switch::before,
 .switch.active::before {
 	inset-block-start: 2px;
@@ -750,12 +759,36 @@ input[type="file"]::file-selector-button {
 	block-size: 100%;
 }
 
-.nav_menu :is(.btn:has(> .icon:only-child), .btn:empty),
+/* A dropdown trigger is always icon-only, so it can take the square outright.
+   A .btn cannot: :only-child counts elements, not text, so a button that pairs
+   an icon with a label -- "Manage" on the statistics toolbar -- matched the
+   same rule and was cut to 40px with its label clipped. The square is a
+   minimum there, and the padding is small enough to leave an icon-only button
+   at exactly that size while giving a label room to breathe. */
 .nav_menu :is(.stick, .group) > .dropdown > a.dropdown-toggle,
 .nav_menu :is(.stick, .group) > form > .dropdown > a.dropdown-toggle {
 	inline-size: var(--at-control-size);
 	min-inline-size: var(--at-control-size);
 	padding-inline: 0;
+}
+
+.nav_menu :is(.stick, .group) :is(.btn:has(> .icon:only-child), .btn:empty) {
+	inline-size: var(--at-control-size);
+	min-inline-size: var(--at-control-size);
+	padding-inline: 0;
+}
+
+/* A standalone toolbar button is where a label can appear beside the icon --
+   "Manage" on the statistics filter bar. The square is a minimum there, and
+   the padding small enough to leave an icon-only button at exactly that size
+   while giving a label room to breathe. */
+.nav_menu > :is(.btn, :not(.stick, .group) > .btn):is(
+	:has(> .icon:only-child),
+	:empty
+) {
+	inline-size: auto;
+	min-inline-size: var(--at-control-size);
+	padding-inline: 0.5rem;
 }
 
 /* Paint the ellipsis from currentColor instead of selecting a second fixed-
@@ -2761,8 +2794,6 @@ main.post .alert > p:last-child:has(
 	z-index: 1;
 }
 
-/* Field, Label and advanced Collapsible sections */
-legend,
 /* FreshRSS opens two things with <details>: the environment block on About and
    the advanced sections when adding a feed. They read as different components
    -- a card holding a second framed box, and a pair of hairlines that barely
@@ -2973,6 +3004,11 @@ legend,
    auto margins would otherwise combine with inline-size containment and let
    the grid item collapse to its min-content width. Keep these text views on a
    generous but readable measure instead. */
+/* About and Terms carry class="post content", and .content is the article
+   body elsewhere in FreshRSS: they inherited its 10px inset and its 1.125rem
+   reading size, which put them closer to the sidebar and in a different voice
+   than every other page under the same sidebar. They keep the page inset and
+   the interface size; the reading measure stays. */
 main.post.content {
 	box-sizing: border-box;
 	justify-self: start;
@@ -2980,6 +3016,15 @@ main.post.content {
 	max-inline-size: var(--at-reading-page-width);
 	margin-block: 0;
 	margin-inline: 0;
+	padding-block: 1rem;
+	padding-inline: 2rem;
+	font-size: 1rem;
+	line-height: 1.6;
+}
+
+main.post.content :is(p, ul, ol) {
+	font-size: 1rem;
+	line-height: 1.6;
 }
 
 main.post.content.centered {
@@ -3008,13 +3053,58 @@ main.post.content.centered {
 	margin-block-start: 1.75rem;
 }
 
+/* A <legend> names a section of a form, and FreshRSS uses it for exactly what
+   other views spell as an <h2> -- several pages carry both. One heading
+   language for the two, so a form does not change its voice halfway through.
+   The base layer sets legends in small uppercase with letter-spacing, which is
+   a different idiom altogether. */
+.post legend,
+.post h2 {
+	margin-block: 1.75rem 0.25rem;
+	color: var(--foreground);
+	font-size: 1.5rem;
+	font-weight: 650;
+	letter-spacing: -0.01em;
+	line-height: 1.25;
+	text-transform: none;
+}
+
+/* A legend is not an ordinary block -- it sizes to its text and sits in the
+   fieldset's border -- so its box has to be reset before it can carry the
+   heading style. */
 .post legend {
 	box-sizing: border-box;
-	margin: 0;
-	margin-block-end: 0.625rem;
+	display: block;
+	inline-size: auto;
+	max-inline-size: 100%;
+	margin-inline: 0;
 	padding: 0;
-	padding-block-end: 0.625rem;
-	border-block-end: 1px solid var(--border);
+	border: 0;
+	background: none;
+}
+
+/* One gap below the page title, whatever follows it: a section heading, a
+   form, or a paragraph. FreshRSS starts these pages differently -- Manage
+   users with an h2, Reading with a form, About with text -- and each brought
+   its own margin, so the same title sat 7px, 14px or 17.5px above its
+   content. A legend cannot be a child of the form, it sits in the first
+   fieldset, so that case is named separately. */
+.post > h1 {
+	margin-block: 1.5rem;
+}
+
+/* The shortcut page puts a <datalist> of key names between its title and the
+   form -- the one place in FreshRSS where something non-rendering sits there,
+   which is enough to make an adjacency rule miss the block it aims at. */
+.post > h1 + *,
+.post > h1 + :is(datalist, template, script, style) + * {
+	margin-block-start: 0;
+}
+
+.post > h1 + form > fieldset:first-of-type > legend,
+.post > h1 + :is(datalist, template, script, style) + form > fieldset:first-of-type >
+	legend {
+	margin-block-start: 0;
 }
 
 .post .form-group::after {
@@ -3739,6 +3829,74 @@ html.controller_stats main.post > .box {
 html.controller_stats main.post > .box .box-content {
 	box-sizing: border-box;
 	inline-size: 100%;
+}
+
+/* The bar above these pages is a scope filter for what follows -- which feed
+   the numbers are about -- not a toolbar of actions. It reads that way when it
+   starts on the page's text axis instead of floating centred above the title. */
+html.controller_stats .nav_menu {
+	justify-content: flex-start;
+	gap: 0.5rem;
+	padding-inline: 1rem;
+}
+
+@media (min-width: 841px) {
+	html.controller_stats .nav_menu {
+		padding-inline: 2rem;
+	}
+}
+
+/* The zoom toggle of a statistics card lives in its title. The base layer pins
+   it to the right edge with position: absolute, where it keeps the 17px width
+   of its "+" glyph and lands on the scrollbar of the content below. The title
+   is a row here, and the toggle a square button like every other. */
+html.controller_stats .box .box-title {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+html.controller_stats .box .box-title > :is(h1, h2, h3) {
+	flex: 1 1 auto;
+	min-inline-size: 0;
+}
+
+html.controller_stats .box .box-title .btn {
+	position: static;
+	display: inline-grid;
+	flex: 0 0 auto;
+	place-items: center;
+	inline-size: 1.75rem;
+	block-size: 1.75rem;
+	min-block-size: 0;
+	margin: 0;
+	padding: 0;
+	border: 1px solid var(--at-button-border);
+	border-radius: var(--at-radius-s);
+	background: var(--card);
+	color: var(--muted-foreground);
+	font-size: 1rem;
+	line-height: 1;
+	box-shadow: none;
+}
+
+html.controller_stats .box .box-title .btn:hover {
+	background: var(--accent);
+	color: var(--accent-foreground);
+}
+
+/* A chart is not a scrollable list: the base layer caps every box at 260 or
+   520px and scrolls the overflow, which wrapped the canvases in two
+   scrollbars. They size to the card instead. */
+html.controller_stats .box .box-content:has(> canvas) {
+	max-block-size: none;
+	overflow: visible;
+	padding: 0.75rem 1rem 1rem;
+}
+
+html.controller_stats .box .box-content > canvas {
+	max-inline-size: 100%;
+	block-size: auto;
 }
 
 .disabled-user {

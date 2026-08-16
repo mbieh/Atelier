@@ -4,7 +4,7 @@ All notable changes to this project are documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## 1.2.3 - 2026-08-16
 
 ### Added
 
@@ -12,6 +12,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Fixed
 
+- Pointing at a switch no longer fades a glyph in behind its knob. FreshRSS paints the state as a background image on the track and resets it inside an `@supports selector(.switch::before)` block — but only for the resting states, so both hover states kept theirs. Here the knob carries the state, in every state.
+- A toolbar button keeps its label. `:only-child` counts elements and not text, so a button pairing an icon with a label — "Manage" on the statistics filter bar — matched the icon-only rule and was cut to a 40px square with its label clipped. Segments inside a group keep the exact square; a standalone button treats it as a minimum.
+- The statistics filter bar starts on the page's text axis instead of floating centred above the title. It says which feed the numbers are about, so it belongs with them.
+- The zoom toggle of a statistics card sits in its title row as a square button. The base layer pins it to the card's right edge with `position: absolute`, at the 17px width of its own "+" glyph, where it landed on the scrollbar of the content below.
+- Charts are no longer wrapped in scrollbars. The base layer caps every card's content at 260 or 520px and scrolls the overflow, which is right for a list of feeds and wrong for a canvas; the chart cards size to their chart.
+- Every page starts on the same rhythm. FreshRSS opens these views differently — Manage users with a section heading, Reading with a form, About with text — and each brought its own margin, so the same page title sat 7px, 14px or 17.5px above its content. One gap of 1.5rem below the title, whatever follows it, including the Shortcuts page, where a `<datalist>` of key names sits between the two and defeats a rule that goes by adjacency alone.
+- About and Terms sit on the page inset like every other view, and in the interface size. They carry `class="post content"`, and `.content` is the article body elsewhere in FreshRSS, so they inherited its 10px inset and its 1.125rem reading size — 18px closer to the sidebar than the settings pages under the same sidebar, in a different voice.
+- Section headings in forms are headings again. Rewriting the collapsible headers in 1.2.2 left `legend` attached to their selector, so every `<legend>` — the sections of Reading, Advanced Search, Sharing, Shortcuts and the feed, category and query forms — turned into a tinted bar spanning the form.
+- A `<legend>` and an `<h2>` now read the same. FreshRSS uses both for the same thing, and several pages carry both: the feed configuration has seven legends beside two headings. They share one size, weight and rhythm, instead of a small uppercase idiom from the base layer on one side and a section heading on the other.
 - An inactive switch stays identifiable while its row is hovered. The track is `--input`, and on `--accent` it read at 2.83:1 in the light scheme, below the 3:1 WCAG 1.4.11 asks of a control. Those rows hover on the softer row tint now, where it holds 3.20:1, and the contrast guard covers that pairing so it cannot slip again.
 
 ### Changed
