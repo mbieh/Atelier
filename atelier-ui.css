@@ -648,6 +648,111 @@ input[type="file"]::file-selector-button {
 	border-inline-start: 1px solid var(--border);
 }
 
+/* An extension may nest a second .stick inside a group -- QuickCollapse wraps
+   the sort trigger and its own button that way, inside the dropdown. A nested
+   group is a wrapper, not a second card: it was drawing its own hairline and
+   8px radius mid-group, and its own height stood 2px taller than the space
+   between its parent's borders. Strip it to a stretching row and let the outer
+   group keep the boundary; its outer segments carry the end caps, since a
+   wrapper like this holds everything the group shows. */
+.nav_menu :is(.stick, .group) :is(.stick, .group) {
+	display: flex;
+	align-self: stretch;
+	block-size: 100%;
+	min-block-size: 0;
+	margin: 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+	box-shadow: none;
+}
+
+.nav_menu :is(.stick, .group) :is(.stick, .group) > .btn {
+	border-radius: 0;
+}
+
+.nav_menu :is(.stick, .group) :is(.stick, .group) > :first-child {
+	border-start-start-radius: var(--at-radius-inner);
+	border-end-start-radius: var(--at-radius-inner);
+}
+
+.nav_menu :is(.stick, .group) :is(.stick, .group) > :last-child {
+	border-start-end-radius: var(--at-radius-inner);
+	border-end-end-radius: var(--at-radius-inner);
+}
+
+/* Same weight problem as the top-level caps: the rule that flattens toolbar
+   dropdown triggers outweighs the cap selectors above. */
+.nav_menu :is(.stick, .group) :is(.stick, .group) > a.dropdown-toggle:first-child {
+	border-start-start-radius: var(--at-radius-inner);
+	border-end-start-radius: var(--at-radius-inner);
+}
+
+.nav_menu :is(.stick, .group) :is(.stick, .group) > a.dropdown-toggle:last-child {
+	border-start-end-radius: var(--at-radius-inner);
+	border-end-end-radius: var(--at-radius-inner);
+}
+
+/* A control that holds nothing but icons stays square. The :only-child rule
+   above misses an extension button that ships one icon per state --
+   QuickCollapse carries both and hides one -- so match on "no child that is
+   not an icon" and keep the width a minimum, in case both are ever shown. */
+.nav_menu .btn:has(> .icon):not(:has(> :not(.icon))) {
+	min-inline-size: var(--at-control-size);
+	padding-inline: 0;
+}
+
+/* Extensions fill #nav_menu_hooks with markup this theme never sees, and a
+   control there is often a bare <a> or <button> that never got FreshRSS' .btn
+   class. Such a segment kept its intrinsic size and sat in the group at its
+   own height, breaking the row it shares. Give it the segment geometry, the
+   quiet surface, and the end-cap corners that a .btn already gets. */
+.nav_menu :is(.stick, .group) > :is(a, button, label):not(.btn) {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	block-size: 100%;
+	min-block-size: 100%;
+	min-inline-size: var(--at-control-size);
+	margin: 0;
+	padding-block: 0;
+	padding-inline: var(--at-control-padding-inline);
+	border: 0;
+	border-radius: 0;
+	background-color: transparent;
+	box-shadow: none;
+	color: var(--card-foreground);
+	font-size: 0.875rem;
+	font-weight: 500;
+	line-height: 1;
+	white-space: nowrap;
+	transition: background-color 0.12s ease-out;
+}
+
+.nav_menu :is(.stick, .group) > :is(a, button, label):not(.btn):is(
+	:has(> .icon:only-child),
+	:has(> img:only-child),
+	:empty
+) {
+	inline-size: var(--at-control-size);
+	padding-inline: 0;
+}
+
+.nav_menu :is(.stick, .group) > :is(a, button, label):not(.btn):hover {
+	background-color: var(--accent);
+}
+
+.nav_menu :is(.stick, .group) > :is(a, button, label):not(.btn):first-child {
+	border-start-start-radius: var(--at-radius-inner);
+	border-end-start-radius: var(--at-radius-inner);
+}
+
+.nav_menu :is(.stick, .group) > :is(a, button, label):not(.btn):last-child {
+	border-start-end-radius: var(--at-radius-inner);
+	border-end-end-radius: var(--at-radius-inner);
+}
+
 /* FreshRSS submits "mark all as read" from a <form> that wraps the button and
    its dropdown, so the group's only child is layout plumbing rather than a
    segment. Stretch it and pass the group's height through, otherwise the two
@@ -727,9 +832,15 @@ input[type="file"]::file-selector-button {
 	margin: 0;
 }
 
-/* Standalone toolbar controls use the same geometry and surface as a group. */
+/* Standalone toolbar controls use the same geometry and surface as a group.
+   Their height cannot come from a group either: the subscription view emits
+   the sidebar button in a plain <div> where the configuration view uses a
+   .group, so block-size: 100% resolved against an auto height and the button
+   collapsed to its content. State the control height here instead. */
 .nav_menu > .btn,
 .nav_menu > :not(.stick, .group) > .btn {
+	block-size: var(--at-control-size);
+	min-block-size: var(--at-control-size);
 	border: 1px solid var(--at-button-border);
 	border-radius: var(--at-radius-m);
 	background: var(--card);
@@ -1240,6 +1351,37 @@ main.prompt h1,
 		border-radius: 0;
 		border-inline: none;
 		box-shadow: none;
+	}
+
+	/* The desktop toolbar is a flex row; below the breakpoint the base layer's
+	   centred inline-blocks took over, spacing the groups with 8px margins that
+	   collapse differently per row and indenting the bar by the 3.75rem the
+	   desktop sidebar toggle used to need. The same flex row, allowed to wrap,
+	   gives every gap one value and every row the same edges. */
+	.nav_menu {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+		box-sizing: border-box;
+		gap: 0.5rem;
+		padding: 0.5rem;
+		padding-inline-start: 0.5rem;
+		text-align: start;
+	}
+
+	.nav_menu > :is(.stick, .group, .btn, .dropdown) {
+		margin: 0;
+	}
+
+	/* The configuration and subscription views emit their own bar holding one
+	   sidebar button. The base layer keeps it display:block, so it never
+	   followed the centred toolbar and sat on no axis at all. Put it on the
+	   page's text axis, where the heading below it starts. */
+	.nav_menu.nav_mobile {
+		display: flex;
+		justify-content: flex-start;
+		padding-inline: 1rem;
 	}
 
 	/* Mapco paints these close bars with --main-first, so their icons sit on a

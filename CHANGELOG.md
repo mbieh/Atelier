@@ -23,6 +23,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- A group an extension nests inside a toolbar group stays a wrapper instead of
+  drawing a second card. QuickCollapse wraps the sort trigger and its own
+  button in another `.stick`, which took the group styling: a hairline and an
+  8px radius mid-group, and a height 2px taller than the space between its
+  parent's borders. Such a wrapper now stretches without a surface, and the
+  segments at its ends carry the group's end caps.
+- Extension buttons in the toolbar's hook group sit in the row like every
+  other segment. Extensions fill `#nav_menu_hooks` with their own markup, and
+  a control there often lacks FreshRSS' `.btn` class, so it kept its intrinsic
+  size and height inside a group sized for 40px segments. Any interactive
+  direct child of a toolbar group now gets the segment geometry, surface, and
+  end-cap corners.
+- The sidebar button on the mobile subscription view is the same 40px square
+  as every other toolbar control. FreshRSS wraps it in a `.group` on the
+  configuration view but in a plain `<div>` on the subscription view, so its
+  `block-size: 100%` resolved against an auto height and the button collapsed
+  to 16px tall. Standalone toolbar controls state the control height
+  themselves now.
+- That button also sits on the page's text axis. FreshRSS emits its own bar
+  for it, which the base layer keeps at `display: block`, so it followed
+  neither the centred toolbar nor the heading below it.
+- The toolbar keeps its layout below 840px. The flex row was scoped to the
+  desktop breakpoint, so the mobile bar fell back to centred inline blocks
+  whose 8px margins collapsed differently per row, and kept the 3.75rem indent
+  the desktop sidebar toggle used to need. It is the same row now, allowed to
+  wrap, with one gap value and one set of edges.
 - The header search keeps one silhouette across its states. The base layer
   greyed the field on hover and filled its submit button with the accent
   colour whenever the field was hovered or focused, so one control read as
