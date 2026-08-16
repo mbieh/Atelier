@@ -23,6 +23,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- The header search keeps one silhouette across its states. The base layer
+  greyed the field on hover and filled its submit button with the accent
+  colour whenever the field was hovered or focused, so one control read as
+  three; the button's white icon also kept its brightness filter on the light
+  hover surface and nearly disappeared. The field now keeps its surface, focus
+  is the only state the field itself shows, and the button takes a surface
+  only under its own pointer.
+- Settings rows that read out plain text — the version, the last update check,
+  the article count under Maintenance — align their value with their label.
+  The label carries an optical offset for the text inside a control, and a row
+  without a control had nothing to offset against, so the label sat a third of
+  a line below its own value.
+- Toolbar and category menus open below their trigger instead of over it.
+  FreshRSS leaves `.dropdown-menu` without a block offset and relies on its
+  static position, which this theme invalidated by turning the wrapper into a
+  flex or grid container.
+- "Mark all as read" and its menu trigger fill their group. FreshRSS wraps
+  that pair in the `<form>` that submits the action, and the toolbar treated
+  the wrapper as a segment, so both controls sized to their text and floated
+  in the middle of the group with a hover surface visibly shorter than the
+  control.
+- The hover and active surface of a segmented control follows the rounded
+  corner of its group. End caps were rounded at `--at-radius-s`, one pixel
+  short of the group's inner corner, which left a sliver of the surface
+  visible; an end-cap dropdown trigger was not rounded at all, because the
+  toolbar's flattening rule outweighed the cap rule.
 - Enabled add and overflow-menu icons retain the same foreground weight as
   their neighboring controls in dark mode instead of resembling disabled
   actions.

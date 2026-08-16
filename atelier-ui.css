@@ -27,6 +27,9 @@
 	--at-radius-s: calc(var(--radius) - 4px);
 	--at-radius-m: calc(var(--radius) - 2px);
 	--at-radius-l: var(--radius);
+	/* A segment sitting inside a 1px-bordered group needs the group's radius
+	   minus that border, or its corner paints past the one around it. */
+	--at-radius-inner: calc(var(--at-radius-m) - 1px);
 	/* One 40px control contract for buttons, fields, and segmented controls.
 	   Icon-only controls are square; labelled controls grow only inline. */
 	--at-control-size: 2.5rem;
@@ -508,6 +511,38 @@ input[type="file"]::file-selector-button {
 	background-color: var(--accent);
 }
 
+/* One control, one silhouette. The base layer greys the field on hover and
+   fills the submit button with the accent colour whenever the field is merely
+   hovered or focused -- three different shapes for what is one search box, and
+   an icon that turned white under a brightness filter it kept even on the
+   light hover surface. Here the field keeps its surface, focus is the only
+   thing the field says, and the button takes a surface only when the pointer
+   is on the button itself. */
+.header .item.search input:hover,
+.header .item.search input:focus {
+	background-color: var(--card);
+	color: var(--foreground);
+}
+
+.header .item.search input:hover ~ .btn,
+.header .item.search input:focus ~ .btn {
+	background-color: transparent;
+}
+
+/* Restated above the field-state selectors, which otherwise outweigh the
+   plain .btn:hover and would swallow the button's own hover surface. */
+.header .item.search input:hover ~ .btn:hover,
+.header .item.search input:focus ~ .btn:hover {
+	background-color: var(--accent);
+}
+
+.header .item.search .btn .icon,
+.header .item.search .btn:hover .icon,
+.header .item.search input:hover ~ .btn .icon,
+.header .item.search input:focus ~ .btn .icon {
+	filter: none;
+}
+
 /*=== 4. Header & Toolbar ============================================*/
 
 /* Solid bar. Do not add backdrop-filter: it turns the header into a
@@ -608,14 +643,27 @@ input[type="file"]::file-selector-button {
 	overflow: visible;
 }
 
-.nav_menu :is(.stick, .group) > :not(:first-child) {
+.nav_menu :is(.stick, .group) > :not(:first-child),
+.nav_menu :is(.stick, .group) > form > :not(:first-child) {
 	border-inline-start: 1px solid var(--border);
+}
+
+/* FreshRSS submits "mark all as read" from a <form> that wraps the button and
+   its dropdown, so the group's only child is layout plumbing rather than a
+   segment. Stretch it and pass the group's height through, otherwise the two
+   controls inside size to their text and float in the middle of the group --
+   a hover surface visibly shorter than the segment it belongs to. */
+.nav_menu :is(.stick, .group) > form {
+	display: flex;
+	align-self: stretch;
+	block-size: 100%;
 }
 
 /* A dropdown is a real segment, not merely a transparent wrapper. Giving the
    wrapper the group's full height preserves the toggle's hit target, while
    visible overflow lets its absolutely positioned menu leave the toolbar. */
-.nav_menu :is(.stick, .group) > .dropdown {
+.nav_menu :is(.stick, .group) > .dropdown,
+.nav_menu :is(.stick, .group) > form > .dropdown {
 	display: flex;
 	align-self: stretch;
 	block-size: 100%;
@@ -639,7 +687,8 @@ input[type="file"]::file-selector-button {
 }
 
 .nav_menu :is(.btn:has(> .icon:only-child), .btn:empty),
-.nav_menu :is(.stick, .group) > .dropdown > a.dropdown-toggle {
+.nav_menu :is(.stick, .group) > .dropdown > a.dropdown-toggle,
+.nav_menu :is(.stick, .group) > form > .dropdown > a.dropdown-toggle {
 	inline-size: var(--at-control-size);
 	min-inline-size: var(--at-control-size);
 	padding-inline: 0;
@@ -1000,17 +1049,17 @@ input[type="file"]::file-selector-button {
 }
 
 .aside .stick .btn:first-child {
-	border-start-start-radius: var(--at-radius-m);
+	border-start-start-radius: var(--at-radius-inner);
 	border-start-end-radius: 0;
-	border-end-start-radius: var(--at-radius-m);
+	border-end-start-radius: var(--at-radius-inner);
 	border-end-end-radius: 0;
 }
 
 .aside .stick .btn:last-child {
 	border-start-start-radius: 0;
-	border-start-end-radius: var(--at-radius-m);
+	border-start-end-radius: var(--at-radius-inner);
 	border-end-start-radius: 0;
-	border-end-end-radius: var(--at-radius-m);
+	border-end-end-radius: var(--at-radius-inner);
 }
 
 /* Unread counters use pill shapes. */
@@ -1766,6 +1815,20 @@ main.prompt h1,
 
 /*=== 8. Dropdowns, Panels, Overlays, Badges =========================*/
 
+/* Anchor a menu below its trigger. FreshRSS gives .dropdown-menu no block
+   offset and relies on its static position, which lands under the trigger
+   only while the wrapper lays its children out in a line. Wherever this theme
+   turns that wrapper into a flex or grid container -- toolbar segments, the
+   category header -- an absolutely positioned child takes its static position
+   from the container's content box instead, and the menu opened over the very
+   control it belongs to. The base layer's 9px top margin would stack on top of
+   the offset, so the gap is set in one place. */
+.nav_menu :is(.stick, .group) .dropdown > .dropdown-menu,
+.box .box-title form .dropdown > .dropdown-menu {
+	margin-block-start: 0;
+	inset-block-start: calc(100% + 0.375rem);
+}
+
 .dropdown-menu {
 	border-radius: var(--at-radius-m);
 	border: 1px solid var(--border);
@@ -2419,17 +2482,20 @@ main.post .alert > p:last-child:has(
 	box-shadow: none;
 }
 
-/* Only the end caps are rounded. Mapco rounds them through :first-child and
-   :last-child at (0,3,0), so a plain .stick > .btn radius loses to it and
-   leaves middle segments as pills between flat caps. Match its specificity and
-   restate all four corners, since its physical shorthand does not mirror. */
+/* Only the end caps are rounded, and they take the group's radius minus its
+   1px border: a segment fills the group edge to edge, so any smaller radius
+   leaves a sliver of surface in the corner and any larger one paints over the
+   border. Mapco rounds these through :first-child and :last-child at (0,3,0),
+   so a plain .stick > .btn radius loses to it and leaves middle segments as
+   pills between flat caps. Match its specificity and restate all four corners,
+   since its physical shorthand does not mirror. */
 .stick > .btn:first-child,
 .group > .btn:first-child,
 .stick > .dropdown:first-child > .btn,
 .group > .dropdown:first-child > .btn {
-	border-start-start-radius: var(--at-radius-s);
+	border-start-start-radius: var(--at-radius-inner);
 	border-start-end-radius: 0;
-	border-end-start-radius: var(--at-radius-s);
+	border-end-start-radius: var(--at-radius-inner);
 	border-end-end-radius: 0;
 }
 
@@ -2438,9 +2504,9 @@ main.post .alert > p:last-child:has(
 .stick > .dropdown:last-child > .btn,
 .group > .dropdown:last-child > .btn {
 	border-start-start-radius: 0;
-	border-start-end-radius: var(--at-radius-s);
+	border-start-end-radius: var(--at-radius-inner);
 	border-end-start-radius: 0;
-	border-end-end-radius: var(--at-radius-s);
+	border-end-end-radius: var(--at-radius-inner);
 }
 
 /* A lone button is both first and last child, so it needs the later word. */
@@ -2448,7 +2514,36 @@ main.post .alert > p:last-child:has(
 .group > .btn:only-child,
 .stick > .dropdown:only-child > .btn,
 .group > .dropdown:only-child > .btn {
-	border-radius: var(--at-radius-s);
+	border-radius: var(--at-radius-inner);
+}
+
+/* The toolbar flattens its segments through .nav_menu .stick .dropdown
+   a.dropdown-toggle, which outweighs the cap rules above, so an end-cap
+   dropdown trigger needs its corners restated at that weight. The <form> of
+   the mark-as-read group is transparent for this too: the segments at its
+   ends are the group's end caps. */
+.nav_menu :is(.stick, .group) > .dropdown:first-child > a.dropdown-toggle,
+.nav_menu :is(.stick, .group) > form:first-child > .dropdown:first-child >
+	a.dropdown-toggle {
+	border-start-start-radius: var(--at-radius-inner);
+	border-end-start-radius: var(--at-radius-inner);
+}
+
+.nav_menu :is(.stick, .group) > .dropdown:last-child > a.dropdown-toggle,
+.nav_menu :is(.stick, .group) > form:last-child > .dropdown:last-child >
+	a.dropdown-toggle {
+	border-start-end-radius: var(--at-radius-inner);
+	border-end-end-radius: var(--at-radius-inner);
+}
+
+.nav_menu :is(.stick, .group) > form:first-child > .btn:first-child {
+	border-start-start-radius: var(--at-radius-inner);
+	border-end-start-radius: var(--at-radius-inner);
+}
+
+.nav_menu :is(.stick, .group) > form:last-child > .btn:last-child {
+	border-start-end-radius: var(--at-radius-inner);
+	border-end-end-radius: var(--at-radius-inner);
 }
 
 .stick > .btn:focus-visible,
@@ -2662,6 +2757,18 @@ main.post.content.centered {
 	margin-inline-start: 0;
 	padding: 0;
 	overflow: visible;
+}
+
+/* The label carries an optical offset that lines it up with the text inside a
+   control. A row that reads out plain text -- the version, the last check, the
+   article count -- has no control to line up with, so the label sat a third of
+   a line below its own value. Give that text the control's height and centre
+   it in it, which is the position the offset already assumes. */
+.post .form-group > .group-controls:not(:has(input, select, textarea, button,
+	.btn, label, .stick)) {
+	display: flex;
+	align-items: center;
+	min-block-size: var(--at-control-size);
 }
 
 .post .form-group > :not(.group-name, .group-controls) {
