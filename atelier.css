@@ -7,37 +7,37 @@
    a stale partial brings removed styling back. The release version in the
    query changes the URL with every release. */
 
-@import "_fonts.css?v=1.2.1";
+@import "_fonts.css?v=1.2.2";
 
-@import "_palette.css?v=1.2.1";
+@import "_palette.css?v=1.2.2";
 
-@import "_variables.css?v=1.2.1";
+@import "_variables.css?v=1.2.2";
 
-@import "_forms.css?v=1.2.1";
+@import "_forms.css?v=1.2.2";
 
-@import "_tables.css?v=1.2.1";
+@import "_tables.css?v=1.2.2";
 
-@import "_components.css?v=1.2.1";
+@import "_components.css?v=1.2.2";
 
-@import "_divers.css?v=1.2.1";
+@import "_divers.css?v=1.2.2";
 
-@import "_sidebar.css?v=1.2.1";
+@import "_sidebar.css?v=1.2.2";
 
-@import "_layout.css?v=1.2.1";
+@import "_layout.css?v=1.2.2";
 
-@import "_list-view.css?v=1.2.1";
+@import "_list-view.css?v=1.2.2";
 
-@import "_global-view.css?v=1.2.1";
+@import "_global-view.css?v=1.2.2";
 
-@import "_reader-view.css?v=1.2.1";
+@import "_reader-view.css?v=1.2.2";
 
-@import "_configuration.css?v=1.2.1";
+@import "_configuration.css?v=1.2.2";
 
-@import "_logs.css?v=1.2.1";
+@import "_logs.css?v=1.2.2";
 
-@import "_stats.css?v=1.2.1";
+@import "_stats.css?v=1.2.2";
 
-@import "_mobile.css?v=1.2.1";
+@import "_mobile.css?v=1.2.2";
 
 /*=== GENERAL */
 /*============*/

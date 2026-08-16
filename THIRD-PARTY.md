@@ -35,7 +35,7 @@ hand-mirrored variants. The visual redesign itself lives in `atelier-ui.css`.
 
 ## Lucide
 
-The 55 SVG files under `icons/` are adapted copies from `lucide-static` 1.31.0.
+The 57 SVG files under `icons/` are adapted copies from `lucide-static` 1.31.0.
 Each file retains the `@license lucide-static v1.31.0 - ISC` header.
 
 - Source: <https://github.com/lucide-icons/lucide>

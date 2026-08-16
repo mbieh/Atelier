@@ -4,6 +4,15 @@ All notable changes to this project are documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## 1.2.2 - 2026-08-16
+
+### Fixed
+
+- The two places FreshRSS opens with `<details>` share one header. The environment block on About was a card holding a second framed list, padded by 2rem on three sides from the base layer, and the advanced sections when adding a feed were a pair of hairlines that barely registered. Both carry the same header now — a surfaced row with a chevron that turns when the section opens — while what the header sits on still follows the content: a card around the environment list, nothing around the advanced sections, whose rows have to keep the form's label axis.
+- The end of the stream closes the card instead of trailing off into it. FreshRSS separates the status line from the mark-as-read action with `<br>`, and the base layer adds 5em below the footer plus 100vh below the big button, which left roughly 60px of empty card under the last line. It is one centred column now, with the status as a quiet caption above the action, bounded padding, and a tick that matches its label in the small variant instead of overrunning it.
+- The settings popover opens with a balanced inset. Every section header carries a margin that separates it from the section above, which the first one does not have — it stacked with the header's own padding into 30px of empty space above the first label, against 14px below the last entry. The first header sits 13px from the edge now, and the space between sections is unchanged.
+- The QuickCollapse toggle no longer looks disabled. The extension ships one fixed-color asset per state, both drawn in `#bebebe`, and an external SVG cannot inherit `currentColor` — so its control sat greyed out between icons that follow the color scheme. The glyph is painted from a mask now, in the same foreground as its neighbours, with a bundled Lucide pair: chevrons meeting for "collapse", parting for "expand".
+
 ## 1.2.1 - 2026-08-16
 
 ### Fixed
@@ -65,6 +74,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Removed the `.form-group::after` clearfix, which declared no `content` and so never generated a box.
 - The release checks now anchor each layout invariant to the selector and at-rule context that is meant to carry it, rather than testing for a raw substring anywhere in the file. Declarations such as `flex-direction: column` occur up to eight times and a selector as short as `.btn` is a substring of a dozen others, so a third of the assertions passed no matter which rule was deleted.
 - `check_theme.py` reads the expected theme version from the changelog, guards `atelier.css` for direction neutrality as well, and rejects partial RTL mirrors if they reappear.
+
 ## 1.1.0 - 2026-08-15
 
 ### Added
