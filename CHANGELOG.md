@@ -5,6 +5,20 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## 1.2.1 - 2026-08-16
+
+### Fixed
+
+- Updating the theme no longer leaves a browser with styling from the previous
+  release. FreshRSS cache-busts only the sheets named in `metadata.json`, by
+  their mtime; the partials `atelier.css` pulls in through `@import` keep their
+  URL forever. That was harmless while the override layer only added rules, but
+  1.2.0 moved several controls into a single layer by *removing* rules from
+  those partials — so a cached partial brought the old mark-as-read surface and
+  the old search-field states back, next to an override layer that no longer
+  counteracts them. Every `@import` now carries the release version, and
+  `check_theme.py` fails a release whose imports do not.
+
 ## 1.2.0 - 2026-08-16
 
 ### Added

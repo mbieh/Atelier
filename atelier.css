@@ -1,36 +1,43 @@
 @charset "UTF-8";
 
-@import "_fonts.css";
+/* FreshRSS cache-busts only the sheets named in metadata.json, by their
+   mtime. Files reached through @import carry no such query, so a browser
+   can hold a partial from an older release while the sheets around it are
+   fresh -- and since the override layer relies on rules being absent here,
+   a stale partial brings removed styling back. The release version in the
+   query changes the URL with every release. */
 
-@import "_palette.css";
+@import "_fonts.css?v=1.2.1";
 
-@import "_variables.css";
+@import "_palette.css?v=1.2.1";
 
-@import "_forms.css";
+@import "_variables.css?v=1.2.1";
 
-@import "_tables.css";
+@import "_forms.css?v=1.2.1";
 
-@import "_components.css";
+@import "_tables.css?v=1.2.1";
 
-@import "_divers.css";
+@import "_components.css?v=1.2.1";
 
-@import "_sidebar.css";
+@import "_divers.css?v=1.2.1";
 
-@import "_layout.css";
+@import "_sidebar.css?v=1.2.1";
 
-@import "_list-view.css";
+@import "_layout.css?v=1.2.1";
 
-@import "_global-view.css";
+@import "_list-view.css?v=1.2.1";
 
-@import "_reader-view.css";
+@import "_global-view.css?v=1.2.1";
 
-@import "_configuration.css";
+@import "_reader-view.css?v=1.2.1";
 
-@import "_logs.css";
+@import "_configuration.css?v=1.2.1";
 
-@import "_stats.css";
+@import "_logs.css?v=1.2.1";
 
-@import "_mobile.css";
+@import "_stats.css?v=1.2.1";
+
+@import "_mobile.css?v=1.2.1";
 
 /*=== GENERAL */
 /*============*/

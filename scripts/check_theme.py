@@ -974,8 +974,18 @@ def main() -> int:
     for path in css_paths:
         content = path.read_text(encoding="utf-8")
         for imported in re.findall(r'@import\s+["\']([^"\']+)["\']', content):
-            if not (path.parent / imported).is_file():
-                errors.append(f"{path.name}: missing imported stylesheet: {imported}")
+            target, _, query = imported.partition("?")
+            if not (path.parent / target).is_file():
+                errors.append(f"{path.name}: missing imported stylesheet: {target}")
+            # FreshRSS busts the cache of the sheets it names, by mtime, but an
+            # imported partial keeps its URL across releases. Without the query
+            # a browser can pair a stale partial with a fresh override layer,
+            # which restores styling a release deliberately removed.
+            elif query != f"v={expected_version}":
+                errors.append(
+                    f"{path.name}: @import \"{target}\" must carry "
+                    f"?v={expected_version} so browsers refetch it"
+                )
         if re.search(r"url\(\s*[\"']?https?://", content, flags=re.IGNORECASE):
             errors.append(f"{path.name}: external runtime asset URL is not allowed")
         if re.search(r"rgba?\(\s*var\(", content, flags=re.IGNORECASE):
