@@ -727,7 +727,13 @@ def parse_hex(value: str) -> tuple[float, float, float]:
     digits = value.lstrip("#")
     if len(digits) == 3:
         digits = "".join(channel * 2 for channel in digits)
-    return tuple(int(digits[i : i + 2], 16) for i in (0, 2, 4))
+    # Spelled out rather than built from a generator: the annotation promises
+    # three channels, and a generator only ever types as tuple[int, ...].
+    return (
+        int(digits[0:2], 16),
+        int(digits[2:4], 16),
+        int(digits[4:6], 16),
+    )
 
 
 def resolve_color(
@@ -763,7 +769,12 @@ def resolve_value(
         if first is None or second is None:
             return None
         weight = float(mix.group(2)) / 100
-        return tuple(first[i] * weight + second[i] * (1 - weight) for i in range(3))
+        rest = 1 - weight
+        return (
+            first[0] * weight + second[0] * rest,
+            first[1] * weight + second[1] * rest,
+            first[2] * weight + second[2] * rest,
+        )
     return None
 
 
@@ -982,10 +993,11 @@ def main() -> int:
             # FreshRSS busts the cache of the sheets it names, by mtime, but an
             # imported partial keeps its URL across releases. Without the query
             # a browser can pair a stale partial with a fresh override layer,
-            # which restores styling a release deliberately removed.
-            elif query != f"v={expected_version}":
+            # which restores styling a release deliberately removed. A missing
+            # version heading is reported above; do not repeat it per import.
+            elif expected_version is not None and query != f"v={expected_version}":
                 errors.append(
-                    f"{path.name}: @import \"{target}\" must carry "
+                    f'{path.name}: @import "{target}" must carry '
                     f"?v={expected_version} so browsers refetch it"
                 )
         if re.search(r"url\(\s*[\"']?https?://", content, flags=re.IGNORECASE):
