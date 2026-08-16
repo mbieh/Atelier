@@ -5,7 +5,7 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## 1.2.0 - 2026-08-16
 
 ### Added
 
@@ -22,6 +22,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   also be complete, so a scheme cannot omit a step that a role depends on.
 
 ### Fixed
+
+- The mark-as-read segment carries the toolbar's own surface. A rule left over
+  from the structural layer outranked it and painted the segment in `--muted`
+  instead of the group's card, with 16px of inline padding where every other
+  segment uses 12.25px — a visibly greyer, wider control in an otherwise white
+  toolbar. Its hover came from the same rule and diverged from `--accent` in
+  the dark scheme.
+- Below 840px the mark-as-read menu trigger keeps the theme's end-cap radius.
+  A mobile rule from the structural layer set 5px through an ID selector and
+  outranked the 7px inner radius of the group.
+- Text typed into the header search uses the page foreground instead of the
+  sidebar foreground, which the structural layer applied to that one field.
+
+### Changed
+
+- The structural layer no longer styles the header search, the mark-as-read
+  segment, or the toolbar's mobile spacing. Those rules only survived because
+  the override layer restated them; both sides are gone, so each control is
+  described in one place. No rendering changes from this, verified by
+  comparing computed styles across five rebuilt FreshRSS pages.
 
 - A group an extension nests inside a toolbar group stays a wrapper instead of
   drawing a second card. QuickCollapse wraps the sort trigger and its own

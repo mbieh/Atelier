@@ -254,12 +254,8 @@ REQUIRED_LAYOUT_RULES = (
     LayoutRule(".nav_menu .stick", "border: 1px solid var(--at-button-border)"),
     LayoutRule(".nav_menu .stick", "overflow: visible"),
     LayoutRule(
-        ".nav_menu :is(.stick, .group) > .dropdown",
+        ".nav_menu :is(.stick, .group) > :is(form, .dropdown)",
         "block-size: 100%",
-    ),
-    LayoutRule(
-        ".nav_menu :is(.stick, .group) .dropdown:not(#dropdown-search-wrapper) > a.dropdown-toggle",
-        "background-image: none",
     ),
     LayoutRule(
         ".nav_menu :is(.stick, .group) .dropdown:not(#dropdown-search-wrapper) > a.dropdown-toggle::before",
@@ -285,6 +281,23 @@ OBSOLETE_FORM_SUBGRID = re.compile(
     r"\.post\s+:is\(form,\s*fieldset\)\s*>\s*\.form-group\s*\{"
     r"[^}]*grid-template-columns:\s*subgrid;",
     re.DOTALL,
+)
+
+# The structural layer styled two controls that the override layer also owns,
+# and won both times on specificity: the mark-as-read segment kept a --muted
+# surface inside a card-white group, and the header search field kept the
+# sidebar foreground. Whoever restates them there wins again, silently.
+STRUCTURAL_LAYER_CONTROL_RULES = (
+    (
+        "_layout.css",
+        re.compile(r"&?\.read_all\s*\{[^}]*(?:background-color|color|padding)\s*:", re.DOTALL),
+        "the mark-as-read segment belongs to atelier-ui.css",
+    ),
+    (
+        "_layout.css",
+        re.compile(r"&\.search\s*\{[^}]*\binput\b\s*\{", re.DOTALL),
+        "the header search field belongs to atelier-ui.css",
+    ),
 )
 REQUIRED_DARK_ICON_RULES = (
     LayoutRule('#sidebar img.icon:not([src$="/starred.svg"])', context=DARK),
@@ -1028,6 +1041,10 @@ def main() -> int:
             )
     if OBSOLETE_FORM_SUBGRID.search(ui_css):
         errors.append("atelier-ui.css: obsolete form subgrid layout remains")
+
+    for name, pattern, reason in STRUCTURAL_LAYER_CONTROL_RULES:
+        if pattern.search((ROOT / name).read_text(encoding="utf-8")):
+            errors.append(f"{name}: {reason}")
 
     svg_files = sorted((ROOT / "icons").glob("*.svg"))
     lucide_files = [path for path in svg_files if path.name not in NON_LUCIDE_SVGS]

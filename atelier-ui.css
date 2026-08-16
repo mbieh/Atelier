@@ -511,38 +511,6 @@ input[type="file"]::file-selector-button {
 	background-color: var(--accent);
 }
 
-/* One control, one silhouette. The base layer greys the field on hover and
-   fills the submit button with the accent colour whenever the field is merely
-   hovered or focused -- three different shapes for what is one search box, and
-   an icon that turned white under a brightness filter it kept even on the
-   light hover surface. Here the field keeps its surface, focus is the only
-   thing the field says, and the button takes a surface only when the pointer
-   is on the button itself. */
-.header .item.search input:hover,
-.header .item.search input:focus {
-	background-color: var(--card);
-	color: var(--foreground);
-}
-
-.header .item.search input:hover ~ .btn,
-.header .item.search input:focus ~ .btn {
-	background-color: transparent;
-}
-
-/* Restated above the field-state selectors, which otherwise outweigh the
-   plain .btn:hover and would swallow the button's own hover surface. */
-.header .item.search input:hover ~ .btn:hover,
-.header .item.search input:focus ~ .btn:hover {
-	background-color: var(--accent);
-}
-
-.header .item.search .btn .icon,
-.header .item.search .btn:hover .icon,
-.header .item.search input:hover ~ .btn .icon,
-.header .item.search input:focus ~ .btn .icon {
-	filter: none;
-}
-
 /*=== 4. Header & Toolbar ============================================*/
 
 /* Solid bar. Do not add backdrop-filter: it turns the header into a
@@ -609,10 +577,20 @@ input[type="file"]::file-selector-button {
 .nav_menu .group .btn,
 .nav_menu .stick .dropdown a.dropdown-toggle,
 .nav_menu .group .dropdown a.dropdown-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	block-size: 100%;
+	min-block-size: 100%;
+	min-inline-size: var(--at-control-size);
+	padding-block: 0;
+	padding-inline: var(--at-control-padding-inline);
 	border: none;
+	border-radius: 0;
 	background-color: transparent;
 	box-shadow: none;
-	border-radius: 0;
+	line-height: 1;
 	transition: background-color 0.12s ease-out;
 }
 
@@ -693,11 +671,10 @@ input[type="file"]::file-selector-button {
 	border-end-end-radius: var(--at-radius-inner);
 }
 
-/* A control that holds nothing but icons stays square. The :only-child rule
-   above misses an extension button that ships one icon per state --
-   QuickCollapse carries both and hides one -- so match on "no child that is
-   not an icon" and keep the width a minimum, in case both are ever shown. */
-.nav_menu .btn:has(> .icon):not(:has(> :not(.icon))) {
+/* An extension button may ship one icon per state and hide the inactive one --
+   QuickCollapse does. The :only-child rule below cannot see it, so keep the
+   square as a minimum here, wide enough should both ever be shown. */
+.nav_menu .btn:has(> .icon + .icon) {
 	min-inline-size: var(--at-control-size);
 	padding-inline: 0;
 }
@@ -758,37 +735,14 @@ input[type="file"]::file-selector-button {
    segment. Stretch it and pass the group's height through, otherwise the two
    controls inside size to their text and float in the middle of the group --
    a hover surface visibly shorter than the segment it belongs to. */
-.nav_menu :is(.stick, .group) > form {
-	display: flex;
-	align-self: stretch;
-	block-size: 100%;
-}
-
-/* A dropdown is a real segment, not merely a transparent wrapper. Giving the
-   wrapper the group's full height preserves the toggle's hit target, while
-   visible overflow lets its absolutely positioned menu leave the toolbar. */
-.nav_menu :is(.stick, .group) > .dropdown,
+/* A dropdown is a real segment, not merely a transparent wrapper: the full
+   group height preserves the toggle's hit target, while visible overflow lets
+   its absolutely positioned menu leave the toolbar. */
+.nav_menu :is(.stick, .group) > :is(form, .dropdown),
 .nav_menu :is(.stick, .group) > form > .dropdown {
 	display: flex;
 	align-self: stretch;
 	block-size: 100%;
-}
-
-.nav_menu .btn,
-.nav_menu .stick .btn,
-.nav_menu .group .btn,
-.nav_menu .stick .dropdown a.dropdown-toggle,
-.nav_menu .group .dropdown a.dropdown-toggle {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	box-sizing: border-box;
-	block-size: 100%;
-	min-block-size: 100%;
-	min-inline-size: var(--at-control-size);
-	padding-block: 0;
-	padding-inline: var(--at-control-padding-inline);
-	line-height: 1;
 }
 
 .nav_menu :is(.btn:has(> .icon:only-child), .btn:empty),
@@ -797,11 +751,6 @@ input[type="file"]::file-selector-button {
 	inline-size: var(--at-control-size);
 	min-inline-size: var(--at-control-size);
 	padding-inline: 0;
-}
-
-.nav_menu :is(.stick, .group) .dropdown:not(#dropdown-search-wrapper) >
-	a.dropdown-toggle {
-	background-image: none;
 }
 
 /* Paint the ellipsis from currentColor instead of selecting a second fixed-
@@ -1202,14 +1151,10 @@ input[type="file"]::file-selector-button {
 
 /* Stretch the sidebar to the page end with a desktop CSS Grid. The sidebar
    becomes a real stretching column while the content card ends with its
-   content. This replaces the base table-cell layout. Do not paint a gradient
-   on <body>: inherited rules such as "#stream { background: inherit }" redraw
-   it relative to their own boxes and create visible ghost strips. */
-html,
-body {
-	background: var(--background);
-}
-
+   content. This replaces the base table-cell layout. The page background is
+   the flat --background set in section 1: do not paint a gradient on <body>,
+   because inherited rules such as "#stream { background: inherit }" redraw it
+   relative to their own boxes and create visible ghost strips. */
 @media (min-width: 841px) {
 	body {
 		display: flex;
@@ -1368,10 +1313,6 @@ main.prompt h1,
 		padding: 0.5rem;
 		padding-inline-start: 0.5rem;
 		text-align: start;
-	}
-
-	.nav_menu > :is(.stick, .group, .btn, .dropdown) {
-		margin: 0;
 	}
 
 	/* The configuration and subscription views emit their own bar holding one

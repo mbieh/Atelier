@@ -23,57 +23,8 @@
 			}
 		}
 
-		&.search {
-			input {
-				width: 350px;
-				color: var(--sid-font-color);
-				border: none;
-				border-start-start-radius: 2px;
-				border-start-end-radius: 0;
-				border-end-start-radius: 2px;
-				border-end-end-radius: 0;
-				background-color: var(--sid-bg-alt);
-
-				transition: all 0.15s ease-in-out;
-
-				&:hover {
-					background-color: var(--sid-bg-dark);
-				}
-
-				&:focus {
-					color: var(--grey-dark);
-					background-color: var(--white);
-				}
-			}
-
-			input:focus ~ .btn,
-			input:hover ~ .btn {
-				background-color: var(--main-first);
-
-				.icon {
-					filter: brightness(3);
-				}
-			}
-
-			.btn {
-				width: 3rem;
-				border-start-start-radius: 0;
-				border-start-end-radius: 2px;
-				border-end-start-radius: 0;
-				border-end-end-radius: 2px;
-				background-color: var(--sid-bg-alt);
-				border-inline-start-width: 0;
-				min-height: 35px;
-
-				&:hover {
-					background-color: var(--main-first-alt);
-
-					.icon {
-						filter: brightness(3);
-					}
-				}
-			}
-		}
+		/* Atelier UI styles the search field, its submit button and all of
+		   their states as one control; nothing structural is needed here. */
 
 		&.configure {
 			text-align: center;
@@ -168,10 +119,9 @@ main.prompt {
 }
 
 /*=== Index menu */
+/* Atelier UI lays this bar out as a flex row and owns its padding. */
 .nav_menu {
 	text-align: center;
-	padding: 5px 0;
-	padding-inline-start: 3.75rem;
 
 	.btn {
 		border-inline-start-width: 0;
@@ -216,26 +166,13 @@ main.prompt {
 					filter: brightness(3.5) grayscale(1);
 				}
 			}
-
-			/* read all*/
-			&.read_all {
-				padding: 5px 16px;
-				color: var(--main-font-color);
-				background-color: var(--grey-lighter);
-
-				transition: all 0.15s ease-in-out;
-
-				&:hover {
-					background-color: var(--grey-medium-light);
-				}
-			}
 		}
 
 		.dropdown:not(#dropdown-search-wrapper) {
 			a.dropdown-toggle {
 				border-inline-start-width: 0;
-				background-image: url(icons/more.svg);
 
+				/* Atelier UI paints the ellipsis from a mask on ::before. */
 				.icon {
 					display: none;
 				}
