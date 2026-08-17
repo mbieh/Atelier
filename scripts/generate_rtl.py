@@ -34,11 +34,7 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    # A verbatim copy is only a valid RTL sheet while the source is
-    # direction-neutral, and unlike the old transform table this copy cannot
-    # fail on its own when the source changes. Guard it explicitly instead --
-    # across every stylesheet, because the mirrored sheets pull the partials in
-    # by @import and inherit whatever direction bugs those carry.
+    # A verbatim copy is only a valid RTL sheet while the source is direction-neutral, and unlike the old transform table this copy cannot fail on its own when the source changes. Guard it explicitly instead -- across every stylesheet, because the mirrored sheets pull the partials in by @import and inherit whatever direction bugs those carry.
     direction_errors: list[str] = []
     for source in GUARDED:
         direction_errors.extend(
@@ -72,9 +68,7 @@ def main() -> int:
         print("generated RTL files are up to date")
         return 0
 
-    # Logical properties handle spacing, borders, and radii. The few
-    # direction-sensitive transforms and shadows use :dir(rtl), so FreshRSS can
-    # load byte-identical counterparts for the two sheets it requests by name.
+    # Logical properties handle spacing, borders, and radii. The few direction-sensitive transforms and shadows use :dir(rtl), so FreshRSS can load byte-identical counterparts for the two sheets it requests by name.
     for source in SOURCES:
         target = rtl_target(source)
         target.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")

@@ -1,11 +1,6 @@
 @charset "UTF-8";
 
-/* FreshRSS cache-busts only the sheets named in metadata.json, by their
-   mtime. Files reached through @import carry no such query, so a browser
-   can hold a partial from an older release while the sheets around it are
-   fresh -- and since the override layer relies on rules being absent here,
-   a stale partial brings removed styling back. The release version in the
-   query changes the URL with every release. */
+/* FreshRSS cache-busts only the sheets named in metadata.json, by their mtime. Files reached through @import carry no such query, so a browser can hold a partial from an older release while the sheets around it are fresh -- and since the override layer relies on rules being absent here, a stale partial brings removed styling back. The release version in the query changes the URL with every release. */
 
 @import "_fonts.css?v=1.2.3";
 

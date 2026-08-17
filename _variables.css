@@ -1,12 +1,4 @@
-/* Semantic roles. Neutrals resolve through the ramp in _palette.css and never
-   through a literal, so a scheme swap is a one-file change. The accent hues
-   below are deliberately literal: success, warning and destructive keep their
-   meaning across every neutral scheme.
-
-   Where a role needs a value the ramp does not offer, it is mixed from two
-   adjacent steps rather than hand-picked, so the formula carries over to the
-   other schemes. Two roles need that today, both for contrast reasons noted
-   at the declaration. */
+/* Semantic roles. Neutrals resolve through the ramp in _palette.css and never through a literal, so a scheme swap is a one-file change. The accent hues below are deliberately literal: success, warning and destructive keep their meaning across every neutral scheme. Where a role needs a value the ramp does not offer, it is mixed from two adjacent steps rather than hand-picked, so the formula carries over to the other schemes. Two roles need that today, both for contrast reasons noted at the declaration. */
 
 :root {
 	color-scheme: light;
@@ -24,9 +16,7 @@
 	--secondary: var(--at-scale-200);
 	--secondary-foreground: var(--at-scale-950);
 	--muted: var(--at-scale-50);
-	/* Step 600, not 500: secondary text has to clear WCAG AA on --background
-	   and --muted, not just on the white card. Step 500 reaches only 4.14:1
-	   and 4.44:1 there. */
+	/* Step 600, not 500: secondary text has to clear WCAG AA on --background and --muted, not just on the white card. Step 500 reaches only 4.14:1 and 4.44:1 there. */
 	--muted-foreground: var(--at-scale-600);
 	--accent: var(--at-scale-200);
 	--accent-foreground: var(--at-scale-950);
@@ -35,10 +25,7 @@
 	--destructive-muted: #fbf1ef;
 	--destructive-border: #eec4bc;
 	--border: var(--at-scale-200);
-	/* The boundary of a control carries information, so it needs 3:1 against
-	   the surfaces it sits on (WCAG 1.4.11). The ramp straddles that bar --
-	   step 400 reaches 2.19:1, step 500 jumps to 4.14:1 and reads as a hard
-	   outline -- so mix the two and land just above it. */
+	/* The boundary of a control carries information, so it needs 3:1 against the surfaces it sits on (WCAG 1.4.11). The ramp straddles that bar -- step 400 reaches 2.19:1, step 500 jumps to 4.14:1 and reads as a hard outline -- so mix the two and land just above it. */
 	--input: color-mix(in srgb, var(--at-scale-500) 60%, var(--at-scale-400));
 	--ring: var(--at-scale-500);
 	--radius: 10px;
@@ -54,9 +41,7 @@
 	--success-foreground: #1f6b45;
 	--success-muted: #f0f9f4;
 	--success-border: #bfe3cf;
-	/* Matches icons/starred.svg exactly. An external SVG cannot inherit
-	   currentColor, so the favorite star is a fixed asset and one value has
-	   to clear 3:1 on light and dark rows alike (WCAG 1.4.11). */
+	/* Matches icons/starred.svg exactly. An external SVG cannot inherit currentColor, so the favorite star is a fixed asset and one value has to clear 3:1 on light and dark rows alike (WCAG 1.4.11). */
 	--favorite: #ad7d09;
 	--favorite-muted: #fdf6e0;
 
@@ -141,12 +126,10 @@
 	);
 	--frss-border-color: var(--input);
 	--frss-border-color-error: var(--destructive);
-	/* Atelier paints .switch.active with --primary, so the base theme's
-	   accent has to name the same color instead of a green nothing renders. */
+	/* Atelier paints .switch.active with --primary, so the base theme's accent has to name the same color instead of a green nothing renders. */
 	--frss-switch-accent-color: var(--primary);
 	--frss-noThumbnailImage-background-color: var(--muted);
-	/* The base theme drags and drops in #ff0. Route it through the palette so
-	   reordering feeds reads as a highlight rather than raw yellow. */
+	/* The base theme drags and drops in #ff0. Route it through the palette so reordering feeds reads as a highlight rather than raw yellow. */
 	--frss-dragdrop-color: var(--accent);
 	--frss-dragdrop-color-transparent: color-mix(
 		in srgb,
@@ -176,9 +159,7 @@
 	:root {
 		color-scheme: dark;
 
-		/* The dark surfaces walk down the same ramp: page 900, cards 800,
-		   raised states between 800 and 700. Decorative boundaries use step
-		   700; fields keep the higher-contrast --input role below. */
+		/* The dark surfaces walk down the same ramp: page 900, cards 800, raised states between 800 and 700. Decorative boundaries use step 700; fields keep the higher-contrast --input role below. */
 		--background: var(--at-scale-900);
 		--foreground: var(--at-scale-50);
 		--card: var(--at-scale-800);
@@ -199,10 +180,7 @@
 		--destructive-muted: #351f1c;
 		--destructive-border: #7e3c34;
 		--border: var(--at-scale-700);
-		/* --input is deliberately absent: the mid-grey mixed in the light
-		   scheme is the one value that clears 3:1 in both directions, against
-		   white surfaces as the darker element and against dark surfaces as
-		   the lighter one. One formula, one contrast check, both schemes. */
+		/* --input is deliberately absent: the mid-grey mixed in the light scheme is the one value that clears 3:1 in both directions, against white surfaces as the darker element and against dark surfaces as the lighter one. One formula, one contrast check, both schemes. */
 		--ring: var(--at-scale-400);
 
 		--warning: #e0c04f;

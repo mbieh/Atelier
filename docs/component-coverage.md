@@ -1,8 +1,6 @@
 # Atelier component coverage
 
-This matrix maps FreshRSS 1.29.1 UI surfaces to their closest shadcn/ui
-counterparts. Atelier ports the visual language to FreshRSS's existing HTML;
-it does not bundle React, Tailwind CSS, or Radix/Base UI behavior.
+This matrix maps FreshRSS 1.29.1 UI surfaces to their closest shadcn/ui counterparts. Atelier ports the visual language to FreshRSS's existing HTML; it does not bundle React, Tailwind CSS, or Radix/Base UI behavior.
 
 Status meanings:
 
@@ -11,8 +9,7 @@ Status meanings:
 - `base`: the surface still relies primarily on Mapco or FreshRSS base styles;
 - `not applicable`: FreshRSS has no matching native surface.
 
-Status records static CSS coverage. Runtime verification is a separate release
-gate and is not implied by `complete`.
+Status records static CSS coverage. Runtime verification is a separate release gate and is not implied by `complete`.
 
 ## Native component matrix
 
@@ -65,8 +62,7 @@ Every applicable component must be exercised in these states before release:
 
 ## Out of scope for a CSS-only FreshRSS theme
 
-The following shadcn/ui components do not have a native FreshRSS 1.29.1
-surface or require markup and interaction behavior that a theme cannot add:
+The following shadcn/ui components do not have a native FreshRSS 1.29.1 surface or require markup and interaction behavior that a theme cannot add:
 
 - Accordion, Alert Dialog, Aspect Ratio, Avatar and Breadcrumb;
 - Calendar, Carousel, Combobox, Command and Date Picker;
@@ -75,5 +71,4 @@ surface or require markup and interaction behavior that a theme cannot add:
 - Skeleton, Slider, Tabs and standalone Toggle; and
 - chat-oriented Attachment, Bubble, Marker, Message and Message Scroller.
 
-If FreshRSS adds a matching surface later, it can be mapped here. Adding new
-behavior belongs in a separate FreshRSS extension rather than this theme.
+If FreshRSS adds a matching surface later, it can be mapped here. Adding new behavior belongs in a separate FreshRSS extension rather than this theme.

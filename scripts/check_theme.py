@@ -68,20 +68,16 @@ EXTERNAL_OR_COMPAT_PROPERTIES = {
     "--frss-scrollbar-track",
     "--frss-scrollbar-track-hover",
     "--frss-switch-accent-color",
-    # Retained from Mapco's palette contract even though Atelier does not
-    # currently consume them directly.
+    # Retained from Mapco's palette contract even though Atelier does not currently consume them directly.
     "--unread-bg-light",
     "--warning-bg",
 }
 PROTECTED_NOTES = (
     "Do not add backdrop-filter",
     "desktop CSS Grid",
-    # The reason the end-of-stream block states its own spacing: the base
-    # layer parks 5em under the footer and a full viewport under the button.
+    # The reason the end-of-stream block states its own spacing: the base layer parks 5em under the footer and a full viewport under the button.
     "100vh below the big",
-    # Menu items must keep overriding Mapco's width: 100%, which would overflow
-    # the menu by their inline margins. The explicit calc() also stretches
-    # button entries, which stay content-sized under width: auto.
+    # Menu items must keep overriding Mapco's width: 100%, which would overflow the menu by their inline margins. The explicit calc() also stretches button entries, which stay content-sized under width: auto.
     "width: calc(100% - 8px) !important",
 )
 DESKTOP = "@media (min-width: 841px)"
@@ -117,16 +113,13 @@ REQUIRED_LAYOUT_RULES = (
     LayoutRule("#global > .aside", "grid-row: 1 / -1", DESKTOP),
     LayoutRule("#global > .nav_menu ~ main", context=DESKTOP),
     LayoutRule("body", "flex-direction: column", DESKTOP),
-    # The row carries its own leading inset, so the feed eyebrow stays flush
-    # with the title even when the topline hides the read and favorite
-    # controls and .item.website becomes the first child.
+    # The row carries its own leading inset, so the feed eyebrow stays flush with the title even when the topline hides the read and favorite controls and .item.website becomes the first child.
     LayoutRule(".flux .flux_header", "margin-inline: 0.5rem"),
     LayoutRule(".flux .flux_header", "inline-size: calc(100% - 1rem)"),
     LayoutRule(".flux .flux_header > .item:first-child", "padding-inline-start: 0"),
     LayoutRule(".flux.current", "border-inline-start-width: 0"),
     LayoutRule(".flux_header", "border-top: 0"),
-    # The feed popover is a compact command menu. Its item geometry must
-    # override Mapco's inherited 2.5em line height without changing markup.
+    # The feed popover is a compact command menu. Its item geometry must override Mapco's inherited 2.5em line height without changing markup.
     LayoutRule(
         ".aside_feed .tree-folder-items .feed > .dropdown > .dropdown-menu",
         "min-inline-size: 15rem",
@@ -241,8 +234,7 @@ REQUIRED_LAYOUT_RULES = (
     LayoutRule(".btn", "padding-block: 0"),
     LayoutRule(".btn", "block-size: var(--at-control-size)"),
     LayoutRule(".header .item.search input", "max-inline-size: none"),
-    # One shared control size and uniform boundaries. Inputs remain easier to
-    # identify through --input; toolbar groups use the quieter --border token.
+    # One shared control size and uniform boundaries. Inputs remain easier to identify through --input; toolbar groups use the quieter --border token.
     LayoutRule(":root", "--at-control-size: 2.5rem"),
     LayoutRule(":root", "--at-field-border: var(--input)"),
     LayoutRule(":root", "--at-button-border: var(--border)"),
@@ -285,10 +277,7 @@ OBSOLETE_FORM_SUBGRID = re.compile(
     re.DOTALL,
 )
 
-# The structural layer styled two controls that the override layer also owns,
-# and won both times on specificity: the mark-as-read segment kept a --muted
-# surface inside a card-white group, and the header search field kept the
-# sidebar foreground. Whoever restates them there wins again, silently.
+# The structural layer styled two controls that the override layer also owns, and won both times on specificity: the mark-as-read segment kept a --muted surface inside a card-white group, and the header search field kept the sidebar foreground. Whoever restates them there wins again, silently.
 STRUCTURAL_LAYER_CONTROL_RULES = (
     (
         "_layout.css",
@@ -305,8 +294,7 @@ REQUIRED_DARK_ICON_RULES = (
     LayoutRule('#sidebar img.icon:not([src$="/starred.svg"])', context=DARK),
 )
 
-# Every stylesheet Atelier owns. All of them have to stay direction-neutral,
-# whether FreshRSS requests them by name or atelier.css pulls them in.
+# Every stylesheet Atelier owns. All of them have to stay direction-neutral, whether FreshRSS requests them by name or atelier.css pulls them in.
 DIRECTION_NEUTRAL_FILES = (
     "_components.css",
     "_palette.css",
@@ -328,18 +316,10 @@ DIRECTION_NEUTRAL_FILES = (
     "atelier-ui.css",
 )
 
-# FreshRSS rewrites only the filenames listed in metadata.json to ".rtl.css",
-# with no existence check and no fallback (app/FreshRSS.php), so exactly these
-# two need a mirror on disk. The partials above are reached through atelier.css
-# @import rules, which resolve relative to the sheet, so they need none.
+# FreshRSS rewrites only the filenames listed in metadata.json to ".rtl.css", with no existence check and no fallback (app/FreshRSS.php), so exactly these two need a mirror on disk. The partials above are reached through atelier.css @import rules, which resolve relative to the sheet, so they need none.
 RTL_MIRRORED_FILES = ("atelier.css", "atelier-ui.css")
 
-# Because the sources stay direction-neutral, each mirror is a verbatim copy.
-# Every construct the direction check rejects either has a logical-property
-# equivalent or needs a hand-written mirror, so it has to live in a :dir(...)
-# rule or carry an "rtl-safe:" comment stating why it already reads correctly
-# in both directions. The marker is accepted on the declaration's own line, the
-# line above it, or the rule's selector line.
+# Because the sources stay direction-neutral, each mirror is a verbatim copy. Every construct the direction check rejects either has a logical-property equivalent or needs a hand-written mirror, so it has to live in a :dir(...) rule or carry an "rtl-safe:" comment stating why it already reads correctly in both directions. The marker is accepted on the declaration's own line, the line above it, or the rule's selector line.
 RTL_SAFE_MARKER = "rtl-safe"
 
 # CSS property names are case-insensitive, so every pattern below has to be.
@@ -369,8 +349,7 @@ BOX_SHORTHAND = re.compile(
 RADIUS_SHORTHAND = re.compile(
     r"(?<![\w-])border-radius(?![\w-])\s*:\s*(.+)", re.DOTALL | re.IGNORECASE
 )
-# Shadow values also reach the page through --*-shadow-* custom properties,
-# which no box-shadow declaration would reveal to this check.
+# Shadow values also reach the page through --*-shadow-* custom properties, which no box-shadow declaration would reveal to this check.
 SHADOW_SHORTHAND = re.compile(
     r"(?<![\w-])(?:(?:box|text)-shadow|--[\w-]*shadow[\w-]*)(?![\w-])\s*:\s*(.+)",
     re.DOTALL | re.IGNORECASE,
@@ -509,8 +488,7 @@ def parse_rules(css: str) -> list[Rule]:
                     )
                 )
         elif buffer or not char.isspace():
-            # Leading whitespace is dropped so start_line marks the first real
-            # character of the selector or declaration.
+            # Leading whitespace is dropped so start_line marks the first real character of the selector or declaration.
             if not buffer:
                 start_line = line
             buffer.append(char)
@@ -526,8 +504,7 @@ def parse_rules(css: str) -> list[Rule]:
 
 def describe_direction_risk(declaration: str) -> str | None:
     """Return why a declaration needs a mirror, or None if it is neutral."""
-    # An !important suffix is an extra value token that would otherwise hide
-    # asymmetric shorthands from the arity checks below.
+    # An !important suffix is an extra value token that would otherwise hide asymmetric shorthands from the arity checks below.
     declaration = IMPORTANT_SUFFIX.sub("", declaration)
     if PHYSICAL_PROPERTY.search(declaration):
         return "physical property without a logical equivalent"
@@ -576,6 +553,21 @@ def check_direction_neutral(path: Path, css: str) -> list[str]:
         return [f"{path}: {error}"]
     raw_lines = css.splitlines()
 
+    # Which lines sit inside a block comment. Deciding that per line -- "starts with /*, or ends with */" -- misreads the middle line of a wrapped comment as code and stops the search for the marker one line short of it.
+    inside_comment: list[bool] = []
+    depth = 0
+    for text in raw_lines:
+        starts_inside = depth > 0
+        position = 0
+        while position < len(text):
+            if depth == 0 and text.startswith("/*", position):
+                depth, position = 1, position + 2
+            elif depth and text.startswith("*/", position):
+                depth, position = 0, position + 2
+            else:
+                position += 1
+        inside_comment.append(starts_inside or depth > 0 or "*/" in text)
+
     def marked(*anchors: int) -> bool:
         """Look for the marker on an anchor line or in the comment above it."""
         for anchor in anchors:
@@ -584,12 +576,7 @@ def check_direction_neutral(path: Path, css: str) -> list[str]:
                 text = raw_lines[number - 1]
                 if RTL_SAFE_MARKER in text:
                     return True
-                stripped_line = text.strip()
-                comment_like = (
-                    not stripped_line
-                    or stripped_line.startswith(("/*", "*"))
-                    or stripped_line.endswith("*/")
-                )
+                comment_like = not text.strip() or inside_comment[number - 1]
                 if number != anchor and not comment_like:
                     break
                 number -= 1
@@ -652,16 +639,11 @@ def released_version(changelog: str) -> str | None:
     return None
 
 
-# The neutral ramp every color scheme has to provide, plus the two rungs
-# Atelier derives from it. Roles pick a step by the contrast they need, so a
-# scheme that skips a step would silently shift whatever role points at it.
+# The neutral ramp every color scheme has to provide, plus the two rungs Atelier derives from it. Roles pick a step by the contrast they need, so a scheme that skips a step would silently shift whatever role points at it.
 SCALE_STEPS = (50, 100, 200, 300, 400, 500, 600, 700, 750, 800, 900, 950)
 SCALE_EXTRA = ("--at-scale-white",)
 
-# WCAG 2.2: 4.5:1 for body text (1.4.3), 3:1 for the boundary of a control
-# and for focus indicators (1.4.11). Each entry is a role painted on a
-# surface it actually meets in the UI. This is what keeps a new palette
-# honest -- the ramp guarantees nothing on its own.
+# WCAG 2.2: 4.5:1 for body text (1.4.3), 3:1 for the boundary of a control and for focus indicators (1.4.11). Each entry is a role painted on a surface it actually meets in the UI. This is what keeps a new palette honest -- the ramp guarantees nothing on its own.
 CONTRAST_PAIRS = (
     ("--foreground", "--card", 4.5),
     ("--foreground", "--background", 4.5),
@@ -686,16 +668,12 @@ CONTRAST_PAIRS = (
     ("--input", "--card", 3.0),
     ("--input", "--background", 3.0),
     ("--input", "--muted", 3.0),
-    # A switch track is --input, and it has to stay identifiable on the tint a
-    # row takes under the pointer -- the surface that let it slip to 2.83:1.
+    # A switch track is --input, and it has to stay identifiable on the tint a row takes under the pointer -- the surface that let it slip to 2.83:1.
     ("--input", "--at-row-hover", 3.0),
     ("--ring", "--card", 3.0),
     ("--ring", "--background", 3.0),
     ("--sidebar-ring", "--sidebar", 3.0),
-    # Accent hues, in the roles they are actually painted in. Alert text sits
-    # on its own tint; --destructive doubles as error text; --favorite is the
-    # star that marks a favorited article and has to read as a graphical
-    # indicator on every row background it can land on.
+    # Accent hues, in the roles they are actually painted in. Alert text sits on its own tint; --destructive doubles as error text; --favorite is the star that marks a favorited article and has to read as a graphical indicator on every row background it can land on.
     ("--success-foreground", "--success-muted", 4.5),
     ("--warning-foreground", "--warning-muted", 4.5),
     ("--info-foreground", "--info-muted", 4.5),
@@ -706,18 +684,9 @@ CONTRAST_PAIRS = (
     ("--favorite", "--favorite-muted", 3.0),
 )
 
-# Deliberately not checked: the border of an alert against its own tint. The
-# alert is identified by that tint and its text, both of which are checked
-# above, so the border is a delimiter rather than the carrier of the state.
-# Likewise --at-button-border: a button is identified by its label or icon,
-# which are checked as text on --card, and by a raised surface and a focus
-# ring that is checked. Only fields, whose empty boundary is the whole
-# affordance, are held to 3:1 through --input.
+# Deliberately not checked: the border of an alert against its own tint. The alert is identified by that tint and its text, both of which are checked above, so the border is a delimiter rather than the carrier of the state. Likewise --at-button-border: a button is identified by its label or icon, which are checked as text on --card, and by a raised surface and a focus ring that is checked. Only fields, whose empty boundary is the whole affordance, are held to 3:1 through --input.
 
-# The favorite star is an external SVG, which cannot inherit currentColor and
-# is excluded from the dark-mode icon filter on purpose. Its color therefore
-# lives in the asset, out of reach of the contrast pairs above, and would
-# drift away from the token without anyone noticing.
+# The favorite star is an external SVG, which cannot inherit currentColor and is excluded from the dark-mode icon filter on purpose. Its color therefore lives in the asset, out of reach of the contrast pairs above, and would drift away from the token without anyone noticing.
 FAVORITE_ICON = Path("icons") / "starred.svg"
 SVG_COLOR = re.compile(r'(?:fill|stroke)="(#[0-9a-fA-F]{3,6})"')
 
@@ -733,8 +702,7 @@ def parse_hex(value: str) -> tuple[float, float, float]:
     digits = value.lstrip("#")
     if len(digits) == 3:
         digits = "".join(channel * 2 for channel in digits)
-    # Spelled out rather than built from a generator: the annotation promises
-    # three channels, and a generator only ever types as tuple[int, ...].
+    # Spelled out rather than built from a generator: the annotation promises three channels, and a generator only ever types as tuple[int, ...].
     return (
         int(digits[0:2], 16),
         int(digits[2:4], 16),
@@ -924,8 +892,7 @@ def main() -> int:
         errors.append(f"metadata.json: {error}")
         metadata = {}
 
-    # The changelog is the single source of truth for the released version, so
-    # cutting a release does not mean editing this script as well.
+    # The changelog is the single source of truth for the released version, so cutting a release does not mean editing this script as well.
     expected_version = released_version(
         (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
     )
@@ -962,9 +929,7 @@ def main() -> int:
             "missing shadcn semantic properties: "
             + ", ".join(sorted(missing_semantic_properties))
         )
-    # A palette ships the whole ramp on purpose: a scheme that only defined
-    # the steps today's roles happen to use would break the next role change.
-    # check_contrast() enforces completeness instead.
+    # A palette ships the whole ramp on purpose: a scheme that only defined the steps today's roles happen to use would break the next role change. check_contrast() enforces completeness instead.
     scale = {name for name in definitions if name.startswith("--at-scale-")}
     unused = definitions - uses - EXTERNAL_OR_COMPAT_PROPERTIES - scale
     if unused:
@@ -980,9 +945,7 @@ def main() -> int:
         elif source.read_bytes() != mirror.read_bytes():
             errors.append(f"{mirror.name} must be identical to {filename}")
 
-    # Only the sheets FreshRSS requests by name need a mirror. Partials are
-    # reached through @import, so a mirror there is dead weight that has to be
-    # kept in sync by hand.
+    # Only the sheets FreshRSS requests by name need a mirror. Partials are reached through @import, so a mirror there is dead weight that has to be kept in sync by hand.
     for path in css_paths:
         if path.name.endswith(".rtl.css") and path.name not in expected_mirrors:
             errors.append(
@@ -996,11 +959,7 @@ def main() -> int:
             target, _, query = imported.partition("?")
             if not (path.parent / target).is_file():
                 errors.append(f"{path.name}: missing imported stylesheet: {target}")
-            # FreshRSS busts the cache of the sheets it names, by mtime, but an
-            # imported partial keeps its URL across releases. Without the query
-            # a browser can pair a stale partial with a fresh override layer,
-            # which restores styling a release deliberately removed. A missing
-            # version heading is reported above; do not repeat it per import.
+            # FreshRSS busts the cache of the sheets it names, by mtime, but an imported partial keeps its URL across releases. Without the query a browser can pair a stale partial with a fresh override layer, which restores styling a release deliberately removed. A missing version heading is reported above; do not repeat it per import.
             elif expected_version is not None and query != f"v={expected_version}":
                 errors.append(
                     f'{path.name}: @import "{target}" must carry '

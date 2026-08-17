@@ -8,15 +8,23 @@
  *   1. Tokens & typography
  *   2. Buttons (outline / ghost / primary)
  *   3. Forms & search
- *   4. Header & Toolbar
+ *   4. Header & toolbar
  *   5. Sidebar and navigation
  *   6. Layout: content card & page background
  *   7. List view
- *   8. Dropdowns, Panels, Overlays, Badges
- *   9. Native component completion
- *  10. Motion
- *  11. Accessibility
- *  12. Dark-mode asset adaptations
+ *   8. Dropdowns, panels, overlays, badges
+ *   9. Segmented groups: .stick and .group
+ *  10. Disclosures
+ *  11. Sign-in and prompts
+ *  12. Settings and administration forms
+ *  13. Cards, tables and pagination
+ *  14. Manage lists: extensions and feeds
+ *  15. Panels, progress and remaining surfaces
+ *  16. Statistics
+ *  17. Article typography
+ *  18. Motion
+ *  19. Accessibility
+ *  20. Dark-mode asset adaptations
  */
 
 /*=== 1. Tokens & typography =========================================*/
@@ -27,19 +35,16 @@
 	--at-radius-s: calc(var(--radius) - 4px);
 	--at-radius-m: calc(var(--radius) - 2px);
 	--at-radius-l: var(--radius);
-	/* A segment sitting inside a 1px-bordered group needs the group's radius
-	   minus that border, or its corner paints past the one around it. */
+	/* A segment sitting inside a 1px-bordered group needs the group's radius minus that border, or its corner paints past the one around it. */
 	--at-radius-inner: calc(var(--at-radius-m) - 1px);
-	/* One 40px control contract for buttons, fields, and segmented controls.
-	   Icon-only controls are square; labelled controls grow only inline. */
+	/* One 40px control contract for buttons, fields, and segmented controls. Icon-only controls are square; labelled controls grow only inline. */
 	--at-control-size: 2.5rem;
 	--at-control-padding-inline: 0.875rem;
 	--at-toolbar-control-height: var(--at-control-size);
 	--at-header-height: calc(
 		var(--at-toolbar-control-height) + 2 * var(--frss-padding-top-bottom)
 	);
-	/* Fields need an identifiable boundary; buttons use the quieter surface
-	   boundary. Both remain uniform on all four sides. */
+	/* Fields need an identifiable boundary; buttons use the quieter surface boundary. Both remain uniform on all four sides. */
 	--at-field-border: var(--input);
 	--at-button-border: var(--border);
 	--at-form-layout-width: 64rem;
@@ -48,10 +53,7 @@
 	--at-form-wide-control-width: 36rem;
 	--at-dashboard-width: 96rem;
 	--at-reading-page-width: 72rem;
-	/* One step greyer than --muted-foreground, for a label whose state is
-	   already carried by a control beside it. 90% is where it stops: the mix
-	   holds 4.75:1 on a card and 4.71:1 on the hover surface, and the next
-	   step down drops both below the 4.5:1 of WCAG 1.4.3. */
+	/* One step greyer than --muted-foreground, for a label whose state is already carried by a control beside it. 90% is where it stops: the mix holds 4.75:1 on a card and 4.71:1 on the hover surface, and the next step down drops both below the 4.5:1 of WCAG 1.4.3. */
 	--at-quiet-foreground: color-mix(in srgb, var(--muted-foreground) 90%, var(--card));
 	--at-row-hover: color-mix(in srgb, var(--accent) 45%, var(--card));
 	--at-row-current: color-mix(in srgb, var(--accent) 70%, var(--card));
@@ -63,10 +65,7 @@
 
 @media (prefers-color-scheme: dark) {
 	:root {
-		/* No field-border override here. The dark scheme used to blend the
-		   foreground at 20%, which composited to 1.89:1 against the card and
-		   left field boundaries below WCAG 1.4.11. --input carries the
-		   contrast-checked value in both schemes now. */
+		/* No field-border override here. The dark scheme used to blend the foreground at 20%, which composited to 1.89:1 against the card and left field boundaries below WCAG 1.4.11. --input carries the contrast-checked value in both schemes now. */
 		--at-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.16);
 		--at-shadow-md: 0 1px 2px rgba(0, 0, 0, 0.28), 0 8px 24px rgba(0, 0, 0, 0.2);
 		--at-shadow-pop: 0 4px 12px rgba(0, 0, 0, 0.35), 0 12px 32px rgba(0, 0, 0, 0.28);
@@ -134,15 +133,12 @@ body {
 		box-shadow 0.15s ease-in-out;
 }
 
-/* Hover moves the fill, not the boundary. Darkening the border as well made
-   the button jump a weight on hover once the resting state became a
-   hairline. */
+/* Hover moves the fill, not the boundary. Darkening the border as well made the button jump a weight on hover once the resting state became a hairline. */
 .btn:hover {
 	background-color: var(--accent);
 }
 
-/* FreshRSS normally renders icon controls as a single .icon child. Keep their
-   hit area exactly square while allowing labelled buttons to size naturally. */
+/* FreshRSS normally renders icon controls as a single .icon child. Keep their hit area exactly square while allowing labelled buttons to size naturally. */
 .btn:has(> .icon:only-child),
 .btn:has(> img:only-child),
 .btn:empty {
@@ -371,8 +367,7 @@ input[type="radio"]:disabled {
 	opacity: 0.5;
 }
 
-/* The muted fill must not swallow a checked control: its tick is painted in
-   --primary-foreground and would disappear against --muted. */
+/* The muted fill must not swallow a checked control: its tick is painted in --primary-foreground and would disappear against --muted. */
 input[type="checkbox"]:disabled:not(:checked),
 input[type="radio"]:disabled:not(:checked) {
 	background: var(--muted);
@@ -415,10 +410,7 @@ input[type="file"]::file-selector-button {
 	background: var(--primary);
 }
 
-/* The base layer paints the state as a background image on the track and
-   resets it inside @supports selector(.switch::before) -- but only for the
-   resting states. The hover states kept theirs, so pointing at a switch faded
-   a glyph in behind the knob. The knob carries the state here. */
+/* The base layer paints the state as a background image on the track and resets it inside @supports selector(.switch::before) -- but only for the resting states. The hover states kept theirs, so pointing at a switch faded a glyph in behind the knob. The knob carries the state here. */
 .switch:not([disabled]):hover,
 .switch.active:not([disabled]):hover {
 	background-image: none;
@@ -464,8 +456,7 @@ input[type="file"]::file-selector-button {
 	white-space: nowrap;
 }
 
-/* The structural .stick groups the field and submit button; it must not add a
-   second framed surface around the search control. */
+/* The structural .stick groups the field and submit button; it must not add a second framed surface around the search control. */
 .header .item.search .stick,
 #dropdown-search-wrapper .stick.search {
 	padding: 0;
@@ -527,9 +518,7 @@ input[type="file"]::file-selector-button {
 
 /*=== 4. Header & Toolbar ============================================*/
 
-/* Solid bar. Do not add backdrop-filter: it turns the header into a
-   containing block and breaks the absolutely positioned configuration
-   dropdown. This behavior was verified in FreshRSS. */
+/* Solid bar. Do not add backdrop-filter: it turns the header into a containing block and breaks the absolutely positioned configuration dropdown. This behavior was verified in FreshRSS. */
 .header {
 	background: var(--background);
 	border-bottom: 1px solid var(--border);
@@ -584,8 +573,7 @@ input[type="file"]::file-selector-button {
 	color: var(--foreground);
 }
 
-/* Toolbar: one quiet surface per segmented group. Individual segments do not
-   draw their own cards, which keeps the control density legible. */
+/* Toolbar: one quiet surface per segmented group. Individual segments do not draw their own cards, which keeps the control density legible. */
 .nav_menu .btn,
 .nav_menu .stick .btn,
 .nav_menu .group .btn,
@@ -640,13 +628,7 @@ input[type="file"]::file-selector-button {
 	border-inline-start: 1px solid var(--border);
 }
 
-/* An extension may nest a second .stick inside a group -- QuickCollapse wraps
-   the sort trigger and its own button that way, inside the dropdown. A nested
-   group is a wrapper, not a second card: it was drawing its own hairline and
-   8px radius mid-group, and its own height stood 2px taller than the space
-   between its parent's borders. Strip it to a stretching row and let the outer
-   group keep the boundary; its outer segments carry the end caps, since a
-   wrapper like this holds everything the group shows. */
+/* An extension may nest a second .stick inside a group -- QuickCollapse wraps the sort trigger and its own button that way, inside the dropdown. A nested group is a wrapper, not a second card: it was drawing its own hairline and 8px radius mid-group, and its own height stood 2px taller than the space between its parent's borders. Strip it to a stretching row and let the outer group keep the boundary; its outer segments carry the end caps, since a wrapper like this holds everything the group shows. */
 .nav_menu :is(.stick, .group) :is(.stick, .group) {
 	display: flex;
 	align-self: stretch;
@@ -673,8 +655,7 @@ input[type="file"]::file-selector-button {
 	border-end-end-radius: var(--at-radius-inner);
 }
 
-/* Same weight problem as the top-level caps: the rule that flattens toolbar
-   dropdown triggers outweighs the cap selectors above. */
+/* Same weight problem as the top-level caps: the rule that flattens toolbar dropdown triggers outweighs the cap selectors above. */
 .nav_menu :is(.stick, .group) :is(.stick, .group) > a.dropdown-toggle:first-child {
 	border-start-start-radius: var(--at-radius-inner);
 	border-end-start-radius: var(--at-radius-inner);
@@ -685,19 +666,13 @@ input[type="file"]::file-selector-button {
 	border-end-end-radius: var(--at-radius-inner);
 }
 
-/* An extension button may ship one icon per state and hide the inactive one --
-   QuickCollapse does. The :only-child rule below cannot see it, so keep the
-   square as a minimum here, wide enough should both ever be shown. */
+/* An extension button may ship one icon per state and hide the inactive one -- QuickCollapse does. The :only-child rule below cannot see it, so keep the square as a minimum here, wide enough should both ever be shown. */
 .nav_menu .btn:has(> .icon + .icon) {
 	min-inline-size: var(--at-control-size);
 	padding-inline: 0;
 }
 
-/* Extensions fill #nav_menu_hooks with markup this theme never sees, and a
-   control there is often a bare <a> or <button> that never got FreshRSS' .btn
-   class. Such a segment kept its intrinsic size and sat in the group at its
-   own height, breaking the row it shares. Give it the segment geometry, the
-   quiet surface, and the end-cap corners that a .btn already gets. */
+/* Extensions fill #nav_menu_hooks with markup this theme never sees, and a control there is often a bare <a> or <button> that never got FreshRSS' .btn class. Such a segment kept its intrinsic size and sat in the group at its own height, breaking the row it shares. Give it the segment geometry, the quiet surface, and the end-cap corners that a .btn already gets. */
 .nav_menu :is(.stick, .group) > :is(a, button, label):not(.btn) {
 	display: inline-flex;
 	align-items: center;
@@ -744,14 +719,7 @@ input[type="file"]::file-selector-button {
 	border-end-end-radius: var(--at-radius-inner);
 }
 
-/* FreshRSS submits "mark all as read" from a <form> that wraps the button and
-   its dropdown, so the group's only child is layout plumbing rather than a
-   segment. Stretch it and pass the group's height through, otherwise the two
-   controls inside size to their text and float in the middle of the group --
-   a hover surface visibly shorter than the segment it belongs to. */
-/* A dropdown is a real segment, not merely a transparent wrapper: the full
-   group height preserves the toggle's hit target, while visible overflow lets
-   its absolutely positioned menu leave the toolbar. */
+/* Both wrappers a group can contain are segments, not transparent boxes. A dropdown needs the full group height to keep its trigger's hit target, and FreshRSS submits "mark all as read" from a <form> around the button and its dropdown -- left unstretched, the two controls inside size to their text and float in the middle of the group, with a hover surface visibly shorter than the segment it belongs to. */
 .nav_menu :is(.stick, .group) > :is(form, .dropdown),
 .nav_menu :is(.stick, .group) > form > .dropdown {
 	display: flex;
@@ -759,12 +727,7 @@ input[type="file"]::file-selector-button {
 	block-size: 100%;
 }
 
-/* A dropdown trigger is always icon-only, so it can take the square outright.
-   A .btn cannot: :only-child counts elements, not text, so a button that pairs
-   an icon with a label -- "Manage" on the statistics toolbar -- matched the
-   same rule and was cut to 40px with its label clipped. The square is a
-   minimum there, and the padding is small enough to leave an icon-only button
-   at exactly that size while giving a label room to breathe. */
+/* A dropdown trigger is always icon-only, so it can take the square outright. A .btn cannot: :only-child counts elements, not text, so a button that pairs an icon with a label -- "Manage" on the statistics toolbar -- matched the same rule and was cut to 40px with its label clipped. The square is a minimum there, and the padding is small enough to leave an icon-only button at exactly that size while giving a label room to breathe. */
 .nav_menu :is(.stick, .group) > .dropdown > a.dropdown-toggle,
 .nav_menu :is(.stick, .group) > form > .dropdown > a.dropdown-toggle {
 	inline-size: var(--at-control-size);
@@ -778,10 +741,7 @@ input[type="file"]::file-selector-button {
 	padding-inline: 0;
 }
 
-/* A standalone toolbar button is where a label can appear beside the icon --
-   "Manage" on the statistics filter bar. The square is a minimum there, and
-   the padding small enough to leave an icon-only button at exactly that size
-   while giving a label room to breathe. */
+/* A standalone toolbar button is where a label can appear beside the icon -- "Manage" on the statistics filter bar. The square is a minimum there, and the padding small enough to leave an icon-only button at exactly that size while giving a label room to breathe. */
 .nav_menu > :is(.btn, :not(.stick, .group) > .btn):is(
 	:has(> .icon:only-child),
 	:empty
@@ -791,10 +751,7 @@ input[type="file"]::file-selector-button {
 	padding-inline: 0.5rem;
 }
 
-/* Paint the ellipsis from currentColor instead of selecting a second fixed-
-   color SVG for dark mode. This keeps an enabled menu trigger at the same
-   visual weight as the other toolbar actions while parent opacity still
-   communicates a genuinely disabled state. */
+/* Paint the ellipsis from currentColor instead of selecting a second fixed- color SVG for dark mode. This keeps an enabled menu trigger at the same visual weight as the other toolbar actions while parent opacity still communicates a genuinely disabled state. */
 .nav_menu :is(.stick, .group) .dropdown:not(#dropdown-search-wrapper) >
 	a.dropdown-toggle::before {
 	content: "";
@@ -808,8 +765,7 @@ input[type="file"]::file-selector-button {
 	mask: url("icons/more.svg") center / 1rem 1rem no-repeat;
 }
 
-/* The sort trigger already contains FreshRSS' directional sort glyph. Keep
-   that meaningful state indicator instead of replacing it with an ellipsis. */
+/* The sort trigger already contains FreshRSS' directional sort glyph. Keep that meaningful state indicator instead of replacing it with an ellipsis. */
 #nav_menu_sort #toggle-order::before {
 	content: none;
 }
@@ -819,15 +775,7 @@ input[type="file"]::file-selector-button {
 	margin: 0;
 }
 
-/* QuickCollapse ships one fixed-color asset per state, both at #bebebe, so its
-   control read as permanently disabled next to icons that follow the scheme.
-   An external SVG cannot inherit currentColor, so paint the glyph from a mask
-   the way the overflow trigger does, and take the pair from the bundled Lucide
-   set: chevrons meeting for "collapse", parting for "expand".
-
-   The extension's own stylesheet loads after the theme and reveals the second
-   asset through #toggle-collapse.collapsed .uncollapse, so the rule that hides
-   it has to carry more weight than that. */
+/* QuickCollapse ships one fixed-color asset per state, both at #bebebe, so its control read as permanently disabled next to icons that follow the scheme. An external SVG cannot inherit currentColor, so paint the glyph from a mask the way the overflow trigger does, and take the pair from the bundled Lucide set: chevrons meeting for "collapse", parting for "expand". The extension's own stylesheet loads after the theme and reveals the second asset through #toggle-collapse.collapsed .uncollapse, so the rule that hides it has to carry more weight than that. */
 .nav_menu #toggle-collapse > .icon,
 .nav_menu #toggle-collapse.collapsed > .icon.uncollapse {
 	display: none;
@@ -844,18 +792,13 @@ input[type="file"]::file-selector-button {
 	mask: url("icons/chevrons-down-up.svg") center / 1rem 1rem no-repeat;
 }
 
-/* The extension marks the collapsed stream on the button, where the action
-   turns into "expand". */
+/* The extension marks the collapsed stream on the button, where the action turns into "expand". */
 #toggle-collapse.collapsed::before {
 	-webkit-mask-image: url("icons/chevrons-up-down.svg");
 	mask-image: url("icons/chevrons-up-down.svg");
 }
 
-/* Standalone toolbar controls use the same geometry and surface as a group.
-   Their height cannot come from a group either: the subscription view emits
-   the sidebar button in a plain <div> where the configuration view uses a
-   .group, so block-size: 100% resolved against an auto height and the button
-   collapsed to its content. State the control height here instead. */
+/* Standalone toolbar controls use the same geometry and surface as a group. Their height cannot come from a group either: the subscription view emits the sidebar button in a plain <div> where the configuration view uses a .group, so block-size: 100% resolved against an auto height and the button collapsed to its content. State the control height here instead. */
 .nav_menu > .btn,
 .nav_menu > :not(.stick, .group) > .btn {
 	block-size: var(--at-control-size);
@@ -915,11 +858,7 @@ input[type="file"]::file-selector-button {
 		padding-inline: 0.5rem;
 	}
 
-	/* Configuration and subscription layouts emit a mobile-only sidebar
-	   control. Keep it out of the desktop grid: unlike the regular feed
-	   toolbar control, FreshRSS initializes this button as the closed-state
-	   opener and its first desktop click would therefore only synchronize the
-	   state instead of closing the already visible sidebar. */
+	/* Configuration and subscription layouts emit a mobile-only sidebar control. Keep it out of the desktop grid: unlike the regular feed toolbar control, FreshRSS initializes this button as the closed-state opener and its first desktop click would therefore only synchronize the state instead of closing the already visible sidebar. */
 	.nav_menu.nav_mobile {
 		display: none;
 	}
@@ -976,11 +915,7 @@ input[type="file"]::file-selector-button {
 	letter-spacing: 0;
 }
 
-/* Sidebar rows reserve intrinsic columns for controls, labels, and counters.
-   This replaces the base theme's percentage-minus-pixels calculations. The
-   control column is pinned rather than intrinsic: a category row holds a 2rem
-   collapse button where a feed row holds a 1rem icon, so an auto track sized
-   them differently and staggered both the glyphs and the titles. */
+/* Sidebar rows reserve intrinsic columns for controls, labels, and counters. This replaces the base theme's percentage-minus-pixels calculations. The control column is pinned rather than intrinsic: a category row holds a 2rem collapse button where a feed row holds a 1rem icon, so an auto track sized them differently and staggered both the glyphs and the titles. */
 .aside_feed .tree-folder .tree-folder-title {
 	display: grid;
 	grid-template-columns: 1rem minmax(0, 1fr) auto;
@@ -998,9 +933,7 @@ input[type="file"]::file-selector-button {
 	display: inline-grid;
 	place-items: center;
 	align-self: center;
-	/* Overflows the 1rem track evenly on both sides, so the button keeps a
-	   comfortable hit area while its centred chevron lands exactly where a
-	   feed row's icon sits. */
+	/* Overflows the 1rem track evenly on both sides, so the button keeps a comfortable hit area while its centred chevron lands exactly where a feed row's icon sits. */
 	justify-self: center;
 	inline-size: 2rem;
 	block-size: 2rem;
@@ -1009,10 +942,7 @@ input[type="file"]::file-selector-button {
 }
 
 #sidebar .tree-folder > .tree-folder-title > button.dropdown-toggle {
-	/* Override Mapco's higher-specificity box model. Its negative margins pulled
-	   the button out of the grid row, and its asymmetric content box prevented
-	   CSS Grid from centering the icon. Both need the ID to outrank
-	   .tree .tree-folder .tree-folder-title button.dropdown-toggle. */
+	/* Override Mapco's higher-specificity box model. Its negative margins pulled the button out of the grid row, and its asymmetric content box prevented CSS Grid from centering the icon. Both need the ID to outrank .tree .tree-folder .tree-folder-title button.dropdown-toggle. */
 	margin: 0;
 	padding: 0;
 }
@@ -1042,8 +972,7 @@ input[type="file"]::file-selector-button {
 	margin: 0;
 }
 
-/* Named categories expose their count on the list item rather than the link.
-   Keep the nested feed list on its own row and reserve a real counter column. */
+/* Named categories expose their count on the list item rather than the link. Keep the nested feed list on its own row and reserve a real counter column. */
 .aside_feed .tree-folder.category[data-unread] {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) auto;
@@ -1076,11 +1005,7 @@ input[type="file"]::file-selector-button {
 	margin: 1px 6px;
 }
 
-/* Both children need explicit placement. FreshRSS omits the dropdown entirely
-   beyond simplify_over_n_feeds and hides it below 840px via .no-mobile, and a
-   display:none grid item claims no cell. Without this, .item-title auto-places
-   into the intrinsic first column, collapses to its zero min-content width,
-   and the empty 1fr column swallows the row. */
+/* Both children need explicit placement. FreshRSS omits the dropdown entirely beyond simplify_over_n_feeds and hides it below 840px via .no-mobile, and a display:none grid item claims no cell. Without this, .item-title auto-places into the intrinsic first column, collapses to its zero min-content width, and the empty 1fr column swallows the row. */
 .aside_feed .tree-folder-items .item > .dropdown,
 .aside_feed .tree-folder-items .item > .no-dropdown-toggle {
 	grid-column: 1;
@@ -1200,8 +1125,7 @@ input[type="file"]::file-selector-button {
 	box-sizing: border-box;
 	min-inline-size: 2rem;
 	padding: 0.25rem 0.5rem;
-	/* The base theme outlines the active feed's counter only. Reset it here so
-	   every counter in the tree keeps the same pill silhouette. */
+	/* The base theme outlines the active feed's counter only. Reset it here so every counter in the tree keeps the same pill silhouette. */
 	border: none;
 	border-radius: 999px;
 	background: var(--sidebar-accent);
@@ -1219,12 +1143,7 @@ input[type="file"]::file-selector-button {
 	height: auto !important;
 }
 
-/* Stretch the sidebar to the page end with a desktop CSS Grid. The sidebar
-   becomes a real stretching column while the content card ends with its
-   content. This replaces the base table-cell layout. The page background is
-   the flat --background set in section 1: do not paint a gradient on <body>,
-   because inherited rules such as "#stream { background: inherit }" redraw it
-   relative to their own boxes and create visible ghost strips. */
+/* Stretch the sidebar to the page end with a desktop CSS Grid. The sidebar becomes a real stretching column while the content card ends with its content. This replaces the base table-cell layout. The page background is the flat --background set in section 1: do not paint a gradient on <body>, because inherited rules such as "#stream { background: inherit }" redraw it relative to their own boxes and create visible ghost strips. */
 @media (min-width: 841px) {
 	body {
 		display: flex;
@@ -1257,9 +1176,7 @@ input[type="file"]::file-selector-button {
 		grid-column: 2;
 	}
 
-	/* FreshRSS emits the toolbar and main content as sibling elements. Assign
-	   them to explicit rows so free viewport height stays below the content
-	   instead of being distributed between anonymous grid tracks. */
+	/* FreshRSS emits the toolbar and main content as sibling elements. Assign them to explicit rows so free viewport height stays below the content instead of being distributed between anonymous grid tracks. */
 	#global > .nav_menu {
 		grid-row: 1;
 	}
@@ -1272,10 +1189,7 @@ input[type="file"]::file-selector-button {
 		grid-row: 2;
 	}
 
-	/* FreshRSS restores the persisted state from sessionStorage after parsing.
-	   The resting states therefore remain transition-free. A transition is
-	   enabled only while an actual sidebar control owns focus, which preserves
-	   atomic restoration on reload while keeping explicit toggles animated. */
+	/* FreshRSS restores the persisted state from sessionStorage after parsing. The resting states therefore remain transition-free. A transition is enabled only while an actual sidebar control owns focus, which preserves atomic restoration on reload while keeping explicit toggles animated. */
 	#global > .aside.is-hidden {
 		display: block;
 		width: 0;
@@ -1368,11 +1282,7 @@ main.prompt h1,
 		box-shadow: none;
 	}
 
-	/* The desktop toolbar is a flex row; below the breakpoint the base layer's
-	   centred inline-blocks took over, spacing the groups with 8px margins that
-	   collapse differently per row and indenting the bar by the 3.75rem the
-	   desktop sidebar toggle used to need. The same flex row, allowed to wrap,
-	   gives every gap one value and every row the same edges. */
+	/* The desktop toolbar is a flex row; below the breakpoint the base layer's centred inline-blocks took over, spacing the groups with 8px margins that collapse differently per row and indenting the bar by the 3.75rem the desktop sidebar toggle used to need. The same flex row, allowed to wrap, gives every gap one value and every row the same edges. */
 	.nav_menu {
 		display: flex;
 		flex-wrap: wrap;
@@ -1385,20 +1295,14 @@ main.prompt h1,
 		text-align: start;
 	}
 
-	/* The configuration and subscription views emit their own bar holding one
-	   sidebar button. The base layer keeps it display:block, so it never
-	   followed the centred toolbar and sat on no axis at all. Put it on the
-	   page's text axis, where the heading below it starts. */
+	/* The configuration and subscription views emit their own bar holding one sidebar button. The base layer keeps it display:block, so it never followed the centred toolbar and sat on no axis at all. Put it on the page's text axis, where the heading below it starts. */
 	.nav_menu.nav_mobile {
 		display: flex;
 		justify-content: flex-start;
 		padding-inline: 1rem;
 	}
 
-	/* Mapco paints these close bars with --main-first, so their icons sit on a
-	   primary surface and need the primary foreground, not the sidebar's
-	   filter reset. The bundled SVG stroke is #394447 — the exact light-theme
-	   --primary — so the icon rendered invisibly against its own bar. */
+	/* Mapco paints these close bars with --main-first, so their icons sit on a primary surface and need the primary foreground, not the sidebar's filter reset. The bundled SVG stroke is #394447 — the exact light-theme --primary — so the icon rendered invisibly against its own bar. */
 	.aside .toggle_aside img.icon,
 	.dropdown-menu .toggle_aside img.icon,
 	#slider .toggle_aside img.icon {
@@ -1406,8 +1310,7 @@ main.prompt h1,
 	}
 }
 
-/* Dark mode inverts the primary surface to a light tone, so the icon keeps its
-   native stroke instead — the same exemption .btn.btn-important already uses. */
+/* Dark mode inverts the primary surface to a light tone, so the icon keeps its native stroke instead — the same exemption .btn.btn-important already uses. */
 @media (max-width: 840px) and (prefers-color-scheme: dark) {
 	.aside .toggle_aside img.icon,
 	.dropdown-menu .toggle_aside img.icon,
@@ -1418,16 +1321,7 @@ main.prompt h1,
 
 /*=== 7. List view ===================================================*/
 
-/* The row is inset from the card and rounded, so its hover and current states
-   read as a soft chip rather than a full-bleed band.
-
-   The margin doubles as the fix for a Mapco inheritance: Mapco insets the
-   first item of every horizontal list, which is a row inset only as long as
-   that item sits in a column of its own. With the read and favorite controls
-   switched off in the topline settings, the first item is .item.website, which
-   shares its grid column with the title -- and the feed eyebrow ends up
-   indented against the title and summary below it. A margin on the row shifts
-   every column alike, so the eyebrow stays flush. */
+/* The row is inset from the card and rounded, so hover and current state read as a soft chip rather than a full-bleed band. The margin also fixes a Mapco inheritance: Mapco insets the first item of a horizontal list, which only works while that item has a column of its own. With the read and favorite controls switched off, the first item is .item.website, which shares its column with the title -- so the feed eyebrow sat indented against the title below it. A margin on the row shifts every column alike. */
 .flux .flux_header {
 	box-sizing: border-box;
 	inline-size: calc(100% - 1rem);
@@ -1441,9 +1335,7 @@ main.prompt h1,
 }
 
 @media (min-width: 841px) {
-	/* Optional article controls occupy named intrinsic columns. The source feed
-	   becomes an eyebrow above the title, keeping every thumbnail on one shared
-	   axis instead of shifting it with each feed name's intrinsic width. */
+	/* Optional article controls occupy named intrinsic columns. The source feed becomes an eyebrow above the title, keeping every thumbnail on one shared axis instead of shifting it with each feed name's intrinsic width. */
 	.flux_header {
 		display: grid;
 		grid-template-columns:
@@ -1756,9 +1648,7 @@ main.prompt h1,
 		margin-block: 0.25rem 0.625rem;
 	}
 
-	/* FreshRSS renders the article footer as a fixed-layout table. Empty
-	   optional cells then displace the publication date. Size controls from
-	   their content instead and let the date establish the trailing anchor. */
+	/* FreshRSS renders the article footer as a fixed-layout table. Empty optional cells then displace the publication date. Size controls from their content instead and let the date establish the trailing anchor. */
 	.flux .flux_content > footer > .bottom {
 		display: flex;
 		align-items: center;
@@ -1799,9 +1689,7 @@ main.prompt h1,
 	}
 }
 
-/* Date separator: a compact section header, not a label floating next to a
-   decorative rule. The full-width surface also gives the first row a clear
-   and stable starting edge. */
+/* Date separator: a compact section header, not a label floating next to a decorative rule. The full-width surface also gives the first row a clear and stable starting edge. */
 .transition {
 	display: flex;
 	align-items: center;
@@ -1832,38 +1720,30 @@ main.prompt h1,
 	color: var(--muted-foreground);
 }
 
-/* Feed rows. No rules between them: the rounded hover and current states carry
-   the separation, and a line would cut across their corners. The reset is
-   explicit because Mapco draws one in --grey-light. */
+/* Feed rows. No rules between them: the rounded hover and current states carry the separation, and a line would cut across their corners. The reset is explicit because Mapco draws one in --grey-light. */
 .flux_header {
 	border-top: 0;
 	transition: background-color 0.12s ease-in-out, box-shadow 0.12s ease-in-out;
 }
 
-/* Hover is the tinted chip alone. The marker bar it used to grow on the
-   leading edge was a slab against a square band -- the one detail that dated
-   the list. Unread rows are already distinguished typographically. */
+/* Hover is the tinted chip alone. The marker bar it used to grow on the leading edge was a slab against a square band -- the one detail that dated the list. Unread rows are already distinguished typographically. */
 .flux:not(.current) .flux_header:hover {
 	background: var(--at-row-hover);
 }
 
-/* Mapco colors the title sub-element separately on hover. Keep the row as one
-   continuous interaction surface, including its date column. */
+/* Mapco colors the title sub-element separately on hover. Keep the row as one continuous interaction surface, including its date column. */
 #stream .flux .flux_header:hover .item.titleAuthorSummaryDate > .title,
 #stream .flux .flux_header .item.titleAuthorSummaryDate > .date {
 	background: transparent;
 }
 
-/* Mapco marks the current row with a border on the wrapper and pulls the row
-   back by the same 2px to compensate. Both fight the inset chip, and at (0,3,0)
-   its negative margin would otherwise beat the row's own inset. */
+/* Mapco marks the current row with a border on the wrapper and pulls the row back by the same 2px to compensate. Both fight the inset chip, and at (0,3,0) its negative margin would otherwise beat the row's own inset. */
 .flux.current {
 	background: var(--card);
 	border-inline-start-width: 0;
 }
 
-/* Selection is communicated by one calm filled surface. The former leading
-   marker competed with thumbnails and unread typography for attention. */
+/* Selection is communicated by one calm filled surface. The former leading marker competed with thumbnails and unread typography for attention. */
 .flux.current .flux_header {
 	margin-inline: 0.5rem;
 	background: var(--at-row-current);
@@ -1911,8 +1791,7 @@ main.prompt h1,
 	line-height: 1.25;
 }
 
-/* Mapco assigns Spectral directly to every linked article h1. Article chrome
-   and embedded heading links instead follow Atelier's shared sans hierarchy. */
+/* Mapco assigns Spectral directly to every linked article h1. Article chrome and embedded heading links instead follow Atelier's shared sans hierarchy. */
 .flux_content .content :is(h1, h2, h3) > a {
 	font-family: inherit;
 	font-size: inherit;
@@ -1941,11 +1820,7 @@ main.prompt h1,
 	text-underline-offset: 0.18em;
 }
 
-/* The end of the stream: a status line and, depending on the reading
-   settings, the action that follows from it. FreshRSS separates the two with
-   <br> and the base layer adds 5em below the footer plus 100vh below the big
-   button, which left the card ending in a void. One centred column with
-   bounded padding, so the block closes the card instead of trailing off. */
+/* The end of the stream: a status line and, depending on the reading settings, the action that follows from it. FreshRSS separates the two with <br> and the base layer adds 5em below the footer plus 100vh below the big button, which left the card ending in a void. One centred column with bounded padding, so the block closes the card instead of trailing off. */
 #stream-footer {
 	box-sizing: border-box;
 	inline-size: 100%;
@@ -1970,8 +1845,7 @@ main.prompt h1,
 	display: none;
 }
 
-/* The action reads as one block: the tick carries the weight, the label names
-   it, and the optional jump hint stays a footnote. */
+/* The action reads as one block: the tick carries the weight, the label names it, and the optional jump hint stays a footnote. */
 #bigMarkAsRead.big {
 	display: inline-flex;
 	flex-direction: column;
@@ -2018,9 +1892,7 @@ main.prompt h1,
 	filter: none;
 }
 
-/* The small variant is an ordinary button, and there the tick is the plain
-   check character rather than the big variant's image. At the 2rem the base
-   layer gives it, it overran the label it belongs to. */
+/* The small variant is an ordinary button, and there the tick is the plain check character rather than the big variant's image. At the 2rem the base layer gives it, it overran the label it belongs to. */
 #bigMarkAsRead.small {
 	gap: 0.5rem;
 }
@@ -2039,14 +1911,7 @@ main.prompt h1,
 
 /*=== 8. Dropdowns, Panels, Overlays, Badges =========================*/
 
-/* Anchor a menu below its trigger. FreshRSS gives .dropdown-menu no block
-   offset and relies on its static position, which lands under the trigger
-   only while the wrapper lays its children out in a line. Wherever this theme
-   turns that wrapper into a flex or grid container -- toolbar segments, the
-   category header -- an absolutely positioned child takes its static position
-   from the container's content box instead, and the menu opened over the very
-   control it belongs to. The base layer's 9px top margin would stack on top of
-   the offset, so the gap is set in one place. */
+/* Anchor a menu below its trigger. FreshRSS gives .dropdown-menu no block offset and relies on its static position, which lands under the trigger only while the wrapper lays its children out in a line. Wherever this theme turns that wrapper into a flex or grid container -- toolbar segments, the category header -- an absolutely positioned child takes its static position from the container's content box instead, and the menu opened over the very control it belongs to. The base layer's 9px top margin would stack on top of the offset, so the gap is set in one place. */
 .nav_menu :is(.stick, .group) .dropdown > .dropdown-menu,
 .box .box-title form .dropdown > .dropdown-menu {
 	margin-block-start: 0;
@@ -2066,19 +1931,7 @@ main.prompt h1,
 	padding: 4px 0;
 }
 
-/* Rounded shadcn-style menu items with an inset hover surface. Mapco applies
-   its primary hover fill to the full-width .item; neutralize it and move the
-   hover treatment to the link.
-
-   The width must be explicit: a button sizes to its content even at
-   display:block, so width:auto stretched only the a and span entries and left
-   every button one — logout, the mark-as-read choices — with a hover surface
-   that stopped at its label. The 8px matches the inline margins below.
-
-   The inset matches the settings sidebar: 0.75rem plus the 4px margin equals
-   the 1rem that .nav-list uses for both its entries and its headings, so the
-   two menus share one rhythm. Mapco's 2rem left every entry indented past its
-   own heading. */
+/* The hover surface belongs to the link, not to Mapco's full-width .item. Its width has to be explicit: a button sizes to its content even at display: block, so width: auto left every button entry -- logout, the mark-as-read choices -- with a hover surface that stopped at its label. The inset plus the 4px margin equals the 1rem the settings sidebar uses for its entries and headings, so the two menus share one rhythm. */
 .dropdown-menu .item > a,
 .dropdown-menu .item > span,
 .dropdown-menu .item > button,
@@ -2119,11 +1972,7 @@ main.prompt h1,
 	color: var(--muted-foreground);
 }
 
-/* Sort menus mark the active entry with a ✓ that Mapco pulls back into the
-   inset with a negative margin. At this inset that would drop the glyph
-   outside the entry's hover surface, so it gets its own slot instead — the
-   same box the settings icons use. Unchecked entries reserve the slot so the
-   labels of a menu stay on one line. */
+/* Sort menus mark the active entry with a ✓ that Mapco pulls back into the inset with a negative margin. At this inset that would drop the glyph outside the entry's hover surface, so it gets its own slot instead — the same box the settings icons use. Unchecked entries reserve the slot so the labels of a menu stay on one line. */
 .dropdown-menu .item[aria-checked] > a::before {
 	content: "✓";
 	display: inline-block;
@@ -2142,11 +1991,7 @@ main.prompt h1,
 	border-top-color: var(--border);
 }
 
-/* The space above a section header separates it from the section before it,
-   so the first one needs none: there is only the popover edge above it. Mapco
-   gives every section that margin, which stacked with the header's own top
-   padding into a 30px void above the first label — twice the inset the last
-   entry keeps at the bottom. Restore the margin from the second section on. */
+/* The space above a section header separates it from the section before it, so the first one needs none: there is only the popover edge above it. Mapco gives every section that margin, which stacked with the header's own top padding into a 30px void above the first label — twice the inset the last entry keeps at the bottom. Restore the margin from the second section on. */
 .dropdown-menu .item.dropdown-section {
 	margin-block-start: 0;
 }
@@ -2171,10 +2016,7 @@ main.prompt h1,
 	pointer-events: none;
 }
 
-/* Feed actions are a compact command menu rather than a second navigation
-   list. FreshRSS renders this menu from a template without icons or section
-   classes, so its stable link targets provide both the icon mapping and the
-   boundary between navigation and mutating feed actions. */
+/* Feed actions are a compact command menu rather than a second navigation list. FreshRSS renders this menu from a template without icons or section classes, so its stable link targets provide both the icon mapping and the boundary between navigation and mutating feed actions. */
 .aside_feed .tree-folder-items .feed > .dropdown > .dropdown-menu {
 	box-sizing: border-box;
 	min-inline-size: 15rem;
@@ -2239,11 +2081,7 @@ main.prompt h1,
 	color: var(--accent-foreground) !important;
 }
 
-/* Settings menus carry no icons in FreshRSS's markup, so they are keyed off
-   each entry's target URL. Drawing them as masks tinted with currentColor
-   keeps them in step with the hover, active and dark-theme foreground, which
-   a bundled <img> could not do. The header dropdown and the settings sidebar
-   link to the same targets, so one selector list serves both. */
+/* Settings menus carry no icons in FreshRSS's markup, so they are keyed off each entry's target URL. Drawing them as masks tinted with currentColor keeps them in step with the hover, active and dark-theme foreground, which a bundled <img> could not do. The header dropdown and the settings sidebar link to the same targets, so one selector list serves both. */
 :is(.dropdown-menu, .aside.nav-list) .item > :is(
 	button.signout,
 	a[href*="c=user"][href*="a=profile"],
@@ -2477,16 +2315,12 @@ main.prompt h1,
 	mask-image: url("icons/unread.svg");
 }
 
-/* The logout button already ends with FreshRSS's own icon; drop it so the new
-   leading glyph does not duplicate it and every label keeps the same indent. */
+/* The logout button already ends with FreshRSS's own icon; drop it so the new leading glyph does not duplicate it and every label keeps the same indent. */
 :is(.dropdown-menu, .aside.nav-list) .item > button.signout .icon {
 	display: none;
 }
 
-/* The logo already provides the canonical route back to the feed list. Hide
-   FreshRSS's duplicate first entry in both configuration sidebars. The
-   configuration variant contains no second entry, so remove its empty section
-   as well; the subscription variant keeps Advanced Search below it. */
+/* The logo already provides the canonical route back to the feed list. Hide FreshRSS's duplicate first entry in both configuration sidebars. The configuration variant contains no second entry, so remove its empty section as well; the subscription variant keeps Advanced Search below it. */
 .aside.nav-list > ul > .item.nav-section:first-child > ul > .item:first-child,
 main.post .alert > p:last-child:has(
 	> a[href*="c=index"][href*="a=index"]
@@ -2500,9 +2334,7 @@ main.post .alert > p:last-child:has(
 	display: none;
 }
 
-/* The subscription sidebar's first section contains the hidden back link and
-   Advanced Search. Turn only that sidebar's section list into a flex column so
-   the remaining search action follows subscription and statistics entries. */
+/* The subscription sidebar's first section contains the hidden back link and Advanced Search. Turn only that sidebar's section list into a flex column so the remaining search action follows subscription and statistics entries. */
 .aside.nav-list > ul:has(
 	> .item.nav-section:first-child > ul > .item:nth-child(2)
 ) {
@@ -2547,9 +2379,7 @@ main.post .alert > p:last-child:has(
 	border-radius: var(--at-radius-l) var(--at-radius-l) 0 0;
 }
 
-/* Render notifications as compact toasts instead of full-width banners.
-   rtl-safe: horizontal centering is symmetric, and the physical left/translateX
-   pair stays correct in RTL, where the logical form would flip the offset. */
+/* Render notifications as compact toasts instead of full-width banners. rtl-safe: horizontal centering is symmetric, and the physical left/translateX pair stays correct in RTL, where the logical form would flip the offset. */
 .notification {
 	position: fixed;
 	top: auto;
@@ -2579,11 +2409,7 @@ main.post .alert > p:last-child:has(
 	font-weight: 600;
 }
 
-/* The toast paints itself in --foreground and writes in --background, so it
-   inverts with the color scheme. Every marker on it therefore has to be mixed
-   towards --background: that is the toast's own text color, so the mix always
-   moves away from the toast surface in both schemes. A literal color would
-   only hold in one of them. */
+/* The toast paints itself in --foreground and writes in --background, so it inverts with the color scheme. Every marker on it therefore has to be mixed towards --background: that is the toast's own text color, so the mix always moves away from the toast surface in both schemes. A literal color would only hold in one of them. */
 .notification.good,
 .notification.bad {
 	background: var(--foreground);
@@ -2601,10 +2427,7 @@ main.post .alert > p:last-child:has(
 	background: color-mix(in srgb, var(--muted-foreground) 70%, var(--background));
 }
 
-/* State is carried by shape as well as hue, so the two variants stay
-   distinguishable without color vision (WCAG 1.4.1): success keeps the round
-   dot, failure turns it into a diamond. The rotation is symmetric, so it needs
-   no RTL mirror. */
+/* State is carried by shape as well as hue, so the two variants stay distinguishable without color vision (WCAG 1.4.1): success keeps the round dot, failure turns it into a diamond. The rotation is symmetric, so it needs no RTL mirror. */
 .notification.good .msg::before {
 	background: color-mix(in srgb, var(--success) 70%, var(--background));
 	box-shadow: 0 0 8px color-mix(in srgb, var(--success) 60%, transparent);
@@ -2703,9 +2526,8 @@ main.post .alert > p:last-child:has(
 	text-shadow: none;
 }
 
-/*=== 9. Native component completion =================================*/
+/*=== 9. Segmented groups: .stick and .group ========================*/
 
-/* Button Group */
 .stick,
 .group {
 	gap: 0;
@@ -2724,13 +2546,7 @@ main.post .alert > p:last-child:has(
 	box-shadow: none;
 }
 
-/* Only the end caps are rounded, and they take the group's radius minus its
-   1px border: a segment fills the group edge to edge, so any smaller radius
-   leaves a sliver of surface in the corner and any larger one paints over the
-   border. Mapco rounds these through :first-child and :last-child at (0,3,0),
-   so a plain .stick > .btn radius loses to it and leaves middle segments as
-   pills between flat caps. Match its specificity and restate all four corners,
-   since its physical shorthand does not mirror. */
+/* Only the end caps are rounded, and they take the group's radius minus its 1px border: a segment fills the group edge to edge, so any smaller radius leaves a sliver of surface in the corner and any larger one paints over the border. Mapco rounds these through :first-child and :last-child at (0,3,0), so a plain .stick > .btn radius loses to it and leaves middle segments as pills between flat caps. Match its specificity and restate all four corners, since its physical shorthand does not mirror. */
 .stick > .btn:first-child,
 .group > .btn:first-child,
 .stick > .dropdown:first-child > .btn,
@@ -2759,11 +2575,7 @@ main.post .alert > p:last-child:has(
 	border-radius: var(--at-radius-inner);
 }
 
-/* The toolbar flattens its segments through .nav_menu .stick .dropdown
-   a.dropdown-toggle, which outweighs the cap rules above, so an end-cap
-   dropdown trigger needs its corners restated at that weight. The <form> of
-   the mark-as-read group is transparent for this too: the segments at its
-   ends are the group's end caps. */
+/* The toolbar flattens its segments through .nav_menu .stick .dropdown a.dropdown-toggle, which outweighs the cap rules above, so an end-cap dropdown trigger needs its corners restated at that weight. The <form> of the mark-as-read group is transparent for this too: the segments at its ends are the group's end caps. */
 .nav_menu :is(.stick, .group) > .dropdown:first-child > a.dropdown-toggle,
 .nav_menu :is(.stick, .group) > form:first-child > .dropdown:first-child >
 	a.dropdown-toggle {
@@ -2794,13 +2606,9 @@ main.post .alert > p:last-child:has(
 	z-index: 1;
 }
 
-/* FreshRSS opens two things with <details>: the environment block on About and
-   the advanced sections when adding a feed. They read as different components
-   -- a card holding a second framed box, and a pair of hairlines that barely
-   registered. One header component for both: a tinted row with a chevron that
-   turns when the section opens. What the header sits on still differs, because
-   the contents do: the environment block is a list and takes a card, while the
-   advanced sections hold form rows that have to keep the form's label axis. */
+/*=== 10. Disclosures ===============================================*/
+
+/* FreshRSS opens two things with <details>: the environment block on About and the advanced sections when adding a feed. They read as different components -- a card holding a second framed box, and a pair of hairlines that barely registered. One header component for both: a tinted row with a chevron that turns when the section opens. What the header sits on still differs, because the contents do: the environment block is a list and takes a card, while the advanced sections hold form rows that have to keep the form's label axis. */
 .envInfo > summary,
 .post .form-advanced > .form-advanced-title {
 	display: flex;
@@ -2828,8 +2636,7 @@ main.post .alert > p:last-child:has(
 	display: none;
 }
 
-/* The chevron is painted from currentColor and turns a quarter when the
-   section opens, so the state is carried by the same glyph in both places. */
+/* The chevron is painted from currentColor and turns a quarter when the section opens, so the state is carried by the same glyph in both places. */
 .envInfo > summary::before,
 .post .form-advanced > .form-advanced-title::before {
 	content: "";
@@ -2869,8 +2676,7 @@ main.post .alert > p:last-child:has(
 	outline-offset: 2px;
 }
 
-/* The environment block is a card, so its header squares off against the
-   divider when the list below it is showing. */
+/* The environment block is a card, so its header squares off against the divider when the list below it is showing. */
 .envInfo {
 	border: 1px solid var(--border);
 	border-radius: var(--at-radius-m);
@@ -2886,8 +2692,7 @@ main.post .alert > p:last-child:has(
 	border-block-end: 1px solid var(--border);
 }
 
-/* The base layer frames the list a second time inside that card and pads it
-   by 2rem on three sides. One frame is enough. */
+/* The base layer frames the list a second time inside that card and pads it by 2rem on three sides. One frame is enough. */
 .envInfo > dl {
 	display: grid;
 	grid-template-columns: max-content minmax(0, 1fr);
@@ -2919,8 +2724,9 @@ main.post .alert > p:last-child:has(
 	overflow-wrap: anywhere;
 }
 
-/* Authentication uses a deliberately compact vertical form rather than the
-   two-column .post structure, but shares the same control and spacing rhythm. */
+/*=== 11. Sign-in and prompts =======================================*/
+
+/* Authentication uses a deliberately compact vertical form rather than the two-column .post structure, but shares the same control and spacing rhythm. */
 .prompt form {
 	display: grid;
 	gap: 1rem;
@@ -2991,24 +2797,15 @@ main.post .alert > p:last-child:has(
 	gap: 0.5rem;
 }
 
-/* FreshRSS composes settings, administration, subscription, and slider forms
-   from the same .post/.form-group primitives, but nests those rows in varying
-   combinations of forms, fieldsets, and details. Make each row own the grid
-   so every view shares one label track regardless of that nesting. */
+/*=== 12. Settings and administration forms =========================*/
+
+/* FreshRSS composes settings, administration, subscription, and slider forms from the same .post/.form-group primitives, but nests those rows in varying combinations of forms, fieldsets, and details. Make each row own the grid so every view shares one label track regardless of that nesting. */
 .post:not(.content) {
 	container-name: at-settings;
 	container-type: inline-size;
 }
 
-/* FreshRSS also uses .content on the About and Terms pages. Its inherited
-   auto margins would otherwise combine with inline-size containment and let
-   the grid item collapse to its min-content width. Keep these text views on a
-   generous but readable measure instead. */
-/* About and Terms carry class="post content", and .content is the article
-   body elsewhere in FreshRSS: they inherited its 10px inset and its 1.125rem
-   reading size, which put them closer to the sidebar and in a different voice
-   than every other page under the same sidebar. They keep the page inset and
-   the interface size; the reading measure stays. */
+/* About and Terms carry class="post content", and .content is the article body elsewhere in FreshRSS. They inherited its 10px inset and 1.125rem reading size, which put them closer to the sidebar and in a different voice than every other page under the same sidebar; they keep the page inset and the interface size now, and only the generous measure stays. The explicit margins matter too: inherited auto margins combine with inline-size containment and collapse the grid item to its min-content width. */
 main.post.content {
 	box-sizing: border-box;
 	justify-self: start;
@@ -3053,11 +2850,7 @@ main.post.content.centered {
 	margin-block-start: 1.75rem;
 }
 
-/* A <legend> names a section of a form, and FreshRSS uses it for exactly what
-   other views spell as an <h2> -- several pages carry both. One heading
-   language for the two, so a form does not change its voice halfway through.
-   The base layer sets legends in small uppercase with letter-spacing, which is
-   a different idiom altogether. */
+/* A <legend> names a section of a form, and FreshRSS uses it for exactly what other views spell as an <h2> -- several pages carry both. One heading language for the two, so a form does not change its voice halfway through. The base layer sets legends in small uppercase with letter-spacing, which is a different idiom altogether. */
 .post legend,
 .post h2 {
 	margin-block: 1.75rem 0.25rem;
@@ -3069,9 +2862,7 @@ main.post.content.centered {
 	text-transform: none;
 }
 
-/* A legend is not an ordinary block -- it sizes to its text and sits in the
-   fieldset's border -- so its box has to be reset before it can carry the
-   heading style. */
+/* A legend is not an ordinary block -- it sizes to its text and sits in the fieldset's border -- so its box has to be reset before it can carry the heading style. */
 .post legend {
 	box-sizing: border-box;
 	display: block;
@@ -3083,19 +2874,12 @@ main.post.content.centered {
 	background: none;
 }
 
-/* One gap below the page title, whatever follows it: a section heading, a
-   form, or a paragraph. FreshRSS starts these pages differently -- Manage
-   users with an h2, Reading with a form, About with text -- and each brought
-   its own margin, so the same title sat 7px, 14px or 17.5px above its
-   content. A legend cannot be a child of the form, it sits in the first
-   fieldset, so that case is named separately. */
+/* One gap below the page title, whatever follows it: a section heading, a form, or a paragraph. FreshRSS starts these pages differently -- Manage users with an h2, Reading with a form, About with text -- and each brought its own margin, so the same title sat 7px, 14px or 17.5px above its content. A legend cannot be a child of the form, it sits in the first fieldset, so that case is named separately. */
 .post > h1 {
 	margin-block: 1.5rem;
 }
 
-/* The shortcut page puts a <datalist> of key names between its title and the
-   form -- the one place in FreshRSS where something non-rendering sits there,
-   which is enough to make an adjacency rule miss the block it aims at. */
+/* The shortcut page puts a <datalist> of key names between its title and the form -- the one place in FreshRSS where something non-rendering sits there, which is enough to make an adjacency rule miss the block it aims at. */
 .post > h1 + *,
 .post > h1 + :is(datalist, template, script, style) + * {
 	margin-block-start: 0;
@@ -3145,11 +2929,7 @@ main.post.content.centered {
 	overflow: visible;
 }
 
-/* The label carries an optical offset that lines it up with the text inside a
-   control. A row that reads out plain text -- the version, the last check, the
-   article count -- has no control to line up with, so the label sat a third of
-   a line below its own value. Give that text the control's height and centre
-   it in it, which is the position the offset already assumes. */
+/* The label carries an optical offset that lines it up with the text inside a control. A row that reads out plain text -- the version, the last check, the article count -- has no control to line up with, so the label sat a third of a line below its own value. Give that text the control's height and centre it in it, which is the position the offset already assumes. */
 .post .form-group > .group-controls:not(:has(input, select, textarea, button,
 	.btn, label, .stick)) {
 	display: flex;
@@ -3235,11 +3015,7 @@ main.post.content.centered {
 	overflow: auto;
 }
 
-/* No frame around the advanced sections: their rows share the label axis with
-   the fields above them, and any inset here would shift it. The header alone
-   carries the surface, and on the page background that means the card tone
-   with a hairline -- the muted tint the card version uses would vanish into
-   the page here. */
+/* No frame around the advanced sections: their rows share the label axis with the fields above them, and any inset here would shift it. The header alone carries the surface, and on the page background that means the card tone with a hairline -- the muted tint the card version uses would vanish into the page here. */
 .post .form-advanced {
 	margin-block: 1.25rem;
 	border: 0;
@@ -3300,7 +3076,8 @@ main.post.content.centered {
 	}
 }
 
-/* Card */
+/*=== 13. Cards, tables and pagination ==============================*/
+
 .box .box-title {
 	border-bottom: 1px solid var(--border);
 	background: var(--card);
@@ -3372,9 +3149,7 @@ main.post.content.centered {
 	text-indent: 0;
 }
 
-/* Same placement requirement as the sidebar rows: the favicon is only emitted
-   when show_favicons is enabled, so relying on auto-placement would drop the
-   title into the intrinsic column whenever a user turns favicons off. */
+/* Same placement requirement as the sidebar rows: the favicon is only emitted when show_favicons is enabled, so relying on auto-placement would drop the title into the intrinsic column whenever a user turns favicons off. */
 #stream.global .box-content > .item.feed > .favicon {
 	grid-column: 1;
 }
@@ -3442,6 +3217,16 @@ tbody tr:hover {
 	background: color-mix(in srgb, var(--accent) 55%, transparent);
 }
 
+/* Row states of the user table. */
+.disabled-user {
+	opacity: 0.6;
+}
+
+.default-user {
+	background: color-mix(in srgb, var(--success-muted) 70%, transparent);
+}
+
+
 /* Pagination */
 .nav-pagination {
 	padding-block: 1rem;
@@ -3503,6 +3288,8 @@ tbody tr:hover {
 	line-height: 1;
 }
 
+/*=== 14. Manage lists: extensions and feeds ========================*/
+
 .manage-list > li,
 .manage-list > .item,
 .box-content > .item {
@@ -3516,35 +3303,26 @@ tbody tr:hover {
 	background: var(--accent);
 }
 
-/* The extension list is a settings list, not prose. FreshRSS emits each row as
-   switch, gear, name, which leaves the names behind a ragged column of
-   controls. One card, one row per extension, the name on the reading edge and
-   the controls collected on the trailing one: the switches then line up in a
-   column of their own. Columns are assigned explicitly, so a row without the
-   gear -- a system extension the user may not configure -- keeps its switch on
-   the same axis as the others. */
+/* The extension list is a settings list, not prose. FreshRSS emits each row as switch, gear, name, which leaves the names behind a ragged column of controls. One card, one row per extension, the name on the reading edge and the controls collected on the trailing one: the switches then line up in a column of their own. Columns are assigned explicitly, so a row without the gear -- a system extension the user may not configure -- keeps its switch on the same axis as the others. */
 .post .manage-list {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr);
-	gap: 0.5rem;
+	/* Rows join, columns stay apart: a column reads as one list instead of a stack of separate cards, which is what makes twenty extensions restful to scan. */
+	column-gap: 0.5rem;
+	row-gap: 0;
 	margin-block: 0.75rem 1.75rem;
 	padding: 0;
 	list-style: none;
 }
 
-/* Each extension is its own surface rather than a row inside one card. A
-   single card has to end on a full row: sixteen extensions in three columns
-   leave two empty cells that read as a hole in it, and the column boundaries
-   would be the only thing telling the columns apart. Separate surfaces make
-   the columns legible and let an incomplete row simply end. */
-/* The tiles hover on the softer row tint rather than on --accent: an inactive
-   switch is --input, and against --accent that track reads at 2.83:1 in the
-   light scheme -- below the 3:1 WCAG 1.4.11 asks of a control. On this tint it
-   holds 3.20:1, and the row still answers the pointer. */
+/* A row hovers on the softer row tint rather than on --accent: an inactive switch is --input, and against --accent that track reads at 2.83:1 in the light scheme -- below the 3:1 WCAG 1.4.11 asks of a control. On this tint it holds 3.20:1, and the row still answers the pointer. */
 .post .manage-list > li:hover {
+	position: relative;
+	z-index: 1;
 	background: var(--at-row-hover);
 }
 
+/* Each extension is its own surface rather than a row inside one card: a card has to end on a full row, and sixteen extensions in three columns leave two empty cells that read as a hole in it. */
 .post .manage-list > li {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) auto auto;
@@ -3559,18 +3337,62 @@ tbody tr:hover {
 	line-height: 1.5;
 }
 
-/* Every list on the page shares one column grid, so a section with a single
-   extension shows a tile of the same width as the others rather than one
-   stretched across the row. */
+/* Every list on the page shares one column grid, so a section holding a single extension shows a tile the width of the others rather than one stretched across the row. Rows overlap by their shared hairline, and only the ends of a column are rounded: the first n children open the columns, the last n close them, which holds for any number of extensions including an incomplete last row. Each breakpoint restates all of it, because both container queries match at the widest size. */
+.post .manage-list > li:not(:first-child) {
+	margin-block-start: -1px;
+}
+
+.post .manage-list > li:first-child {
+	border-start-start-radius: var(--at-radius-m);
+	border-start-end-radius: var(--at-radius-m);
+}
+
+.post .manage-list > li:last-child {
+	border-end-start-radius: var(--at-radius-m);
+	border-end-end-radius: var(--at-radius-m);
+}
+
 @container at-settings (min-width: 40rem) {
 	.post .manage-list {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.post .manage-list > li {
+		margin-block-start: -1px;
+		border-radius: 0;
+	}
+
+	.post .manage-list > li:nth-child(-n + 2) {
+		margin-block-start: 0;
+		border-start-start-radius: var(--at-radius-m);
+		border-start-end-radius: var(--at-radius-m);
+	}
+
+	.post .manage-list > li:nth-last-child(-n + 2) {
+		border-end-start-radius: var(--at-radius-m);
+		border-end-end-radius: var(--at-radius-m);
 	}
 }
 
 @container at-settings (min-width: 64rem) {
 	.post .manage-list {
 		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.post .manage-list > li {
+		margin-block-start: -1px;
+		border-radius: 0;
+	}
+
+	.post .manage-list > li:nth-child(-n + 3) {
+		margin-block-start: 0;
+		border-start-start-radius: var(--at-radius-m);
+		border-start-end-radius: var(--at-radius-m);
+	}
+
+	.post .manage-list > li:nth-last-child(-n + 3) {
+		border-end-start-radius: var(--at-radius-m);
+		border-end-end-radius: var(--at-radius-m);
 	}
 }
 
@@ -3581,9 +3403,7 @@ tbody tr:hover {
 	color: var(--foreground);
 	font-size: 0.9375rem;
 	font-weight: 600;
-	/* The base layer italicises a disabled extension. The switch beside it
-	   already carries that state, and in a list of twenty the slant is the
-	   loudest thing on the page. Weight and tone carry it instead. */
+	/* The base layer italicises a disabled extension. The switch beside it already carries that state, and in a list of twenty the slant is the loudest thing on the page. Weight and tone carry it instead. */
 	font-style: normal;
 }
 
@@ -3616,6 +3436,8 @@ tbody tr:hover {
 	justify-self: end;
 	margin: 0;
 }
+
+/*=== 15. Panels, progress and remaining surfaces ===================*/
 
 .item.feed.mute,
 .item.feed.empty,
@@ -3759,7 +3581,7 @@ progress {
 	background: var(--accent);
 }
 
-/* Logs and Statistics */
+/* Logs */
 .log-item {
 	font-variant-numeric: tabular-nums;
 }
@@ -3777,6 +3599,8 @@ progress {
 	text-align: center;
 }
 
+/*=== 16. Statistics ================================================*/
+
 .stat {
 	padding: 1rem;
 	border: 1px solid var(--border);
@@ -3789,10 +3613,7 @@ progress {
 	max-width: 100%;
 }
 
-/* Statistics are a dashboard, not a sequence of the base theme's fixed
-   30rem inline blocks. Let compact cards share a row, let double-width cards
-   span it, and collapse naturally to one column when their minimum useful
-   width no longer fits. */
+/* Statistics are a dashboard, not a sequence of the base theme's fixed 30rem inline blocks. Let compact cards share a row, let double-width cards span it, and collapse naturally to one column when their minimum useful width no longer fits. */
 html.controller_stats main.post {
 	display: grid;
 	grid-template-columns: repeat(
@@ -3831,9 +3652,7 @@ html.controller_stats main.post > .box .box-content {
 	inline-size: 100%;
 }
 
-/* The bar above these pages is a scope filter for what follows -- which feed
-   the numbers are about -- not a toolbar of actions. It reads that way when it
-   starts on the page's text axis instead of floating centred above the title. */
+/* The bar above these pages is a scope filter for what follows -- which feed the numbers are about -- not a toolbar of actions. It reads that way when it starts on the page's text axis instead of floating centred above the title. */
 html.controller_stats .nav_menu {
 	justify-content: flex-start;
 	gap: 0.5rem;
@@ -3846,10 +3665,7 @@ html.controller_stats .nav_menu {
 	}
 }
 
-/* The zoom toggle of a statistics card lives in its title. The base layer pins
-   it to the right edge with position: absolute, where it keeps the 17px width
-   of its "+" glyph and lands on the scrollbar of the content below. The title
-   is a row here, and the toggle a square button like every other. */
+/* The zoom toggle of a statistics card lives in its title. The base layer pins it to the right edge with position: absolute, where it keeps the 17px width of its "+" glyph and lands on the scrollbar of the content below. The title is a row here, and the toggle a square button like every other. */
 html.controller_stats .box .box-title {
 	display: flex;
 	align-items: center;
@@ -3885,9 +3701,7 @@ html.controller_stats .box .box-title .btn:hover {
 	color: var(--accent-foreground);
 }
 
-/* A chart is not a scrollable list: the base layer caps every box at 260 or
-   520px and scrolls the overflow, which wrapped the canvases in two
-   scrollbars. They size to the card instead. */
+/* A chart is not a scrollable list: the base layer caps every box at 260 or 520px and scrolls the overflow, which wrapped the canvases in two scrollbars. They size to the card instead. */
 html.controller_stats .box .box-content:has(> canvas) {
 	max-block-size: none;
 	overflow: visible;
@@ -3899,15 +3713,8 @@ html.controller_stats .box .box-content > canvas {
 	block-size: auto;
 }
 
-.disabled-user {
-	opacity: 0.6;
-}
+/*=== 17. Article typography ========================================*/
 
-.default-user {
-	background: color-mix(in srgb, var(--success-muted) 70%, transparent);
-}
-
-/* Article Typography */
 .flux_content .content a {
 	color: var(--primary);
 	text-decoration-thickness: 1px;
@@ -3942,7 +3749,7 @@ html.controller_stats .box .box-content > canvas {
 	border-top: 1px solid var(--border);
 }
 
-/*=== 10. Motion =====================================================*/
+/*=== 18. Motion ====================================================*/
 
 @keyframes at-pop {
 	from {
@@ -3977,7 +3784,7 @@ html.controller_stats .box .box-content > canvas {
 	animation: at-pop 0.2s ease-out;
 }
 
-/*=== 11. Accessibility ==============================================*/
+/*=== 19. Accessibility =============================================*/
 
 a:focus-visible,
 .btn:focus-visible,
@@ -4000,15 +3807,12 @@ summary:focus-visible {
 	}
 }
 
-/*=== 12. Dark-mode asset adaptations ================================*/
+/*=== 20. Dark-mode asset adaptations ===============================*/
 
 @media (prefers-color-scheme: dark) {
-	/* Locally bundled neutral SVGs use a fixed light-theme stroke because
-	   external SVG files cannot inherit the page's currentColor. Keep these
-	   rules last so they win over Mapco's component-specific icon filters. */
+	/* Locally bundled neutral SVGs use a fixed light-theme stroke because external SVG files cannot inherit the page's currentColor. Keep these rules last so they win over Mapco's component-specific icon filters. */
 	img.icon:not([src$="/starred.svg"]),
-	/* The ID raises specificity above the light-theme sidebar reset without
-	   affecting feed favicons or the intentionally gold favorite icon. */
+	/* The ID raises specificity above the light-theme sidebar reset without affecting feed favicons or the intentionally gold favorite icon. */
 	#sidebar img.icon:not([src$="/starred.svg"]) {
 		filter: brightness(0) saturate(100%) invert(84%) !important;
 	}
@@ -4022,9 +3826,7 @@ summary:focus-visible {
 		filter: none !important;
 	}
 
-	/* The sidebar's segmented subscription control overrides its primary
-	   surface with the dark secondary surface, so its add glyph needs the same
-	   light treatment as the surrounding sidebar actions. */
+	/* The sidebar's segmented subscription control overrides its primary surface with the dark secondary surface, so its add glyph needs the same light treatment as the surrounding sidebar actions. */
 	.aside .stick #btn-add img.icon:not([src$="/starred.svg"]) {
 		filter: brightness(0) saturate(100%) invert(84%) !important;
 	}

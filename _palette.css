@@ -35,10 +35,6 @@
 	/* Light surfaces sit above the ramp; white is white in every scheme. */
 	--at-scale-white: #fff;
 
-	/* A rung the published ramp does not have. Dark raised surfaces -- row
-	   hover, active sidebar entries -- sit between the card at step 800 and
-	   step 700, which is already light enough to push secondary text below
-	   WCAG AA. Deriving it keeps the relationship identical in every scheme
-	   instead of asking each one for a hand-picked value. */
+	/* A rung the published ramp does not have. Dark raised surfaces -- row hover, active sidebar entries -- sit between the card at step 800 and step 700, which is already light enough to push secondary text below WCAG AA. Deriving it keeps the relationship identical in every scheme instead of asking each one for a hand-picked value. */
 	--at-scale-750: color-mix(in srgb, var(--at-scale-700) 30%, var(--at-scale-800));
 }

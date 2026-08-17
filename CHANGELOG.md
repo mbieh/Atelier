@@ -4,6 +4,18 @@ All notable changes to this project are documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Changed
+
+- The rows of an extension column join into one list. Each extension was its own card, so a column of twenty read as twenty separate objects; the rows share their hairline now, and only the top and bottom of a column are rounded. Columns keep their gap, so they stay legible as columns. Which tiles carry the rounding follows from the column count — the first n children open the columns, the last n close them — which holds for any number of extensions, including an incomplete last row.
+
+### Development
+
+- The override layer is navigable again. Its section 9 had grown to 178 rules and a third of the file, holding everything the first eight sections did not cover; it is nine sections now — segmented groups, disclosures, sign-in, settings forms, cards and tables, manage lists, panels, statistics, article typography — and the table of contents lists all twenty.
+- Comments hold one line each, in every CSS, Python and Markdown file. They had been wrapped by hand at anything between 60 and 81 columns, which reads as arbitrary breaks on top of whatever the editor wraps itself. Four pairs of comment blocks that had drifted apart from their rule were merged back, and three labels the new section headings already carry were dropped.
+- `check_theme.py` recognises whole comment blocks when it looks for an `rtl-safe:` marker. It used to decide line by line — "starts with `/*` or ends with `*/`" — and stopped one line short of a marker whenever a comment wrapped, which is how re-wrapping a comment could fail the direction check for a rule that had not changed.
+
 ## 1.2.3 - 2026-08-16
 
 ### Added

@@ -23,8 +23,7 @@
 			}
 		}
 
-		/* Atelier UI styles the search field, its submit button and all of
-		   their states as one control; nothing structural is needed here. */
+		/* Atelier UI styles the search field, its submit button and all of their states as one control; nothing structural is needed here. */
 
 		&.configure {
 			text-align: center;
