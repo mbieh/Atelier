@@ -4,6 +4,13 @@ All notable changes to this project are documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Development
+
+- A comment holding one line is checked now, not just intended. The convention 1.2.3 established was one nobody could see being broken, and the palette header generated in 1.3.0 promptly came back hand-wrapped across nineteen lines. `check_theme.py` rejects a `/* */` comment that spans lines in any stylesheet, and a run of consecutive `#` lines in any script. The one exception is a banner at the very start of a file — it introduces the whole sheet and is a structure rather than a wrapped sentence, which is what the twenty-section table of contents at the top of the override layer is. The generated palettes are held to it too, since no source file stands in for them.
+- Explanations do not stack either. Unwrapping the palette header left three of them under each other, which is the same wall of text with the wrapping moved, so a second check rejects consecutive comment lines that carry an explanation rather than a label. Length is what tells the two apart: a section banner and its rule of equals signs are short and stack legitimately, an explanation runs past 80 columns. The header is one comment now, and the paragraph on how roles pick their step is gone from it — `_variables.css` states that at the declaration it applies to, which is where it belonged.
+
 ## 1.3.0 - 2026-08-17
 
 ### Added
@@ -13,7 +20,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
-- **Installing means copying a folder, not the repository.** The repository root is no longer a theme; it holds the nine, plus the shared source they are built from. Copy the `Atelier-*` folders you want into `p/themes/` and pick one in the settings. An install from 1.x sits in a folder named `Atelier`, which no longer exists here, so FreshRSS will fall back to its default theme after an update — install `Atelier-Mist`, which is the palette 1.x shipped, select it, and delete the old folder. The README walks through it.
+- **Installing means copying a folder, not the repository.** The repository root is no longer a theme; it holds the nine, plus the shared source they are built from. Copy the `Atelier-*` folders you want into `p/themes/` and pick one in the settings.
 - The quiet surface of every feedback state follows the folder's neutral. The tints and borders behind an error, a warning, a success or a favorited article were picked by hand against a cool grey, which reads as a foreign body on a warm one; they are mixed from their accent and the ramp now, so they take the hue of whichever neutral the folder ships. The accent hues themselves stay literal — an error is the same red in all nine, because that is what carries the meaning.
 - The rows of an extension column join into one list. Each extension was its own card, so a column of twenty read as twenty separate objects; the rows share their hairline now, and only the top and bottom of a column are rounded. Columns keep their gap, so they stay legible as columns. Which tiles carry the rounding follows from the column count — the first n children open the columns, the last n close them — which holds for any number of extensions, including an incomplete last row.
 

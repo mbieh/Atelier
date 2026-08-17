@@ -855,6 +855,87 @@ def check_contrast(rules: list[Rule], label: str, icon: Path) -> list[str]:
     return errors
 
 
+BLOCK_COMMENT = re.compile(r"/\*.*?\*/", re.DOTALL)
+
+# Above this, a comment is carrying an explanation rather than labelling a section. Section banners and the short labels under them stack legitimately -- "/*=== DIVERS */" over its rule of equals signs is two comment lines and reads as one heading -- and they are all far shorter than this.
+PROSE_COMMENT_LENGTH = 80
+
+
+def check_stacked_comments(path: Path, content: str) -> list[str]:
+    """Reject explanations stacked on consecutive lines.
+
+    Holding a comment to one line is only half the convention: three of them
+    under each other are the same wall of text with the wrapping moved, which
+    is how the generated palette header first went wrong. One explanation per
+    place, and if two are needed, they belong at the two declarations they
+    explain.
+    """
+    errors: list[str] = []
+    run: list[int] = []
+    for number, text in enumerate(content.splitlines(), start=1):
+        stripped = text.strip()
+        prose = (
+            stripped.startswith("/*")
+            and stripped.endswith("*/")
+            and len(stripped) > PROSE_COMMENT_LENGTH
+        )
+        if prose:
+            run.append(number)
+            continue
+        if len(run) > 1:
+            errors.append(
+                f"{path}:{run[0]}-{run[-1]}: {len(run)} explanatory comments in a "
+                "row; merge them or move each to what it explains"
+            )
+        run = []
+    if len(run) > 1:
+        errors.append(
+            f"{path}:{run[0]}-{run[-1]}: {len(run)} explanatory comments in a "
+            "row; merge them or move each to what it explains"
+        )
+    return errors
+
+
+def check_comment_lines(path: Path, content: str) -> list[str]:
+    """Hold every comment to one line.
+
+    Hand-wrapping a comment picks a column no editor agrees with, and the
+    breaks then read as meaning that is not there. The one exception is a
+    banner opening a file: it introduces the whole sheet and is a structure
+    rather than a wrapped sentence, so it is allowed where it can only be a
+    banner -- at the very start.
+    """
+    errors: list[str] = []
+    if path.suffix == ".css":
+        for match in BLOCK_COMMENT.finditer(content):
+            if "\n" not in match.group(0) or match.start() == 0:
+                continue
+            line = content[: match.start()].count("\n") + 1
+            errors.append(
+                f"{path}:{line}: comment is wrapped across "
+                f"{match.group(0).count(chr(10)) + 1} lines; hold it to one"
+            )
+        errors.extend(check_stacked_comments(path, content))
+    elif path.suffix == ".py":
+        run: list[int] = []
+        for number, text in enumerate(content.splitlines(), start=1):
+            if text.strip().startswith("#") and not text.startswith("#!"):
+                run.append(number)
+                continue
+            if len(run) > 1:
+                errors.append(
+                    f"{path}:{run[0]}-{run[-1]}: comment is wrapped across "
+                    f"{len(run)} lines; hold it to one"
+                )
+            run = []
+        if len(run) > 1:
+            errors.append(
+                f"{path}:{run[0]}-{run[-1]}: comment is wrapped across "
+                f"{len(run)} lines; hold it to one"
+            )
+    return errors
+
+
 def check_local_markdown_links(path: Path, content: str) -> list[str]:
     errors: list[str] = []
     for raw_target in re.findall(r"\[[^\]]+\]\(([^)]+)\)", content):
@@ -906,6 +987,8 @@ def main() -> int:
                 errors.append(f"{relative}:{line_number}: trailing whitespace")
         if path.suffix == ".css":
             errors.extend(check_css_syntax(relative, content))
+        if path.suffix in {".css", ".py"}:
+            errors.extend(check_comment_lines(relative, content))
         if path.suffix == ".md":
             errors.extend(check_local_markdown_links(path, content))
 
@@ -964,11 +1047,12 @@ def main() -> int:
         if not palette.is_file():
             errors.append(f"{name}: missing generated _palette.css")
             continue
+        palette_css = palette.read_text(encoding="utf-8")
         errors.extend(
-            check_direction_neutral(
-                palette.relative_to(ROOT), palette.read_text(encoding="utf-8")
-            )
+            check_direction_neutral(palette.relative_to(ROOT), palette_css)
         )
+        # The generated palette is the one stylesheet no source file stands in for, so the conventions the sweep applies to src/ are applied to it here.
+        errors.extend(check_comment_lines(palette.relative_to(ROOT), palette_css))
         token_rules: list[Rule] = []
         for filename in ("_palette.css", "_variables.css", "atelier-ui.css"):
             try:

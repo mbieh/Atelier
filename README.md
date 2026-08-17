@@ -79,16 +79,6 @@ Restart the container afterwards.
 
 Open FreshRSS and choose **Configuration → Display → Theme**, then the palette you installed — for example **Atelier Mist**.
 
-### Upgrading from Atelier 1.x
-
-Earlier releases installed as a single folder named `Atelier`. That folder no longer exists, so FreshRSS will not find the theme it has stored for you and falls back to its default.
-
-1. Install `Atelier-Mist` as above. It is the palette 1.x shipped, so nothing about the look changes.
-2. Pick **Atelier Mist** under **Configuration → Display → Theme**.
-3. Delete the old `<FreshRSS>/p/themes/Atelier`.
-
-Doing it in that order means the only thing you notice is one trip to the settings page.
-
 ### Updating
 
 Pull or download the new version and copy the folders over the installed ones:
@@ -130,8 +120,6 @@ The first writes a tenth folder; the second tells you whether the new ramp holds
 ## Troubleshooting
 
 **Atelier does not show up in the theme list.** Check that `<FreshRSS>/p/themes/Atelier-Mist/metadata.json` exists — with the palette you installed in place of Mist — and that your web server user is allowed to read the folder.
-
-**The theme selection was reset after an update.** See [Upgrading from Atelier 1.x](#upgrading-from-atelier-1x).
 
 **The page looks unstyled or the layout is broken.** Usually an outdated browser — see [Requirements](#requirements). Otherwise force-reload the page.
 
