@@ -17,5 +17,5 @@ jobs:
       - name: Verify theme files
         run: python3 scripts/check_theme.py
 
-      - name: Verify generated RTL CSS
-        run: python3 scripts/generate_rtl.py --check
+      - name: Verify generated theme folders
+        run: python3 scripts/build_themes.py --check

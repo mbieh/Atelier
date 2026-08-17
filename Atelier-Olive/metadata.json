@@ -1,0 +1,11 @@
+{
+	"name": "Atelier Olive",
+	"author": "Mario (based on Mapco by Thomas Guesnon)",
+	"description": "Modern light and dark theme inspired by shadcn/ui, on the Tailwind Olive palette -- a grey-green that leans yellow -- with a clear reading hierarchy, soft radii, and subtle motion.",
+	"version": "1.3.0",
+	"files": ["_frss.css", "atelier.css", "atelier-ui.css"],
+	"theme-color": {
+		"light": "#f4f4f0",
+		"dark": "#1d1d16"
+	}
+}

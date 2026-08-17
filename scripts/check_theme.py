@@ -13,6 +13,9 @@ import xml.etree.ElementTree as ElementTree
 
 
 ROOT = Path(__file__).resolve().parents[1]
+# The shared source every theme folder is built from. The folders themselves are generated artifacts: scripts/build_themes.py --check owns their byte-for-byte freshness, and this script checks what a fresh build cannot know -- that the source is sound, and that each shipped palette clears its contrast bars.
+SOURCE = ROOT / "src"
+RAMPS = ROOT / "palettes" / "ramps.json"
 LUCIDE_HEADER = "<!-- @license lucide-static v1.31.0 - ISC -->"
 NON_LUCIDE_SVGS = {"FreshRSS-logo.svg", "icon.svg"}
 EXPECTED_THEME_FILES = ["_frss.css", "atelier.css", "atelier-ui.css"]
@@ -294,10 +297,9 @@ REQUIRED_DARK_ICON_RULES = (
     LayoutRule('#sidebar img.icon:not([src$="/starred.svg"])', context=DARK),
 )
 
-# Every stylesheet Atelier owns. All of them have to stay direction-neutral, whether FreshRSS requests them by name or atelier.css pulls them in.
+# Every stylesheet Atelier owns. All of them have to stay direction-neutral, whether FreshRSS requests them by name or atelier.css pulls them in. _palette.css is absent because it is generated per folder; each shipped copy is checked where it lands.
 DIRECTION_NEUTRAL_FILES = (
     "_components.css",
-    "_palette.css",
     "_configuration.css",
     "_divers.css",
     "_fonts.css",
@@ -791,10 +793,17 @@ def scheme_declarations(rules: list[Rule], dark: bool) -> dict[str, str]:
     return values
 
 
-def check_contrast(rules: list[Rule]) -> list[str]:
+def check_contrast(rules: list[Rule], label: str, icon: Path) -> list[str]:
+    """Hold one shipped palette to every contrast bar, in both schemes.
+
+    The ramp guarantees nothing on its own: the roles pick their steps by the
+    contrast they need, and a neutral with more chroma or a slightly different
+    lightness rhythm can drop a pair below its bar. So this runs per folder,
+    against the palette that folder actually ships.
+    """
     errors: list[str] = []
     for dark in (False, True):
-        scheme = "dark" if dark else "light"
+        scheme = f"{label} {'dark' if dark else 'light'}"
         declarations = scheme_declarations(rules, dark)
         for step in SCALE_STEPS:
             name = f"--at-scale-{step}"
@@ -821,13 +830,16 @@ def check_contrast(rules: list[Rule]) -> list[str]:
 
     light = scheme_declarations(rules, dark=False)
     token = resolve_color("--favorite", light)
-    icon = (ROOT / FAVORITE_ICON).read_text(encoding="utf-8")
-    painted = {match.lower() for match in SVG_COLOR.findall(icon)}
+    star = icon.read_text(encoding="utf-8")
+    painted = {match.lower() for match in SVG_COLOR.findall(star)}
+    name = icon.relative_to(ROOT)
     if token is None:
-        errors.append("--favorite must reduce to sRGB so the star can be checked")
+        errors.append(
+            f"{label}: --favorite must reduce to sRGB so the star can be checked"
+        )
     elif len(painted) != 1:
         errors.append(
-            f"{FAVORITE_ICON}: expected a single color, found "
+            f"{name}: expected a single color, found "
             + (", ".join(sorted(painted)) or "none")
         )
     else:
@@ -837,7 +849,7 @@ def check_contrast(rules: list[Rule]) -> list[str]:
             actual = "#" + "".join(channel * 2 for channel in actual[1:])
         if actual != expected:
             errors.append(
-                f"{FAVORITE_ICON} is {actual} but --favorite is {expected}; the "
+                f"{name} is {actual} but --favorite is {expected}; the "
                 "star cannot inherit currentColor, so the two have to agree"
             )
     return errors
@@ -859,13 +871,24 @@ def check_local_markdown_links(path: Path, content: str) -> list[str]:
     return errors
 
 
+def theme_folders() -> list[tuple[str, Path]]:
+    """The nine folders the build ships, as (palette title, path) pairs."""
+    schemes = json.loads(RAMPS.read_text(encoding="utf-8"))["schemes"]
+    return [
+        (scheme["title"], ROOT / f"Atelier-{scheme['title']}") for scheme in schemes
+    ]
+
+
 def main() -> int:
     errors: list[str] = []
+    generated = {path for _, path in theme_folders()}
+    # The generated folders are excluded from the sweeps below on purpose. Their CSS is a copy of src/, so a defect there would be reported nine times over for one source line; build_themes.py --check is what holds them to the source, and the checks further down cover what is only ever generated -- each folder's palette and metadata.
     text_files = sorted(
         path
         for path in ROOT.rglob("*")
         if path.is_file()
         and ".git" not in path.parts
+        and not generated.intersection(path.parents)
         and path.suffix in {".css", ".json", ".md", ".py", ".yml", ".yaml"}
     )
 
@@ -886,40 +909,79 @@ def main() -> int:
         if path.suffix == ".md":
             errors.extend(check_local_markdown_links(path, content))
 
-    try:
-        metadata = json.loads((ROOT / "metadata.json").read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as error:
-        errors.append(f"metadata.json: {error}")
-        metadata = {}
-
     # The changelog is the single source of truth for the released version, so cutting a release does not mean editing this script as well.
     expected_version = released_version(
         (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
     )
     if expected_version is None:
         errors.append("CHANGELOG.md: no released version heading found")
-    if metadata.get("name") != "Atelier":
-        errors.append("metadata.json: name must be Atelier")
-    if expected_version is not None and metadata.get("version") != expected_version:
-        errors.append(
-            f"metadata.json: version must be the string {expected_version!r} to match "
-            "the newest CHANGELOG release"
-        )
-    if metadata.get("files") != EXPECTED_THEME_FILES:
-        errors.append(
-            "metadata.json: files must preserve the verified FreshRSS load order"
-        )
-    for filename in metadata.get("files", []):
-        if filename == "_frss.css":
-            continue
-        path = ROOT / filename
-        if not path.is_file():
-            errors.append(f"metadata.json: missing CSS file {filename}")
-        rtl_path = path.with_name(f"{path.stem}.rtl{path.suffix}")
-        if not rtl_path.is_file():
-            errors.append(f"metadata.json: missing RTL counterpart {rtl_path.name}")
 
-    css_paths = sorted(ROOT.glob("*.css"))
+    # A theme folder is what a person copies into p/themes/, so each one has to be complete on its own: the sheets FreshRSS names, their RTL mirrors, the icons, a preview for the picker, and the license it travels under.
+    for title, folder in theme_folders():
+        name = folder.name
+        if not folder.is_dir():
+            errors.append(f"{name}: theme folder is missing; run scripts/build_themes.py")
+            continue
+        try:
+            metadata = json.loads(
+                (folder / "metadata.json").read_text(encoding="utf-8")
+            )
+        except (OSError, json.JSONDecodeError) as error:
+            errors.append(f"{name}/metadata.json: {error}")
+            metadata = {}
+        if metadata.get("name") != f"Atelier {title}":
+            errors.append(f"{name}/metadata.json: name must be Atelier {title}")
+        if expected_version is not None and metadata.get("version") != expected_version:
+            errors.append(
+                f"{name}/metadata.json: version must be the string "
+                f"{expected_version!r} to match the newest CHANGELOG release"
+            )
+        if metadata.get("files") != EXPECTED_THEME_FILES:
+            errors.append(
+                f"{name}/metadata.json: files must preserve the verified FreshRSS "
+                "load order"
+            )
+        for filename in metadata.get("files", []):
+            if filename == "_frss.css":
+                continue
+            path = folder / filename
+            if not path.is_file():
+                errors.append(f"{name}/metadata.json: missing CSS file {filename}")
+                continue
+            mirror = path.with_name(f"{path.stem}.rtl{path.suffix}")
+            if not mirror.is_file():
+                errors.append(f"{name}: missing RTL counterpart {mirror.name}")
+            elif path.read_bytes() != mirror.read_bytes():
+                errors.append(f"{name}/{mirror.name} must be identical to {filename}")
+        # FreshRSS shows this in the theme picker, and a folder without it shows a hole.
+        if not (folder / "thumbs" / "original.png").is_file():
+            errors.append(f"{name}: missing thumbs/original.png for the theme picker")
+        for document in ("LICENSE", "icons/LICENSE"):
+            if not (folder / document).is_file():
+                errors.append(f"{name}: missing {document}; the folder is distributed alone")
+
+        palette = folder / "_palette.css"
+        if not palette.is_file():
+            errors.append(f"{name}: missing generated _palette.css")
+            continue
+        errors.extend(
+            check_direction_neutral(
+                palette.relative_to(ROOT), palette.read_text(encoding="utf-8")
+            )
+        )
+        token_rules: list[Rule] = []
+        for filename in ("_palette.css", "_variables.css", "atelier-ui.css"):
+            try:
+                token_rules.extend(
+                    parse_rules((folder / filename).read_text(encoding="utf-8"))
+                )
+            except (OSError, ValueError) as error:
+                errors.append(f"{name}/{filename}: {error}")
+        errors.extend(
+            check_contrast(token_rules, name, folder / FAVORITE_ICON)
+        )
+
+    css_paths = sorted(SOURCE.glob("*.css"))
     css = "\n".join(path.read_text(encoding="utf-8") for path in css_paths)
     definitions = set(re.findall(r"(?m)^\s*(--[\w-]+)\s*:", css))
     uses = set(re.findall(r"var\(\s*(--[\w-]+)", css))
@@ -935,48 +997,41 @@ def main() -> int:
     if unused:
         errors.append("unused custom properties: " + ", ".join(sorted(unused)))
 
-    expected_mirrors = set()
-    for filename in RTL_MIRRORED_FILES:
-        source = ROOT / filename
-        mirror = source.with_name(f"{source.stem}.rtl{source.suffix}")
-        expected_mirrors.add(mirror.name)
-        if not mirror.is_file():
-            errors.append(f"{mirror.name}: missing generated RTL counterpart")
-        elif source.read_bytes() != mirror.read_bytes():
-            errors.append(f"{mirror.name} must be identical to {filename}")
-
-    # Only the sheets FreshRSS requests by name need a mirror. Partials are reached through @import, so a mirror there is dead weight that has to be kept in sync by hand.
+    # The mirrors are generated into the theme folders, where they are checked against their source. A mirror in src/ would be a second copy nobody regenerates.
     for path in css_paths:
-        if path.name.endswith(".rtl.css") and path.name not in expected_mirrors:
+        if path.name.endswith(".rtl.css"):
             errors.append(
-                f"{path.name}: stray RTL mirror; only "
-                f"{', '.join(sorted(expected_mirrors))} are loaded by FreshRSS"
+                f"src/{path.name}: stray RTL mirror; build_themes.py writes the "
+                "mirrors into the theme folders"
             )
 
     for path in css_paths:
         content = path.read_text(encoding="utf-8")
         for imported in re.findall(r'@import\s+["\']([^"\']+)["\']', content):
             target, _, query = imported.partition("?")
-            if not (path.parent / target).is_file():
-                errors.append(f"{path.name}: missing imported stylesheet: {target}")
+            # The palette is the one partial src/ does not hold: it is generated per folder, which is the whole point of the layout.
+            if target != "_palette.css" and not (path.parent / target).is_file():
+                errors.append(f"src/{path.name}: missing imported stylesheet: {target}")
             # FreshRSS busts the cache of the sheets it names, by mtime, but an imported partial keeps its URL across releases. Without the query a browser can pair a stale partial with a fresh override layer, which restores styling a release deliberately removed. A missing version heading is reported above; do not repeat it per import.
             elif expected_version is not None and query != f"v={expected_version}":
                 errors.append(
-                    f'{path.name}: @import "{target}" must carry '
+                    f'src/{path.name}: @import "{target}" must carry '
                     f"?v={expected_version} so browsers refetch it"
                 )
         if re.search(r"url\(\s*[\"']?https?://", content, flags=re.IGNORECASE):
-            errors.append(f"{path.name}: external runtime asset URL is not allowed")
+            errors.append(f"src/{path.name}: external runtime asset URL is not allowed")
         if re.search(r"rgba?\(\s*var\(", content, flags=re.IGNORECASE):
             errors.append(
-                f"{path.name}: pass colors through color-mix(), not rgba(var(...))"
+                f"src/{path.name}: pass colors through color-mix(), not rgba(var(...))"
             )
 
-    ui_css = (ROOT / "atelier-ui.css").read_text(encoding="utf-8")
+    ui_css = (SOURCE / "atelier-ui.css").read_text(encoding="utf-8")
     for filename in DIRECTION_NEUTRAL_FILES:
-        path = ROOT / filename
+        path = SOURCE / filename
         errors.extend(
-            check_direction_neutral(Path(filename), path.read_text(encoding="utf-8"))
+            check_direction_neutral(
+                Path("src") / filename, path.read_text(encoding="utf-8")
+            )
         )
 
     try:
@@ -985,22 +1040,12 @@ def main() -> int:
         ui_rules = []
     errors.extend(
         check_required_rules(
-            Path("atelier-ui.css"), ui_rules, REQUIRED_LAYOUT_RULES, "layout rule"
+            Path("src/atelier-ui.css"), ui_rules, REQUIRED_LAYOUT_RULES, "layout rule"
         )
     )
-
-    token_rules: list[Rule] = []
-    for filename in ("_palette.css", "_variables.css", "atelier-ui.css"):
-        try:
-            token_rules.extend(
-                parse_rules((ROOT / filename).read_text(encoding="utf-8"))
-            )
-        except ValueError:
-            pass
-    errors.extend(check_contrast(token_rules))
     errors.extend(
         check_required_rules(
-            Path("atelier-ui.css"),
+            Path("src/atelier-ui.css"),
             ui_rules,
             REQUIRED_DARK_ICON_RULES,
             "dark-mode icon rule",
@@ -1008,14 +1053,14 @@ def main() -> int:
     )
     if not COLLAPSED_SIDEBAR_STATE.search(ui_css):
         errors.append(
-            "atelier-ui.css: collapsed sidebar must have a hidden zero-width state"
+            "src/atelier-ui.css: collapsed sidebar must have a hidden zero-width state"
         )
     if not FOCUS_GATED_SIDEBAR_TRANSITION.search(ui_css):
         errors.append(
-            "atelier-ui.css: sidebar transition must be gated by toggle focus"
+            "src/atelier-ui.css: sidebar transition must be gated by toggle focus"
         )
     if "grid-row: 1 / span" in ui_css:
-        errors.append("atelier-ui.css: do not use an arbitrary sidebar row span")
+        errors.append("src/atelier-ui.css: do not use an arbitrary sidebar row span")
     for obsolete_layout in (
         "margin-inline-start: -2.5rem",
         "width: 195px",
@@ -1025,17 +1070,17 @@ def main() -> int:
     ):
         if obsolete_layout in ui_css:
             errors.append(
-                "atelier-ui.css: obsolete fixed layout remains: "
+                "src/atelier-ui.css: obsolete fixed layout remains: "
                 + obsolete_layout
             )
     if OBSOLETE_FORM_SUBGRID.search(ui_css):
-        errors.append("atelier-ui.css: obsolete form subgrid layout remains")
+        errors.append("src/atelier-ui.css: obsolete form subgrid layout remains")
 
     for name, pattern, reason in STRUCTURAL_LAYER_CONTROL_RULES:
-        if pattern.search((ROOT / name).read_text(encoding="utf-8")):
-            errors.append(f"{name}: {reason}")
+        if pattern.search((SOURCE / name).read_text(encoding="utf-8")):
+            errors.append(f"src/{name}: {reason}")
 
-    svg_files = sorted((ROOT / "icons").glob("*.svg"))
+    svg_files = sorted((SOURCE / "icons").glob("*.svg"))
     lucide_files = [path for path in svg_files if path.name not in NON_LUCIDE_SVGS]
     if len(lucide_files) != 57:
         errors.append(f"expected 57 Lucide SVGs, found {len(lucide_files)}")
@@ -1054,14 +1099,16 @@ def main() -> int:
 
     for note in PROTECTED_NOTES:
         if note not in ui_css:
-            errors.append(f"atelier-ui.css: protected design note missing: {note}")
+            errors.append(f"src/atelier-ui.css: protected design note missing: {note}")
 
     license_text = (ROOT / "LICENSE").read_text(encoding="utf-8")
     if "GNU AFFERO GENERAL PUBLIC LICENSE" not in license_text:
         errors.append("LICENSE: expected the GNU AGPL license text")
-    icon_license = (ROOT / "icons" / "LICENSE").read_text(encoding="utf-8")
+    icon_license = (SOURCE / "icons" / "LICENSE").read_text(encoding="utf-8")
     if "ISC License" not in icon_license or "The MIT License" not in icon_license:
-        errors.append("icons/LICENSE: expected both Lucide ISC and Feather MIT notices")
+        errors.append(
+            "src/icons/LICENSE: expected both Lucide ISC and Feather MIT notices"
+        )
 
     coverage_path = ROOT / "docs" / "component-coverage.md"
     if not coverage_path.is_file():

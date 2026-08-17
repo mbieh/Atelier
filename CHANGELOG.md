@@ -4,14 +4,31 @@ All notable changes to this project are documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## 1.3.0 - 2026-08-17
+
+### Added
+
+- Atelier ships in nine neutral palettes — slate, gray, zinc, neutral, stone, taupe, mauve, mist and olive, the full set of Tailwind 4.3 neutrals. Each is its own folder, `Atelier-Slate` through `Atelier-Olive`, and each is a complete theme: FreshRSS has no notion of a variant inside a theme, so a palette can only be a folder of its own. They are identical apart from the ramp, which means installing several and switching between them in the settings costs nothing but disk.
+- Every palette is held to the same contrast bars as the one that came before it. The 33 role pairings the theme guarantees now run against all nine ramps in both schemes — 594 checks — which is what turned three roles from "correct" into "correct on a cool grey": see the note on `--input`, `--at-quiet-foreground` and the dark error red under Fixed.
 
 ### Changed
 
+- **Installing means copying a folder, not the repository.** The repository root is no longer a theme; it holds the nine, plus the shared source they are built from. Copy the `Atelier-*` folders you want into `p/themes/` and pick one in the settings. An install from 1.x sits in a folder named `Atelier`, which no longer exists here, so FreshRSS will fall back to its default theme after an update — install `Atelier-Mist`, which is the palette 1.x shipped, select it, and delete the old folder. The README walks through it.
+- The quiet surface of every feedback state follows the folder's neutral. The tints and borders behind an error, a warning, a success or a favorited article were picked by hand against a cool grey, which reads as a foreign body on a warm one; they are mixed from their accent and the ramp now, so they take the hue of whichever neutral the folder ships. The accent hues themselves stay literal — an error is the same red in all nine, because that is what carries the meaning.
 - The rows of an extension column join into one list. Each extension was its own card, so a column of twenty read as twenty separate objects; the rows share their hairline now, and only the top and bottom of a column are rounded. Columns keep their gap, so they stay legible as columns. Which tiles carry the rounding follows from the column count — the first n children open the columns, the last n close them — which holds for any number of extensions, including an incomplete last row.
+
+### Fixed
+
+- A field boundary stays visible in every palette. `--input` mixed step 500 into step 400 at 60%, which clears the 3:1 of WCAG 1.4.11 on a cool grey and lands at 2.99:1 on Olive, whose step 500 is the lightest of the nine. It mixes at 70% now, worst case 3.18:1.
+- The quiet label tone clears WCAG AA in every palette. It fades `--muted-foreground` toward the surface, and at 90% four of the nine dropped below 4.5:1 on their accent surface — 4.35:1 at worst. It fades at 94% now, worst case 4.62:1.
+- Error text stays readable on a dark card. `--destructive` is painted on step 800, and against Olive's — the lightest of the nine — the dark red read at 4.48:1. It is a shade lighter now, and clears 4.81:1 at worst.
 
 ### Development
 
+- The shared stylesheets live in `src/`, and the nine theme folders are generated from them by `scripts/build_themes.py`. They are committed rather than built on install, because a FreshRSS theme is installed by copying a folder, not by running a build — so the repository holds the artifact people actually use. `--check` rebuilds into memory and compares, which is what CI runs; editing a theme folder by hand is caught there and overwritten by the next build.
+- A palette is data now. `palettes/ramps.json` holds the nine ramps as the OKLCH triples Tailwind publishes, and the build converts them to sRGB hex — the space WCAG contrast is defined in — writing the source beside each step so the conversion stays auditable. The conversion is verified against the eleven Mist values 1.2.3 shipped by hand: it reproduces all eleven exactly.
+- The icons and the theme picker's preview are re-rendered per palette. Neither can hold a token — an external SVG cannot inherit the page's `currentColor`, and a PNG has no tokens at all — so both are authored in Mist and translated step by step into each folder's ramp, the star's gold and the preview's white excepted. The build refuses any asset color that is neither a step of the canonical ramp nor one of those fixed colors, rather than guessing what it should become.
+- `scripts/generate_rtl.py` is gone. It existed to copy two direction-neutral sheets to their `.rtl.css` names; the build writes those mirrors into each folder, and the direction guard that made the copy safe was always `check_theme.py`'s. CI runs `build_themes.py --check` in its place.
 - The override layer is navigable again. Its section 9 had grown to 178 rules and a third of the file, holding everything the first eight sections did not cover; it is nine sections now — segmented groups, disclosures, sign-in, settings forms, cards and tables, manage lists, panels, statistics, article typography — and the table of contents lists all twenty.
 - Comments hold one line each, in every CSS, Python and Markdown file. They had been wrapped by hand at anything between 60 and 81 columns, which reads as arbitrary breaks on top of whatever the editor wraps itself. Four pairs of comment blocks that had drifted apart from their rule were merged back, and three labels the new section headings already carry were dropped.
 - `check_theme.py` recognises whole comment blocks when it looks for an `rtl-safe:` marker. It used to decide line by line — "starts with `/*` or ends with `*/`" — and stopped one line short of a marker whenever a comment wrapped, which is how re-wrapping a comment could fail the direction check for a rule that had not changed.
