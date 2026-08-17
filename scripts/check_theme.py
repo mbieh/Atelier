@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import ast
 import json
 from pathlib import Path
 import re
@@ -75,6 +76,21 @@ EXTERNAL_OR_COMPAT_PROPERTIES = {
     "--unread-bg-light",
     "--warning-bg",
 }
+# Both spellings CSS allows for an import, because the two scripts reading this decide what ships: a target they fail to recognise is copied by nobody and reported by nobody, which is a stylesheet that 404s in an installed theme while both scripts stay green. Quotes or url() are required, never neither -- a bare word after @import is not valid CSS, and matching one would find the "@import" in a sentence about imports.
+STYLESHEET_IMPORT = re.compile(
+    r"""@import\s+(?:url\(\s*(?P<wrap>["']?)(?P<url>[^"')\s;]+)(?P=wrap)\s*\)"""
+    r"""|(?P<quote>["'])(?P<quoted>[^"']+)(?P=quote))"""
+)
+
+
+def stylesheet_imports(css: str) -> list[str]:
+    """Every target an @import names, with the query it carries."""
+    return [
+        match.group("url") or match.group("quoted")
+        for match in STYLESHEET_IMPORT.finditer(css)
+    ]
+
+
 PROTECTED_NOTES = (
     "Do not add backdrop-filter",
     "desktop CSS Grid",
@@ -89,20 +105,7 @@ SETTINGS_CONTAINER = "@container at-settings"
 
 
 class LayoutRule(NamedTuple):
-    """A layout invariant, anchored to the rule that is meant to carry it.
-
-    `selector` has to equal one entry of a parsed rule's selector list, and
-    `declaration` has to match a declaration of that same rule, both after
-    whitespace normalisation; `context` matches as a substring of one of the
-    rule's enclosing at-rule preludes. Anchoring matters twice over: bare
-    declarations such as "flex-direction: column" occur all over the file, and
-    a short selector like ".btn" is a substring of a dozen others, so neither
-    guards anything on its own.
-
-    Set `partial` for the handful of anchors that are deliberately a fragment
-    of a longer selector -- a descendant tail, or a selector nested inside
-    :has(). Those match as a substring instead.
-    """
+    """A layout invariant, anchored to the rule that is meant to carry it. `selector` has to equal one entry of a parsed rule's selector list, and `declaration` has to match a declaration of that same rule, both after whitespace normalisation; `context` matches as a substring of one of the rule's enclosing at-rule preludes. Anchoring matters twice over: bare declarations such as "flex-direction: column" occur all over the file, and a short selector like ".btn" is a substring of a dozen others, so neither guards anything on its own. Set `partial` for the handful of anchors that are deliberately a fragment of a longer selector -- a descendant tail, or a selector nested inside :has(). Those match as a substring instead."""
 
     selector: str
     declaration: str | None = None
@@ -416,12 +419,7 @@ def normalize(text: str) -> str:
 
 
 def parse_rules(css: str) -> list[Rule]:
-    """Return a Rule for every brace-delimited block, nesting and at-rules alike.
-
-    Comments are skipped and string literals are consumed whole, so neither can
-    hide a brace or a semicolon from the block structure. Line numbers refer to
-    the original source.
-    """
+    """Return a Rule for every brace-delimited block, nesting and at-rules alike. Comments are skipped and string literals are consumed whole, so neither can hide a brace or a semicolon from the block structure. Line numbers refer to the original source."""
     rules: list[Rule] = []
     stack: list[tuple[str, int, list[Declaration]]] = []
     buffer: list[str] = []
@@ -723,12 +721,7 @@ def parse_hex(value: str) -> tuple[float, float, float]:
 def resolve_color(
     name: str, declarations: dict[str, str], seen: frozenset[str] = frozenset()
 ) -> tuple[float, float, float] | None:
-    """Resolve a custom property to sRGB, following var() and color-mix().
-
-    Returns None for anything outside that subset -- `transparent`, a gradient,
-    a color function the theme does not use -- so the caller can report it
-    rather than pass a role through unchecked.
-    """
+    """Resolve a custom property to sRGB, following var() and color-mix(). Returns None for anything outside that subset -- `transparent`, a gradient, a color function the theme does not use -- so the caller can report it rather than pass a role through unchecked."""
     if name in seen:
         return None
     value = declarations.get(name)
@@ -781,11 +774,7 @@ def contrast_ratio(
 
 
 def scheme_declarations(rules: list[Rule], dark: bool) -> dict[str, str]:
-    """Collect :root custom properties for one color scheme.
-
-    Later declarations win, and the dark scheme is layered on top of the light
-    one exactly as the cascade applies it.
-    """
+    """Collect :root custom properties for one color scheme. Later declarations win, and the dark scheme is layered on top of the light one exactly as the cascade applies it."""
     values: dict[str, str] = {}
     for rule in rules:
         if ":root" not in split_top_level(rule.selector, ","):
@@ -802,13 +791,7 @@ def scheme_declarations(rules: list[Rule], dark: bool) -> dict[str, str]:
 
 
 def check_contrast(rules: list[Rule], label: str, icon: Path) -> list[str]:
-    """Hold one shipped palette to every contrast bar, in both schemes.
-
-    The ramp guarantees nothing on its own: the roles pick their steps by the
-    contrast they need, and a neutral with more chroma or a slightly different
-    lightness rhythm can drop a pair below its bar. So this runs per folder,
-    against the palette that folder actually ships.
-    """
+    """Hold one shipped palette to every contrast bar, in both schemes. The ramp guarantees nothing on its own: the roles pick their steps by the contrast they need, and a neutral with more chroma or a slightly different lightness rhythm can drop a pair below its bar. So this runs per folder, against the palette that folder actually ships."""
     errors: list[str] = []
     for dark in (False, True):
         scheme = f"{label} {'dark' if dark else 'light'}"
@@ -870,14 +853,7 @@ PROSE_COMMENT_LENGTH = 80
 
 
 def check_stacked_comments(path: Path, content: str) -> list[str]:
-    """Reject explanations stacked on consecutive lines.
-
-    Holding a comment to one line is only half the convention: three of them
-    under each other are the same wall of text with the wrapping moved, which
-    is how the generated palette header first went wrong. One explanation per
-    place, and if two are needed, they belong at the two declarations they
-    explain.
-    """
+    """Reject explanations stacked on consecutive lines. Holding a comment to one line is only half the convention: three of them under each other are the same wall of text with the wrapping moved, which is how the generated palette header first went wrong. One explanation per place, and if two are needed, they belong at the two declarations they explain."""
     errors: list[str] = []
     run: list[int] = []
     for number, text in enumerate(content.splitlines(), start=1):
@@ -905,14 +881,7 @@ def check_stacked_comments(path: Path, content: str) -> list[str]:
 
 
 def check_comment_lines(path: Path, content: str) -> list[str]:
-    """Hold every comment to one line.
-
-    Hand-wrapping a comment picks a column no editor agrees with, and the
-    breaks then read as meaning that is not there. The one exception is a
-    banner opening a file: it introduces the whole sheet and is a structure
-    rather than a wrapped sentence, so it is allowed where it can only be a
-    banner -- at the very start.
-    """
+    """Hold every comment to one line. Hand-wrapping a comment picks a column no editor agrees with, and the breaks then read as meaning that is not there. The one exception is a banner opening a file: it introduces the whole sheet and is a structure rather than a wrapped sentence, so it is allowed where it can only be a banner -- at the very start."""
     errors: list[str] = []
     if path.suffix == ".css":
         for match in BLOCK_COMMENT.finditer(content):
@@ -925,6 +894,26 @@ def check_comment_lines(path: Path, content: str) -> list[str]:
             )
         errors.extend(check_stacked_comments(path, content))
     elif path.suffix == ".py":
+        # A docstring is a string to the parser and a comment to a reader, and the reader is who the rule is for. Every one of them holds a line, the module's own included: unlike the banner opening a stylesheet, which is a table of contents, these are running prose -- the exact thing hand-wrapping turns into arbitrary breaks.
+        try:
+            tree = ast.parse(content)
+        except SyntaxError as error:
+            errors.append(f"{path}: {error}")
+            tree = None
+        if tree is not None:
+            documented = [tree] + [
+                node
+                for node in ast.walk(tree)
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))
+            ]
+            for node in documented:
+                text = ast.get_docstring(node, clean=False)
+                if text is None or "\n" not in text:
+                    continue
+                errors.append(
+                    f"{path}:{node.body[0].lineno}: docstring is wrapped across "
+                    f"{len(text.splitlines())} lines; hold it to one"
+                )
         run: list[int] = []
         for number, text in enumerate(content.splitlines(), start=1):
             if text.strip().startswith("#") and not text.startswith("#!"):
@@ -1045,13 +1034,9 @@ def main() -> int:
             elif path.read_bytes() != mirror.read_bytes():
                 errors.append(f"{name}/{mirror.name} must be identical to {filename}")
         # A folder is what gets installed, so its @import chain has to resolve inside it. The same check runs over src/ below, but src/ is not what ships: only here does a partial that never made it into the folder show up as the 404 it would be.
-        for sheet in EXPECTED_THEME_FILES:
-            path = folder / sheet
-            if not path.is_file():
-                continue
-            for imported in re.findall(
-                r'@import\s+["\']([^"\']+)["\']', path.read_text(encoding="utf-8")
-            ):
+        for path in sorted(folder.glob("*.css")):
+            sheet = path.name
+            for imported in stylesheet_imports(path.read_text(encoding="utf-8")):
                 target = imported.partition("?")[0]
                 if not (folder / target).is_file():
                     errors.append(
@@ -1129,7 +1114,7 @@ def main() -> int:
 
     for path in css_paths:
         content = path.read_text(encoding="utf-8")
-        for imported in re.findall(r'@import\s+["\']([^"\']+)["\']', content):
+        for imported in stylesheet_imports(content):
             target, _, query = imported.partition("?")
             # The palette is the one partial src/ does not hold: it is generated per folder, which is the whole point of the layout.
             if target != "_palette.css" and not (path.parent / target).is_file():

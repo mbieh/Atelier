@@ -726,7 +726,7 @@ input[type="file"]::file-selector-button {
 	block-size: 100%;
 }
 
-/* A dropdown trigger is always icon-only, so it can take the square outright. A .btn cannot: :only-child counts elements, not text, so a button that pairs an icon with a label -- "Manage" on the statistics toolbar -- matched the same rule and was cut to 40px with its label clipped. The square is a minimum there, and the padding is small enough to leave an icon-only button at exactly that size while giving a label room to breathe. */
+/* A dropdown trigger is always icon-only, so it can take the square outright. A .btn cannot, in a group as much as anywhere else: :only-child counts elements and not text, and extensions put their own controls in these groups, so a segment pairing an icon with a label would be cut to 40px with the label clipped. The square is a minimum for those, at a padding small enough to leave an icon-only segment at exactly that size while giving a label room to breathe. */
 .nav_menu :is(.stick, .group) > .dropdown > a.dropdown-toggle,
 .nav_menu :is(.stick, .group) > form > .dropdown > a.dropdown-toggle {
 	inline-size: var(--at-control-size);
@@ -735,9 +735,8 @@ input[type="file"]::file-selector-button {
 }
 
 .nav_menu :is(.stick, .group) :is(.btn:has(> .icon:only-child), .btn:empty) {
-	inline-size: var(--at-control-size);
 	min-inline-size: var(--at-control-size);
-	padding-inline: 0;
+	padding-inline: 0.5rem;
 }
 
 /* Paint the ellipsis from currentColor instead of selecting a second fixed- color SVG for dark mode. This keeps an enabled menu trigger at the same visual weight as the other toolbar actions while parent opacity still communicates a genuinely disabled state. */
@@ -2341,7 +2340,7 @@ main.post .alert > p:last-child:has(
 /* rtl-safe: mirrored by the :dir(rtl) rule below. */
 #slider {
 	inline-size: 750px;
-	transform: translateX(100%);
+	transform: translateX(calc(100% + 3rem));
 	box-shadow: -12px 0 32px rgba(9, 11, 12, 0.14);
 	border-start-start-radius: var(--at-radius-l);
 	border-start-end-radius: 0;
@@ -2350,7 +2349,7 @@ main.post .alert > p:last-child:has(
 }
 
 :dir(rtl) #slider {
-	transform: translateX(-100%);
+	transform: translateX(calc(-100% - 3rem));
 	box-shadow: 12px 0 32px rgba(9, 11, 12, 0.14);
 }
 
@@ -2365,6 +2364,22 @@ main.post .alert > p:last-child:has(
 
 #slider.sliding:not(:target) {
 	transition: transform 0.24s cubic-bezier(0.3, 0, 0.8, 0.15);
+}
+
+/* The scrim behind the panel arrives with it instead of in one step. The base layer paints it at #0007 in the same frame it moves it under the panel, so the page is dimmed abruptly and by a harder value than anything else here dims it; this is the tint and blur the mobile overlay already uses, faded over the panel's own duration. */
+#slider + #close-slider {
+	background-color: rgba(9, 11, 12, 0.35);
+	backdrop-filter: blur(3px);
+	-webkit-backdrop-filter: blur(3px);
+	opacity: 0;
+	transition: opacity 0.24s ease-in, left 0s linear 0.24s;
+}
+
+/* Leaving, the fade runs first and the scrim steps back off-screen only once it is invisible: that is the zero-length transition on left carrying a delay in the rule above and none in this one. It names left because the base layer parks the scrim with that property and mirrors it in frss.rtl.css, so a logical property here would transition something the scrim never moves. */
+#slider.active:target + #close-slider {
+	background-color: rgba(9, 11, 12, 0.35);
+	opacity: 1;
+	transition: opacity 0.32s ease-out, left 0s linear;
 }
 
 /* Below the base layer's own breakpoint the panel is the full width of the viewport, and its open state says so too. Stating it here as well keeps the closed panel the same width as the open one, so the exit does not resize mid-flight. */

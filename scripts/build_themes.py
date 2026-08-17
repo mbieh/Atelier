@@ -1,16 +1,5 @@
 #!/usr/bin/env python3
-"""Build one self-contained FreshRSS theme folder per neutral palette.
-
-FreshRSS has no notion of a theme variant: one folder under `p/themes/` is one
-entry in the picker, all of its `files` load together, and the folder name is
-the identity FreshRSS stores for a user's selection. So a scheme cannot be a
-setting inside a theme -- it has to be its own folder, and that folder has to
-stand on its own, because people copy exactly one of them into their install.
-
-Everything those folders share lives in `src/`; the only thing that differs is
-`_palette.css`, generated here from `palettes/ramps.json`, plus the icons,
-which carry a baked stroke color an external SVG cannot inherit.
-"""
+"""Build one self-contained FreshRSS theme folder per neutral palette. FreshRSS has no notion of a theme variant: one folder under `p/themes/` is one entry in the picker, all of its `files` load together, and the folder name is the identity FreshRSS stores for a user's selection. So a scheme cannot be a setting inside a theme -- it has to be its own folder, and that folder has to stand on its own, because people copy exactly one of them into their install. Everything those folders share lives in `src/`; the only thing that differs is `_palette.css`, generated here from `palettes/ramps.json`, plus the icons, which carry a baked stroke color an external SVG cannot inherit."""
 
 from __future__ import annotations
 
@@ -25,15 +14,12 @@ import sys
 import zlib
 
 
-from check_theme import released_version
+from check_theme import released_version, stylesheet_imports
 
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "src"
 RAMPS = ROOT / "palettes" / "ramps.json"
-
-# atelier.css states which partials the theme is made of, and it is the file FreshRSS actually loads, so it is the list -- not a second copy of it here. A partial added to it ships without anyone remembering this script; one dropped from it stops shipping.
-STYLESHEET_IMPORT = re.compile(r'@import\s+["\']([^"\'?]+)')
 
 # FreshRSS rewrites only the filenames listed in metadata.json to ".rtl.css", with no existence check and no fallback (app/FreshRSS.php), so exactly these two need a mirror on disk. The sources stay direction-neutral -- check_theme.py enforces that -- so each mirror is a verbatim copy.
 RTL_MIRRORED = ("atelier.css", "atelier-ui.css")
@@ -42,7 +28,7 @@ RTL_MIRRORED = ("atelier.css", "atelier-ui.css")
 SHARED_DOCUMENTS = ("LICENSE", "THIRD-PARTY.md")
 
 THEME_FILES = ["_frss.css", "atelier.css", "atelier-ui.css"]
-AUTHOR = "Mario (based on Mapco by Thomas Guesnon)"
+AUTHOR = "mbieh (based on Mapco by Thomas Guesnon)"
 
 # The steps a scheme has to define. 750 is a rung the published ramps do not have; it is derived in the generated file, so every scheme gets the same relationship instead of a hand-picked value.
 RAMP_STEPS = (50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950)
@@ -74,12 +60,14 @@ PALETTE_FOOTER = """
 
 
 def shared_partials() -> tuple[str, ...]:
-    """The partials atelier.css imports, minus the one this script writes."""
+    """The partials atelier.css imports, minus the one this script writes. atelier.css states which partials the theme is made of, and it is the file FreshRSS actually loads, so it is the list rather than a second copy of it here: a partial added to it ships without anyone remembering this script, and one dropped from it stops shipping. The names carry the release query that busts their caches, which is part of the URL and not of the filename."""
     css = (SOURCE / "atelier.css").read_text(encoding="utf-8")
     return tuple(
-        name
-        for name in STYLESHEET_IMPORT.findall(css)
-        if name != "_palette.css"
+        target
+        for target in (
+            name.partition("?")[0] for name in stylesheet_imports(css)
+        )
+        if target != "_palette.css"
     )
 
 
@@ -90,12 +78,7 @@ def linear_to_srgb(channel: float) -> float:
 
 
 def oklch_to_hex(lightness: float, chroma: float, hue: float) -> str:
-    """Convert an OKLCH triple to an sRGB hex string.
-
-    Lightness arrives in percent and hue in degrees, the way Tailwind writes
-    them. Out-of-gamut channels are clipped, which none of the nine neutrals
-    needs -- their chroma peaks at 0.046.
-    """
+    """Convert an OKLCH triple to an sRGB hex string. Lightness arrives in percent and hue in degrees, the way Tailwind writes them. Out-of-gamut channels are clipped, which none of the nine neutrals needs -- their chroma peaks at 0.046."""
     light = lightness / 100
     radians = math.radians(hue)
     a = chroma * math.cos(radians)
@@ -199,12 +182,7 @@ def recolor_icon(source: str, mapping: dict[str, str], name: str) -> str:
 
 
 def decode_png(data: bytes, source: str) -> tuple[int, int, bytes]:
-    """Decode an 8-bit truecolor PNG to raw RGB rows.
-
-    That is the one shape the preview needs to be, so anything else is
-    reported rather than half-handled: this is a build step for one known
-    asset, not a general decoder.
-    """
+    """Decode an 8-bit truecolor PNG to raw RGB rows. That is the one shape the preview needs to be, so anything else is reported rather than half-handled: this is a build step for one known asset, not a general decoder."""
     if data[:8] != b"\x89PNG\r\n\x1a\n":
         raise ValueError(f"{source}: not a PNG")
     width = height = 0
@@ -266,12 +244,7 @@ def decode_png(data: bytes, source: str) -> tuple[int, int, bytes]:
 
 
 def encode_png(width: int, height: int, pixels: bytes) -> bytes:
-    """Encode raw RGB rows as a PNG, filtering each row against the one above.
-
-    The preview is a flat rendering of the interface, so neighbouring rows are
-    mostly identical and this one filter compresses it smaller than the
-    screenshot it came from.
-    """
+    """Encode raw RGB rows as a PNG, filtering each row against the one above. The preview is a flat rendering of the interface, so neighbouring rows are mostly identical and this one filter compresses it smaller than the screenshot it came from."""
     stride = width * 3
     body = bytearray()
     previous = bytes(stride)
@@ -299,13 +272,7 @@ def encode_png(width: int, height: int, pixels: bytes) -> bytes:
 
 
 def recolor_thumbnail(data: bytes, mapping: dict[str, str], source: str) -> bytes:
-    """Re-render the theme picker's preview in this folder's ramp.
-
-    The preview is a flat rendering of the interface in the canonical ramp, so
-    it holds a handful of exact colors rather than a photograph's spread: each
-    one is translated once and applied as a lookup, which keeps the whole image
-    a substitution rather than an approximation.
-    """
+    """Re-render the theme picker's preview in this folder's ramp. The preview is a flat rendering of the interface in the canonical ramp, so it holds a handful of exact colors rather than a photograph's spread: each one is translated once and applied as a lookup, which keeps the whole image a substitution rather than an approximation."""
     width, height, pixels = decode_png(data, source)
     table: dict[bytes, bytes] = {}
     for index in range(0, len(pixels), 3):
@@ -369,13 +336,7 @@ def build_scheme(scheme: dict, version: str) -> dict[str, bytes]:
 
 
 def same_image(first: bytes, second: bytes, source: str) -> bool:
-    """Compare two PNGs by what they show, not by how they were compressed.
-
-    Deflate output is not identical across zlib versions, and the folders are
-    built on one machine and verified on another -- CI runs the same build and
-    compares. Byte equality would call a preview stale for having been packed
-    by a different zlib, so the pixels decide.
-    """
+    """Compare two PNGs by what they show, not by how they were compressed. Deflate output is not identical across zlib versions, and the folders are built on one machine and verified on another -- CI runs the same build and compares. Byte equality would call a preview stale for having been packed by a different zlib, so the pixels decide."""
     if first == second:
         return True
     try:

@@ -1,8 +1,8 @@
 {
 	"name": "Atelier Zinc",
-	"author": "Mario (based on Mapco by Thomas Guesnon)",
+	"author": "mbieh (based on Mapco by Thomas Guesnon)",
 	"description": "Modern light and dark theme inspired by shadcn/ui, on the Tailwind Zinc palette — a grey with a trace of violet — with a clear reading hierarchy, soft radii, and subtle motion.",
-	"version": "1.3.0",
+	"version": "1.3.1",
 	"files": ["_frss.css", "atelier.css", "atelier-ui.css"],
 	"theme-color": {
 		"light": "#f4f4f5",
