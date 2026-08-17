@@ -318,9 +318,6 @@ DIRECTION_NEUTRAL_FILES = (
     "atelier-ui.css",
 )
 
-# FreshRSS rewrites only the filenames listed in metadata.json to ".rtl.css", with no existence check and no fallback (app/FreshRSS.php), so exactly these two need a mirror on disk. The partials above are reached through atelier.css @import rules, which resolve relative to the sheet, so they need none.
-RTL_MIRRORED_FILES = ("atelier.css", "atelier-ui.css")
-
 # Because the sources stay direction-neutral, each mirror is a verbatim copy. Every construct the direction check rejects either has a logical-property equivalent or needs a hand-written mirror, so it has to live in a :dir(...) rule or carry an "rtl-safe:" comment stating why it already reads correctly in both directions. The marker is accepted on the declaration's own line, the line above it, or the rule's selector line.
 RTL_SAFE_MARKER = "rtl-safe"
 
@@ -675,12 +672,23 @@ CONTRAST_PAIRS = (
     ("--ring", "--card", 3.0),
     ("--ring", "--background", 3.0),
     ("--sidebar-ring", "--sidebar", 3.0),
+    # Text on the surfaces a row takes under the pointer. The hover tint sits between the card and the accent, so clearing both does not imply clearing it.
+    ("--foreground", "--at-row-hover", 4.5),
+    ("--muted-foreground", "--at-row-hover", 4.5),
+    ("--at-quiet-foreground", "--at-row-hover", 4.5),
+    ("--sidebar-foreground", "--sidebar-accent", 4.5),
     # Accent hues, in the roles they are actually painted in. Alert text sits on its own tint; --destructive doubles as error text; --favorite is the star that marks a favorited article and has to read as a graphical indicator on every row background it can land on.
     ("--success-foreground", "--success-muted", 4.5),
     ("--warning-foreground", "--warning-muted", 4.5),
     ("--info-foreground", "--info-muted", 4.5),
     ("--destructive", "--card", 4.5),
     ("--destructive", "--background", 4.5),
+    # A feed that failed to refresh is a row painted --destructive-muted, and FreshRSS writes its name on it through --frss-font-color-error, which is --destructive. The two tints below carry the same states at a different strength, and each has its own text tone.
+    ("--destructive", "--destructive-muted", 4.5),
+    ("--alert-text", "--alert-light", 4.5),
+    ("--code-text", "--code-bg", 4.5),
+    ("--warning-foreground", "--warning-light", 4.5),
+    ("--success-foreground", "--success-light", 4.5),
     ("--favorite", "--card", 3.0),
     ("--favorite", "--background", 3.0),
     ("--favorite", "--favorite-muted", 3.0),
@@ -1036,6 +1044,20 @@ def main() -> int:
                 errors.append(f"{name}: missing RTL counterpart {mirror.name}")
             elif path.read_bytes() != mirror.read_bytes():
                 errors.append(f"{name}/{mirror.name} must be identical to {filename}")
+        # A folder is what gets installed, so its @import chain has to resolve inside it. The same check runs over src/ below, but src/ is not what ships: only here does a partial that never made it into the folder show up as the 404 it would be.
+        for sheet in EXPECTED_THEME_FILES:
+            path = folder / sheet
+            if not path.is_file():
+                continue
+            for imported in re.findall(
+                r'@import\s+["\']([^"\']+)["\']', path.read_text(encoding="utf-8")
+            ):
+                target = imported.partition("?")[0]
+                if not (folder / target).is_file():
+                    errors.append(
+                        f"{name}/{sheet}: imports {target}, which the folder does "
+                        "not contain"
+                    )
         # FreshRSS shows this in the theme picker, and a folder without it shows a hole.
         if not (folder / "thumbs" / "original.png").is_file():
             errors.append(f"{name}: missing thumbs/original.png for the theme picker")
@@ -1080,6 +1102,22 @@ def main() -> int:
     unused = definitions - uses - EXTERNAL_OR_COMPAT_PROPERTIES - scale
     if unused:
         errors.append("unused custom properties: " + ", ".join(sorted(unused)))
+
+    # A property this theme never defines comes from FreshRSS's own frss.css, which the repository does not contain and cannot check. Several are read inside calc(), where an undefined property does not fall back to nothing -- it invalidates the whole expression and the declaration is dropped. So a value the theme does not own has to state what it is worth without FreshRSS.
+    for path in css_paths:
+        content = path.read_text(encoding="utf-8")
+        for line_number, line in enumerate(content.splitlines(), start=1):
+            # Every reference is checked, not every name: one call site losing its fallback is the whole failure, and a sibling that still has one says nothing about it.
+            for name, terminator in re.findall(r"var\(\s*(--[\w-]+)\s*([,)])", line):
+                if terminator == "," or name in definitions:
+                    continue
+                # The ramp is generated per folder rather than kept in src/, and check_contrast() already refuses a palette that is missing a step.
+                if name.startswith("--at-scale-"):
+                    continue
+                errors.append(
+                    f"src/{path.name}:{line_number}: {name} is defined by FreshRSS, "
+                    "not by the theme, so this var() needs a fallback"
+                )
 
     # The mirrors are generated into the theme folders, where they are checked against their source. A mirror in src/ would be a second copy nobody regenerates.
     for path in css_paths:

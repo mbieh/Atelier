@@ -2,7 +2,7 @@
  * Atelier UI – override layer on top of the Mapco structural foundation
  *
  * Design system: shadcn/ui (https://ui.shadcn.com/docs/theming)
- * Color palette: Tailwind 4.3 "Mist" (see _variables.css)
+ * Color palette: the Tailwind 4.3 neutral this folder ships (see _palette.css)
  *
  * Sections:
  *   1. Tokens & typography
@@ -42,7 +42,7 @@
 	--at-control-padding-inline: 0.875rem;
 	--at-toolbar-control-height: var(--at-control-size);
 	--at-header-height: calc(
-		var(--at-toolbar-control-height) + 2 * var(--frss-padding-top-bottom)
+		var(--at-toolbar-control-height) + 2 * var(--frss-padding-top-bottom, 0.5rem)
 	);
 	/* Fields need an identifiable boundary; buttons use the quieter surface boundary. Both remain uniform on all four sides. */
 	--at-field-border: var(--input);
@@ -138,13 +138,12 @@ body {
 	background-color: var(--accent);
 }
 
-/* FreshRSS normally renders icon controls as a single .icon child. Keep their hit area exactly square while allowing labelled buttons to size naturally. */
+/* FreshRSS renders an icon control as a single .icon child, and its hit area should be square. The square is a minimum rather than a fixed width, because `:only-child` counts elements and not text: a button pairing an icon with a label -- "Show only feeds in error" above the subscription list, "Manage" on the statistics toolbar -- matches this selector too, and a fixed width cut it to 40px with the label clipped to whatever spilled out of the middle. The padding is small enough that an icon-only button still lands at exactly the square, since a 1rem icon between two 0.5rem flanks measures 2rem against a 2.5rem floor. */
 .btn:has(> .icon:only-child),
 .btn:has(> img:only-child),
 .btn:empty {
-	inline-size: var(--at-control-size);
 	min-inline-size: var(--at-control-size);
-	padding-inline: 0;
+	padding-inline: 0.5rem;
 }
 
 /* Primary variant: shadcn "default" */
@@ -741,16 +740,6 @@ input[type="file"]::file-selector-button {
 	padding-inline: 0;
 }
 
-/* A standalone toolbar button is where a label can appear beside the icon -- "Manage" on the statistics filter bar. The square is a minimum there, and the padding small enough to leave an icon-only button at exactly that size while giving a label room to breathe. */
-.nav_menu > :is(.btn, :not(.stick, .group) > .btn):is(
-	:has(> .icon:only-child),
-	:empty
-) {
-	inline-size: auto;
-	min-inline-size: var(--at-control-size);
-	padding-inline: 0.5rem;
-}
-
 /* Paint the ellipsis from currentColor instead of selecting a second fixed- color SVG for dark mode. This keeps an enabled menu trigger at the same visual weight as the other toolbar actions while parent opacity still communicates a genuinely disabled state. */
 .nav_menu :is(.stick, .group) .dropdown:not(#dropdown-search-wrapper) >
 	a.dropdown-toggle::before {
@@ -825,7 +814,7 @@ input[type="file"]::file-selector-button {
 		box-sizing: border-box;
 		block-size: 100%;
 		min-inline-size: 0;
-		padding-block: var(--frss-padding-top-bottom);
+		padding-block: var(--frss-padding-top-bottom, 0.5rem);
 	}
 
 	.header > .item.title {
@@ -1019,7 +1008,7 @@ input[type="file"]::file-selector-button {
 	column-gap: 0.375rem;
 	min-inline-size: 0;
 	width: auto;
-	padding-block: var(--frss-padding-top-bottom);
+	padding-block: var(--frss-padding-top-bottom, 0.5rem);
 	padding-inline: 0.25rem 0.5rem;
 }
 
@@ -1349,7 +1338,7 @@ main.prompt h1,
 
 	.flux_header:not(.has-thumbnail) {
 		grid-template-columns:
-			auto auto var(--frss-padding-flux-items) minmax(0, 1fr) auto auto auto;
+			auto auto var(--frss-padding-flux-items, 0.75rem) minmax(0, 1fr) auto auto auto;
 	}
 
 	.flux_header.websiteicon {
@@ -1360,7 +1349,7 @@ main.prompt h1,
 
 	.flux_header.websiteicon:not(.has-thumbnail) {
 		grid-template-columns:
-			auto auto var(--frss-padding-flux-items) auto minmax(0, 1fr) auto auto auto;
+			auto auto var(--frss-padding-flux-items, 0.75rem) auto minmax(0, 1fr) auto auto auto;
 	}
 
 	.flux_header:is(.websitename, .websitefull) {
@@ -1378,7 +1367,7 @@ main.prompt h1,
 
 	.flux_header:is(.websitename, .websitefull):not(.has-thumbnail) {
 		grid-template-columns:
-			auto auto var(--frss-padding-flux-items)
+			auto auto var(--frss-padding-flux-items, 0.75rem)
 			minmax(0, 1fr) max-content auto auto auto;
 	}
 
@@ -2348,8 +2337,11 @@ main.post .alert > p:last-child:has(
 	order: 1;
 }
 
+/* The panel carries its final width from the start and arrives by moving rather than growing: the base layer opens it by animating width from 0 to 750px, which lays the form inside out on every frame and re-wraps its labels and fields the whole way in. Its closed state is therefore a transform parking it just beyond the edge it belongs to, stated for one direction and mirrored below rather than split across two :dir() rules -- a browser without :dir() then still parks the panel off-screen instead of leaving a 750px sheet standing in the page. */
 /* rtl-safe: mirrored by the :dir(rtl) rule below. */
 #slider {
+	inline-size: 750px;
+	transform: translateX(100%);
 	box-shadow: -12px 0 32px rgba(9, 11, 12, 0.14);
 	border-start-start-radius: var(--at-radius-l);
 	border-start-end-radius: 0;
@@ -2358,7 +2350,28 @@ main.post .alert > p:last-child:has(
 }
 
 :dir(rtl) #slider {
+	transform: translateX(-100%);
 	box-shadow: 12px 0 32px rgba(9, 11, 12, 0.14);
+}
+
+#slider.active:target {
+	transform: none;
+}
+
+/* The base layer moves this panel in 100ms on an ease-in curve, so it accelerates into its stop -- the same 100ms the mobile sidebar uses for a drawer that travels a fraction of the distance. A surface this size should settle instead: it enters over 0.32s on a decelerating curve, and leaves quicker and accelerating, because getting out of the way is not something to wait for. Closing drops the :target while .sliding stays, which is what tells the two apart. */
+#slider.sliding {
+	transition: transform 0.32s cubic-bezier(0.05, 0.7, 0.1, 1);
+}
+
+#slider.sliding:not(:target) {
+	transition: transform 0.24s cubic-bezier(0.3, 0, 0.8, 0.15);
+}
+
+/* Below the base layer's own breakpoint the panel is the full width of the viewport, and its open state says so too. Stating it here as well keeps the closed panel the same width as the open one, so the exit does not resize mid-flight. */
+@media (max-width: 840px) {
+	#slider {
+		inline-size: 100%;
+	}
 }
 
 #overlay {

@@ -32,24 +32,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "src"
 RAMPS = ROOT / "palettes" / "ramps.json"
 
-# The partials atelier.css pulls in, in the order it imports them. _palette.css is generated and deliberately absent.
-SHARED_PARTIALS = (
-    "_fonts.css",
-    "_variables.css",
-    "_forms.css",
-    "_tables.css",
-    "_components.css",
-    "_divers.css",
-    "_sidebar.css",
-    "_layout.css",
-    "_list-view.css",
-    "_global-view.css",
-    "_reader-view.css",
-    "_configuration.css",
-    "_logs.css",
-    "_stats.css",
-    "_mobile.css",
-)
+# atelier.css states which partials the theme is made of, and it is the file FreshRSS actually loads, so it is the list -- not a second copy of it here. A partial added to it ships without anyone remembering this script; one dropped from it stops shipping.
+STYLESHEET_IMPORT = re.compile(r'@import\s+["\']([^"\'?]+)')
 
 # FreshRSS rewrites only the filenames listed in metadata.json to ".rtl.css", with no existence check and no fallback (app/FreshRSS.php), so exactly these two need a mirror on disk. The sources stay direction-neutral -- check_theme.py enforces that -- so each mirror is a verbatim copy.
 RTL_MIRRORED = ("atelier.css", "atelier-ui.css")
@@ -87,6 +71,16 @@ PALETTE_FOOTER = """
 	--at-scale-750: color-mix(in srgb, var(--at-scale-700) 30%, var(--at-scale-800));
 }
 """
+
+
+def shared_partials() -> tuple[str, ...]:
+    """The partials atelier.css imports, minus the one this script writes."""
+    css = (SOURCE / "atelier.css").read_text(encoding="utf-8")
+    return tuple(
+        name
+        for name in STYLESHEET_IMPORT.findall(css)
+        if name != "_palette.css"
+    )
 
 
 def linear_to_srgb(channel: float) -> float:
@@ -159,8 +153,8 @@ def render_metadata(scheme: dict, version: str) -> str:
         "author": AUTHOR,
         "description": (
             "Modern light and dark theme inspired by shadcn/ui, on the Tailwind "
-            f"{scheme['title']} palette -- {scheme['character']} -- with a clear "
-            "reading hierarchy, soft radii, and subtle motion."
+            f"{scheme['title']} palette \u2014 {scheme['character']} \u2014 with a "
+            "clear reading hierarchy, soft radii, and subtle motion."
         ),
         "version": version,
         "files": THEME_FILES,
@@ -341,8 +335,13 @@ def build_scheme(scheme: dict, version: str) -> dict[str, bytes]:
     files["_palette.css"] = render_palette(scheme, folder).encode("utf-8")
     files["metadata.json"] = render_metadata(scheme, version).encode("utf-8")
 
-    for name in SHARED_PARTIALS:
-        files[name] = (SOURCE / name).read_bytes()
+    for name in shared_partials():
+        source = SOURCE / name
+        if not source.is_file():
+            raise ValueError(
+                f"src/atelier.css imports {name}, which src/ does not have"
+            )
+        files[name] = source.read_bytes()
     for name in RTL_MIRRORED:
         content = (SOURCE / name).read_bytes()
         files[name] = content
@@ -369,14 +368,34 @@ def build_scheme(scheme: dict, version: str) -> dict[str, bytes]:
     return files
 
 
+def same_image(first: bytes, second: bytes, source: str) -> bool:
+    """Compare two PNGs by what they show, not by how they were compressed.
+
+    Deflate output is not identical across zlib versions, and the folders are
+    built on one machine and verified on another -- CI runs the same build and
+    compares. Byte equality would call a preview stale for having been packed
+    by a different zlib, so the pixels decide.
+    """
+    if first == second:
+        return True
+    try:
+        return decode_png(first, source) == decode_png(second, source)
+    except (ValueError, zlib.error, IndexError, struct.error):
+        return False
+
+
 def write_folder(target: Path, files: dict[str, bytes]) -> list[str]:
     """Write the folder and remove whatever the build no longer produces."""
     changed: list[str] = []
     for name, content in sorted(files.items()):
         path = target / name
         path.parent.mkdir(parents=True, exist_ok=True)
-        if path.is_file() and path.read_bytes() == content:
-            continue
+        if path.is_file():
+            current = path.read_bytes()
+            if current == content:
+                continue
+            if name.endswith(".png") and same_image(current, content, name):
+                continue
         path.write_bytes(content)
         changed.append(name)
 
@@ -400,7 +419,10 @@ def compare_folder(target: Path, files: dict[str, bytes]) -> list[str]:
         path = target / name
         if not path.is_file():
             stale.append(f"{target.name}/{name}: missing")
-        elif path.read_bytes() != content:
+        elif path.read_bytes() != content and not (
+            name.endswith(".png")
+            and same_image(path.read_bytes(), content, f"{target.name}/{name}")
+        ):
             stale.append(f"{target.name}/{name}: stale")
     if target.is_dir():
         expected = set(files)
@@ -423,10 +445,6 @@ def canonical_scheme() -> dict:
         if scheme["name"] == CANONICAL_PALETTE:
             return scheme
     raise ValueError(f"palettes/ramps.json has no {CANONICAL_PALETTE} scheme")
-
-
-def theme_folders() -> list[Path]:
-    return [ROOT / f"Atelier-{scheme['title']}" for scheme in load_schemes()]
 
 
 def main() -> int:

@@ -22,7 +22,8 @@
 	--accent-foreground: var(--at-scale-950);
 	--destructive: #c0392b;
 	--destructive-foreground: #fff;
-	--destructive-muted: color-mix(in srgb, var(--destructive) 8%, var(--at-scale-50));
+	/* The tint is the surface of a feed row that failed to refresh, and FreshRSS writes that feed's name on it in --destructive itself, so the two have to hold 4.5:1 against each other. That is what caps the accent share here rather than how tinted it looks: at 8% the pair fell to 4.63:1 on Slate and 4.36:1 on Olive's dark row. */
+	--destructive-muted: color-mix(in srgb, var(--destructive) 5%, var(--at-scale-50));
 	--destructive-border: color-mix(in srgb, var(--destructive) 32%, var(--at-scale-50));
 	--border: var(--at-scale-200);
 	/* The boundary of a control carries information, so it needs 3:1 against the surfaces it sits on (WCAG 1.4.11). The ramp straddles that bar -- step 400 stays under it, step 500 clears it but reads as a hard outline -- so mix the two and land above it. 70%, not the 60% a cool grey alone needs: Olive's step 500 is the lightest of the nine, and at 60% its field boundary lands at 2.99:1. */
@@ -106,6 +107,7 @@
 	--sid-active-font: var(--sidebar-accent-foreground);
 	--sid-pills: color-mix(in srgb, var(--at-scale-900) 8%, transparent);
 
+	/* Three base-theme tokens run the other way and are only consumed: --frss-padding-top-bottom, --frss-padding-flux-items and --width-aside are defined by frss.css, which FreshRSS loads from base-theme and this repository does not contain. Every use carries the upstream value as a fallback -- 0.5rem, 0.75rem and 300px in FreshRSS 1.29.1 -- because they sit inside calc(), and a calc() that references an undefined property is invalid at computed-value time: the declaration would be dropped rather than degraded. */
 	/* FreshRSS base-theme aliases used outside Mapco's component modules. */
 	--frss-font-color-dark: var(--foreground);
 	--frss-font-color-grey-dark: var(--muted-foreground);
@@ -179,7 +181,7 @@
 		/* A shade lighter than the light scheme's red would suggest, and lighter than it used to be: the dark card is step 800, and Olive's is the lightest of the nine, where the old value read at 4.48:1. */
 		--destructive: #e87365;
 		--destructive-foreground: var(--at-scale-900);
-		--destructive-muted: color-mix(in srgb, var(--destructive) 18%, var(--at-scale-900));
+		--destructive-muted: color-mix(in srgb, var(--destructive) 12%, var(--at-scale-900));
 		--destructive-border: color-mix(in srgb, var(--destructive) 50%, var(--at-scale-900));
 		--border: var(--at-scale-700);
 		/* --input is deliberately absent: the mid-grey mixed in the light scheme is the one value that clears 3:1 in both directions, against white surfaces as the darker element and against dark surfaces as the lighter one. One formula, one contrast check, both schemes. */

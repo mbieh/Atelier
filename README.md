@@ -139,7 +139,7 @@ python3 scripts/check_theme.py           # the release checks
 
 Edit `src/`, never a theme folder — a folder is overwritten by the next build.
 
-`check_theme.py` runs the same checks as CI: CSS structure, metadata, links, icon licenses, a guard that rejects direction-sensitive CSS before it can reach a right-to-left copy, and a WCAG contrast check that resolves every semantic role against the surfaces it is painted on — for all nine palettes, in both color schemes, which is 594 pairings.
+`check_theme.py` runs the same checks as CI: CSS structure, metadata, links, icon licenses, a guard that rejects direction-sensitive CSS before it can reach a right-to-left copy, and a WCAG contrast check that resolves every semantic role against the surfaces it is painted on — for all nine palettes, in both color schemes, which is 756 pairings.
 
 See [`CHANGELOG.md`](CHANGELOG.md) for release notes and [`docs/component-coverage.md`](docs/component-coverage.md) for the component matrix.
 

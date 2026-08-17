@@ -47,7 +47,7 @@
 
 /*=== Body */
 #global {
-	height: calc(100vh - (calc(3rem + 2 * var(--frss-padding-top-bottom))));
+	height: calc(100vh - (calc(3rem + 2 * var(--frss-padding-top-bottom, 0.5rem))));
 }
 
 /*=== Prompt (centered) */
@@ -64,7 +64,7 @@ main.prompt {
 }
 
 #new-article > a {
-	padding: calc(0.75rem + var(--frss-padding-top-bottom)) 1rem;
+	padding: calc(0.75rem + var(--frss-padding-top-bottom, 0.5rem)) 1rem;
 	font-weight: bold;
 	color: var(--white);
 }
