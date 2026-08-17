@@ -2,7 +2,7 @@
 	"name": "Atelier Mauve",
 	"author": "mbieh (based on Mapco by Thomas Guesnon)",
 	"description": "Modern light and dark theme inspired by shadcn/ui, on the Tailwind Mauve palette — a grey with a muted purple cast — with a clear reading hierarchy, soft radii, and subtle motion.",
-	"version": "1.3.1",
+	"version": "1.3.2",
 	"files": ["_frss.css", "atelier.css", "atelier-ui.css"],
 	"theme-color": {
 		"light": "#f3f1f3",

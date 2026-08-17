@@ -651,6 +651,8 @@ CONTRAST_PAIRS = (
     ("--muted-foreground", "--background", 4.5),
     ("--muted-foreground", "--muted", 4.5),
     ("--muted-foreground", "--accent", 4.5),
+    # The caption under the theme preview is a solid plate in the primary tone, with its own dimmed foreground on it.
+    ("--at-plate-foreground", "--primary", 4.5),
     # The quiet label tone sits on a tile and on that tile's hover surface.
     ("--at-quiet-foreground", "--card", 4.5),
     ("--at-quiet-foreground", "--accent", 4.5),

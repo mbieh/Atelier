@@ -6,7 +6,6 @@
 		scrollbar-color: color-mix(in srgb, var(--sid-font-color) 20%, transparent) color-mix(in srgb, var(--sid-font-color) 13%, transparent);
 	}
 
-
 	.tree-folder {
 		border-bottom: 1px solid var(--sid-sep);
 
@@ -164,10 +163,7 @@
 
 }
 
-
 /* Sidebar des pages de configuration */
-
-
 
 /*=== Navigation */
 .nav-list {

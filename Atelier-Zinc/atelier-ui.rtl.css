@@ -55,6 +55,8 @@
 	--at-reading-page-width: 72rem;
 	/* One step greyer than --muted-foreground, for a label whose state is already carried by a control beside it. 94% is where it stops across the nine palettes: the mix holds 4.62:1 at its worst, on the dark accent surface of Slate, and 90% -- enough on a cool grey alone -- drops four of the nine below the 4.5:1 of WCAG 1.4.3. */
 	--at-quiet-foreground: color-mix(in srgb, var(--muted-foreground) 94%, var(--card));
+	/* Secondary text on a solid --primary plate, where the surface is dark and the foreground is the light one that belongs to it. 80% keeps a step below the title without approaching the plate: 6.74:1 at worst across the nine palettes, against 9.42:1 for the undimmed foreground. */
+	--at-plate-foreground: color-mix(in srgb, var(--primary-foreground) 80%, var(--primary));
 	--at-row-hover: color-mix(in srgb, var(--accent) 45%, var(--card));
 	--at-row-current: color-mix(in srgb, var(--accent) 70%, var(--card));
 	--at-shadow-xs: 0 1px 2px rgba(9, 11, 12, 0.05);
@@ -3477,24 +3479,84 @@ tbody tr:hover {
 	background: var(--destructive-muted);
 }
 
-/* Theme selector cards */
+/* The theme picker's preview. FreshRSS renders one entry per installed theme and marks the saved one .picked; no script in 1.29.1 moves that class, so the other entries are weight without a purpose -- with nine palettes installed the page fetched nine previews to show one. Only the picked entry renders, and it is a card: the palette above, what it is below. Should a later FreshRSS switch previews on selection, it toggles that same class and this follows -- as a swap rather than the base layer's cross-fade. */
+.theme-preview-list {
+	display: block;
+	position: static;
+	inline-size: 100%;
+	max-inline-size: 40rem;
+	block-size: auto;
+	margin-block: 0.5rem;
+	padding: 0;
+	border: 0;
+}
+
+.theme-preview-list .preview-container:not(.picked) {
+	display: none;
+}
+
 .theme-preview-list .preview-container {
 	overflow: hidden;
-	border: 1px solid var(--border);
+	border: 1px solid var(--input);
 	border-radius: var(--at-radius-l);
 	background: var(--card);
-	box-shadow: var(--at-shadow-xs);
+	box-shadow: var(--at-shadow-md);
 }
 
-.theme-preview-list .preview-container.picked {
-	border-color: var(--primary);
-	box-shadow: var(--at-ring);
+/* The base layer stacks the previews absolutely in a box of 640 by 320 and stretches each image across it, so every preview that is not exactly 2:1 is distorted -- Atelier's are 701 by 427. In flow the image keeps its own proportions and the card takes the height it asks for. It fills the card to the edge: a preview is a screenshot of an interface and arrives with its own pale margins, and the way to keep those from dissolving into the card is to leave no card around them -- the picture is the top of the card, and the card's own edge is what separates it from the page. That edge is --input rather than --border for the same reason a field's is: it has to hold against the surfaces on both sides of it. */
+.theme-preview-list .preview {
+	position: static;
+	display: block;
+	opacity: 1;
 }
 
-.theme-preview-list .preview-container .properties {
-	border-top: 1px solid var(--border);
-	background: var(--muted);
-	color: var(--foreground);
+.theme-preview-list .preview img {
+	display: block;
+	inline-size: 100%;
+	block-size: auto;
+}
+
+/* The description sits under the image rather than over its lower third: it is a caption, and the preview is the one thing on this page that cannot be read from the text beside it. The blur the base layer puts here had a translucent bar over a picture to soften; there is no longer anything behind it. */
+.theme-preview-list .properties {
+	position: static;
+	display: block;
+	padding: 1rem;
+	border-top: 0;
+	background: var(--primary);
+	color: var(--at-plate-foreground);
+	backdrop-filter: none;
+	-webkit-backdrop-filter: none;
+	font-size: 0.8125rem;
+	line-height: 1.55;
+}
+
+.theme-preview-list .properties > div:first-child {
+	color: var(--primary-foreground);
+	font-size: 0.875rem;
+	font-weight: 600;
+}
+
+/* --primary is the darkest solid the theme fills with, which is what makes it the plate -- but it is a role, not a step: in the dark scheme it inverts to a light neutral, and a pale bar under the picture is the opposite of what this is for. There the page's own surface is the darkest one at hand, a step below the card, and it takes a hairline because that step alone is a quiet boundary. */
+@media (prefers-color-scheme: dark) {
+	.theme-preview-list .properties {
+		border-top: 1px solid var(--border);
+		background: var(--background);
+		color: var(--muted-foreground);
+	}
+
+	.theme-preview-list .properties > div:first-child {
+		color: var(--foreground);
+	}
+}
+
+/* The caption also carries one failure: FreshRSS renders an entry with no preview and an alert here when the selected theme is no longer on disk -- a folder renamed or removed, which is a live possibility with nine of them. The plate would have swallowed it in either scheme, so it keeps the alert's own pairing, restated on the title line the plate colours separately. */
+.theme-preview-list .properties.alert-error {
+	background: var(--alert-light);
+	color: var(--alert-text);
+}
+
+.theme-preview-list .properties.alert-error > div:first-child {
+	color: var(--alert-text);
 }
 
 .post a[href="./"] {

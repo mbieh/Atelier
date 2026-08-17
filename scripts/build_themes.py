@@ -6,12 +6,10 @@ from __future__ import annotations
 import argparse
 import json
 import math
-import struct
 from pathlib import Path
 import re
 import shutil
 import sys
-import zlib
 
 
 from check_theme import released_version, stylesheet_imports
@@ -36,8 +34,8 @@ RAMP_STEPS = (50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950)
 # The assets in src/ are painted, not inherited: an external SVG cannot pick up the page's currentColor, and a PNG has no tokens at all. So both are authored in one ramp and re-rendered here in the folder's own. That canonical ramp is Mist, and it is read from ramps.json rather than restated as hex, so an asset color is only ever recognised as the step it actually is.
 CANONICAL_PALETTE = "mist"
 
-# Colors that mean something other than a neutral step and stay put in every scheme: the gold of the favorite star, which check_theme.py holds against --favorite, the lighter gold the preview draws it in, and white, which is white everywhere.
-FIXED_ASSET_COLORS = {"#ad7d09", "#d99e04", "#ffffff"}
+# The one color in the assets that means something other than a neutral step and stays put in every scheme: the gold of the favorite star, which check_theme.py holds against --favorite.
+FIXED_ASSET_COLORS = {"#ad7d09"}
 ICON_COLOR = re.compile(r'((?:fill|stroke)=")(#[0-9a-fA-F]{3,6})(")')
 
 PALETTE_HEADER = """/*=== PALETTE: {title} */
@@ -181,113 +179,6 @@ def recolor_icon(source: str, mapping: dict[str, str], name: str) -> str:
     return ICON_COLOR.sub(substitute, source)
 
 
-def decode_png(data: bytes, source: str) -> tuple[int, int, bytes]:
-    """Decode an 8-bit truecolor PNG to raw RGB rows. That is the one shape the preview needs to be, so anything else is reported rather than half-handled: this is a build step for one known asset, not a general decoder."""
-    if data[:8] != b"\x89PNG\r\n\x1a\n":
-        raise ValueError(f"{source}: not a PNG")
-    width = height = 0
-    pixels = b""
-    compressed = bytearray()
-    position = 8
-    while position < len(data):
-        length = struct.unpack(">I", data[position : position + 4])[0]
-        kind = data[position + 4 : position + 8]
-        body = data[position + 8 : position + 8 + length]
-        if kind == b"IHDR":
-            width, height, depth, color, _, _, interlace = struct.unpack(
-                ">IIBBBBB", body
-            )
-            if (depth, color, interlace) != (8, 2, 0):
-                raise ValueError(
-                    f"{source}: expected an 8-bit truecolor PNG without "
-                    f"interlacing, found depth {depth}, color type {color}"
-                )
-        elif kind == b"IDAT":
-            compressed += body
-        position += 12 + length
-
-    raw = zlib.decompress(bytes(compressed))
-    stride = width * 3
-    rows = bytearray()
-    previous = bytearray(stride)
-    offset = 0
-    for _ in range(height):
-        method = raw[offset]
-        offset += 1
-        line = bytearray(raw[offset : offset + stride])
-        offset += stride
-        for index in range(stride):
-            left = line[index - 3] if index >= 3 else 0
-            above = previous[index]
-            upper_left = previous[index - 3] if index >= 3 else 0
-            if method == 1:
-                line[index] = (line[index] + left) & 255
-            elif method == 2:
-                line[index] = (line[index] + above) & 255
-            elif method == 3:
-                line[index] = (line[index] + ((left + above) >> 1)) & 255
-            elif method == 4:
-                estimate = left + above - upper_left
-                distances = (
-                    abs(estimate - left),
-                    abs(estimate - above),
-                    abs(estimate - upper_left),
-                )
-                nearest = (left, above, upper_left)[distances.index(min(distances))]
-                line[index] = (line[index] + nearest) & 255
-            elif method != 0:
-                raise ValueError(f"{source}: unknown row filter {method}")
-        rows += line
-        previous = line
-    pixels = bytes(rows)
-    return width, height, pixels
-
-
-def encode_png(width: int, height: int, pixels: bytes) -> bytes:
-    """Encode raw RGB rows as a PNG, filtering each row against the one above. The preview is a flat rendering of the interface, so neighbouring rows are mostly identical and this one filter compresses it smaller than the screenshot it came from."""
-    stride = width * 3
-    body = bytearray()
-    previous = bytes(stride)
-    for index in range(height):
-        line = pixels[index * stride : (index + 1) * stride]
-        body.append(2)
-        body += bytes((line[x] - previous[x]) & 255 for x in range(stride))
-        previous = line
-
-    def chunk(kind: bytes, payload: bytes) -> bytes:
-        return (
-            struct.pack(">I", len(payload))
-            + kind
-            + payload
-            + struct.pack(">I", zlib.crc32(kind + payload) & 0xFFFFFFFF)
-        )
-
-    header = struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0)
-    return (
-        b"\x89PNG\r\n\x1a\n"
-        + chunk(b"IHDR", header)
-        + chunk(b"IDAT", zlib.compress(bytes(body), 9))
-        + chunk(b"IEND", b"")
-    )
-
-
-def recolor_thumbnail(data: bytes, mapping: dict[str, str], source: str) -> bytes:
-    """Re-render the theme picker's preview in this folder's ramp. The preview is a flat rendering of the interface in the canonical ramp, so it holds a handful of exact colors rather than a photograph's spread: each one is translated once and applied as a lookup, which keeps the whole image a substitution rather than an approximation."""
-    width, height, pixels = decode_png(data, source)
-    table: dict[bytes, bytes] = {}
-    for index in range(0, len(pixels), 3):
-        original = pixels[index : index + 3]
-        if original in table:
-            continue
-        hex_value = "#%02x%02x%02x" % tuple(original)
-        replacement = translate_color(hex_value, mapping, source)
-        table[original] = bytes.fromhex(replacement[1:])
-    recolored = bytearray()
-    for index in range(0, len(pixels), 3):
-        recolored += table[pixels[index : index + 3]]
-    return encode_png(width, height, bytes(recolored))
-
-
 def build_scheme(scheme: dict, version: str) -> dict[str, bytes]:
     """Render one theme folder as a path -> bytes mapping, relative to it."""
     folder = f"Atelier-{scheme['title']}"
@@ -324,25 +215,17 @@ def build_scheme(scheme: dict, version: str) -> dict[str, bytes]:
             ).encode("utf-8")
         else:
             files[f"icons/{path.name}"] = path.read_bytes()
-    for path in sorted((SOURCE / "thumbs").iterdir()):
-        if path.suffix == ".png":
-            files[f"thumbs/{path.name}"] = recolor_thumbnail(
-                path.read_bytes(), mapping, f"src/thumbs/{path.name}"
-            )
-        else:
-            files[f"thumbs/{path.name}"] = path.read_bytes()
-
     return files
 
 
-def same_image(first: bytes, second: bytes, source: str) -> bool:
-    """Compare two PNGs by what they show, not by how they were compressed. Deflate output is not identical across zlib versions, and the folders are built on one machine and verified on another -- CI runs the same build and compares. Byte equality would call a preview stale for having been packed by a different zlib, so the pixels decide."""
-    if first == second:
-        return True
-    try:
-        return decode_png(first, source) == decode_png(second, source)
-    except (ValueError, zlib.error, IndexError, struct.error):
-        return False
+# What a folder holds that the build neither writes nor removes. The previews in the theme picker are drawn by hand, one per palette, and a generated stand-in was only ever a placeholder for them: re-tinting one canonical screenshot cannot show what nine palettes actually look like. The build owns everything else in a folder, so anything it does not produce is reported or pruned -- these are the exception, and the only one.
+KEPT_BY_HAND = ("thumbs",)
+
+
+def is_kept(relative: str) -> bool:
+    """Whether a path inside a theme folder is maintained by hand."""
+    head = relative.split("/", 1)[0]
+    return head in KEPT_BY_HAND
 
 
 def write_folder(target: Path, files: dict[str, bytes]) -> list[str]:
@@ -351,18 +234,16 @@ def write_folder(target: Path, files: dict[str, bytes]) -> list[str]:
     for name, content in sorted(files.items()):
         path = target / name
         path.parent.mkdir(parents=True, exist_ok=True)
-        if path.is_file():
-            current = path.read_bytes()
-            if current == content:
-                continue
-            if name.endswith(".png") and same_image(current, content, name):
-                continue
+        if path.is_file() and path.read_bytes() == content:
+            continue
         path.write_bytes(content)
         changed.append(name)
 
     expected = set(files)
     for path in sorted(target.rglob("*"), reverse=True):
         relative = path.relative_to(target).as_posix()
+        if is_kept(relative):
+            continue
         if path.is_dir():
             if not any(item.name != ".DS_Store" for item in path.iterdir()):
                 shutil.rmtree(path)
@@ -380,10 +261,7 @@ def compare_folder(target: Path, files: dict[str, bytes]) -> list[str]:
         path = target / name
         if not path.is_file():
             stale.append(f"{target.name}/{name}: missing")
-        elif path.read_bytes() != content and not (
-            name.endswith(".png")
-            and same_image(path.read_bytes(), content, f"{target.name}/{name}")
-        ):
+        elif path.read_bytes() != content:
             stale.append(f"{target.name}/{name}: stale")
     if target.is_dir():
         expected = set(files)
@@ -391,7 +269,11 @@ def compare_folder(target: Path, files: dict[str, bytes]) -> list[str]:
             if not path.is_file():
                 continue
             relative = path.relative_to(target).as_posix()
-            if relative not in expected and path.name != ".DS_Store":
+            if (
+                relative not in expected
+                and not is_kept(relative)
+                and path.name != ".DS_Store"
+            ):
                 stale.append(f"{target.name}/{relative}: not produced by the build")
     return stale
 

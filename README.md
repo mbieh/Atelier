@@ -10,6 +10,8 @@ Atelier gives FreshRSS a neutral palette, a clear reading hierarchy, soft radii,
 
 Each folder in this repository is a complete theme, and they differ in exactly one thing: the neutral ramp they are built on, taken from Tailwind CSS 4.3. Everything else — layout, typography, the accent hues for success, warning and error — is identical. Install one, or install several and switch between them in FreshRSS.
 
+![Palettes preview: the nine palettes](Palette-Preview.png)
+
 | Theme | Neutral |
 | --- | --- |
 | [`Atelier-Slate`](Atelier-Slate/) | A cool grey with a blue cast |
@@ -104,7 +106,9 @@ A theme folder differs from its siblings in one file: `_palette.css`, a neutral 
 
 That works because no component ever names a color. Every rule asks for a role — background, foreground, border, accent — and [`src/_variables.css`](src/_variables.css) maps those roles onto steps of the ramp. Which step a role gets is decided by the contrast it needs, so a different palette keeps the theme readable instead of only recoloring it.
 
-Two things cannot be tokens, because they are files rather than CSS: the bundled icons carry a literal stroke color, since an external SVG cannot inherit the page's `currentColor`, and the preview image in the theme picker is a picture. Both are authored once in Mist and re-rendered into each folder's ramp by the build.
+The icons cannot be tokens, because they are files rather than CSS: an external SVG cannot inherit the page's `currentColor`, so each one carries a literal stroke. They are authored once in Mist and re-rendered into each folder's ramp by the build.
+
+The preview each folder shows in the theme picker is drawn by hand, one per palette, and the build neither writes nor removes it. A screenshot re-tinted from one canonical rendering only approximates what a palette looks like, which is exactly what a preview is there to answer.
 
 ### Adding a palette
 
@@ -137,7 +141,7 @@ python3 scripts/build_themes.py --check  # fail if a folder has drifted from its
 python3 scripts/check_theme.py           # the release checks
 ```
 
-Edit `src/`, never a theme folder — a folder is overwritten by the next build.
+Edit `src/`, never a theme folder — a folder is overwritten by the next build. The one exception is `thumbs/`, which holds the hand-drawn preview for the theme picker: the build leaves it alone, and `check_theme.py` only insists that every folder has one.
 
 `check_theme.py` runs the same checks as CI: CSS structure, metadata, links, icon licenses, a guard that rejects direction-sensitive CSS before it can reach a right-to-left copy, and a WCAG contrast check that resolves every semantic role against the surfaces it is painted on — for all nine palettes, in both color schemes, which is 756 pairings.
 
