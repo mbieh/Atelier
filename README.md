@@ -2,7 +2,7 @@
 
 A calm light and dark theme for [FreshRSS](https://freshrss.org/), inspired by shadcn/ui — in nine neutral palettes.
 
-![Atelier preview: sidebar beside a card of article rows](Atelier-Mist/thumbs/original.png)
+![Atelier preview: sidebar beside a card of article rows](Atelier-Preview.png)
 
 Atelier gives FreshRSS a neutral palette, a clear reading hierarchy, soft radii, and subtle motion. It follows your operating system's light or dark setting on its own, and everything it needs ships with the theme — no web fonts, no scripts, nothing loaded from an external service while you read.
 
