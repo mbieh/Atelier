@@ -31,7 +31,7 @@ AUTHOR = "mbieh (based on Mapco by Thomas Guesnon)"
 # The steps a scheme has to define. 750 is a rung the published ramps do not have; it is derived in the generated file, so every scheme gets the same relationship instead of a hand-picked value.
 RAMP_STEPS = (50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950)
 
-# The assets in src/ are painted, not inherited: an external SVG cannot pick up the page's currentColor, and a PNG has no tokens at all. So both are authored in one ramp and re-rendered here in the folder's own. That canonical ramp is the default palette's, Neutral -- an asset is authored in the scheme the theme ships as itself, so the folder most people install is the one whose assets are carried over verbatim -- and it is read from ramps.json rather than restated as hex, so an asset color is only ever recognised as the step it actually is.
+# The assets in src/ are painted, not inherited: an external SVG cannot pick up the page's currentColor, and a PNG has no tokens at all. So both are authored in one ramp and re-rendered here in the folder's own. That canonical ramp is Neutral, the one Atelier carries under its own name, so the folder most people install is the one whose assets are carried over verbatim -- and it is read from ramps.json rather than restated as hex, so an asset color is only ever recognised as the step it actually is.
 CANONICAL_PALETTE = "neutral"
 
 # The one color in the assets that means something other than a neutral step and stays put in every scheme: the gold of the favorite star, which check_theme.py holds against --favorite.
@@ -129,21 +129,15 @@ def render_metadata(scheme: dict, version: str) -> str:
     steps = scheme["steps"]
     light = oklch_to_hex(*steps["100"])
     dark = oklch_to_hex(*steps["900"])
-    palette = (
-        f"the Tailwind {scheme['title']} palette \u2014 {scheme['character']} "
-        "\u2014 with a clear reading hierarchy, soft radii, and subtle motion."
-    )
-    # The default palette is the theme rather than one of its variants, so its entry says so where a reader meets it: the picker shows the name and this line, and nothing else tells them which of the nine they are looking at.
-    description = (
-        f"Atelier's default palette. Modern light and dark theme inspired by "
-        f"shadcn/ui, on {palette} Eight further palettes ship beside it."
-        if scheme.get("default")
-        else f"Modern light and dark theme inspired by shadcn/ui, on {palette}"
-    )
     metadata = {
         "name": theme_name(scheme),
         "author": AUTHOR,
-        "description": description,
+        # Every folder describes itself the same way, down to the palette it carries. The picker lists them side by side, so an entry that ranked itself against the others would be describing folders that are not in front of the reader.
+        "description": (
+            "Modern light and dark theme inspired by shadcn/ui, on the Tailwind "
+            f"{scheme['title']} palette \u2014 {scheme['character']} \u2014 with a "
+            "clear reading hierarchy, soft radii, and subtle motion."
+        ),
         "version": version,
         "files": THEME_FILES,
         # FreshRSS accepts a light and dark browser theme-color, and the two page backgrounds are what the browser chrome should match.

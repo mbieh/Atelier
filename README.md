@@ -1,6 +1,6 @@
 # Atelier
 
-A calm light and dark theme for [FreshRSS](https://freshrss.org/), inspired by shadcn/ui — in nine neutral palettes.
+A calm light and dark theme for [FreshRSS](https://freshrss.org/), inspired by shadcn/ui — and eight further readings of it.
 
 ![Atelier preview: sidebar beside a card of article rows](Atelier-Preview.png)
 
@@ -8,15 +8,15 @@ Atelier gives FreshRSS a neutral palette, a clear reading hierarchy, soft radii,
 
 ## The palettes
 
-Start with [`Atelier`](Atelier/). It is the theme as it is meant to look — built on the Tailwind Neutral ramp, grey without a hue — and the one to install if you do not want to choose.
+[`Atelier`](Atelier/) is the theme. The eight `Atelier-*` folders are readings of it in another neutral, taken from Tailwind CSS 4.3 — the same theme, told in a different grey.
 
-The other eight folders are the same theme on a different neutral ramp, taken from Tailwind CSS 4.3. They differ in exactly one thing: that ramp. Everything else — layout, typography, the accent hues for success, warning and error — is identical. Install one, or install several and switch between them in FreshRSS.
+They differ in exactly one thing: that ramp. Everything else — layout, typography, the accent hues for success, warning and error — is identical. Install one, or install several and switch between them in FreshRSS.
 
 ![Palettes preview: the nine palettes](Palette-Preview.png)
 
 | Theme | Neutral |
 | --- | --- |
-| [`Atelier`](Atelier/) | Grey without a hue — the default, on Tailwind Neutral |
+| [`Atelier`](Atelier/) | Grey without a hue, on Tailwind Neutral |
 | [`Atelier-Slate`](Atelier-Slate/) | A cool grey with a blue cast |
 | [`Atelier-Gray`](Atelier-Gray/) | A neutral grey, faintly blue |
 | [`Atelier-Zinc`](Atelier-Zinc/) | A grey with a trace of violet |
@@ -30,7 +30,7 @@ Every one of them clears the same contrast bars, in light and dark alike; see [D
 
 ## Features
 
-- Nine neutral palettes, each a self-contained theme — `Atelier` is the default
+- Nine neutral palettes, each a self-contained theme
 - Light and dark interfaces that follow your system preference automatically
 - Layouts for desktop and mobile, including a collapsible sidebar
 - Locally bundled Lucide icons, so nothing is fetched from a CDN
@@ -104,11 +104,11 @@ Atelier follows your operating system's appearance setting. Switch your system t
 
 ## How the palettes work
 
-A theme folder differs from its siblings in one file: `_palette.css`, a neutral ramp of eleven steps. Everything else is byte-for-byte identical — `Atelier` is not a different theme from `Atelier-Stone`, it is the same one on the ramp the theme is designed around.
+A theme folder differs from its siblings in one file: `_palette.css`, a neutral ramp of eleven steps. Everything else is byte-for-byte identical — `Atelier` and `Atelier-Stone` are not two themes, they are one theme on two ramps.
 
 That works because no component ever names a color. Every rule asks for a role — background, foreground, border, accent — and [`src/_variables.css`](src/_variables.css) maps those roles onto steps of the ramp. Which step a role gets is decided by the contrast it needs, so a different palette keeps the theme readable instead of only recoloring it.
 
-The icons cannot be tokens, because they are files rather than CSS: an external SVG cannot inherit the page's `currentColor`, so each one carries a literal stroke. They are authored once in Neutral, the default palette, and re-rendered into each folder's ramp by the build.
+The icons cannot be tokens, because they are files rather than CSS: an external SVG cannot inherit the page's `currentColor`, so each one carries a literal stroke. They are authored once in Neutral, the ramp `Atelier` itself carries, and re-rendered into each folder's ramp by the build.
 
 The preview each folder shows in the theme picker is drawn by hand, one per palette, and the build neither writes nor removes it. A screenshot re-tinted from one canonical rendering only approximates what a palette looks like, which is exactly what a preview is there to answer.
 
@@ -137,7 +137,7 @@ The first writes a tenth folder; the second tells you whether the new ramp holds
 
 ## Development
 
-The shared source lives in [`src/`](src/); the nine theme folders are generated from it and committed, so that installing means copying a folder rather than running a build. Which folder a palette is built into is stated in [`palettes/ramps.json`](palettes/ramps.json) — the default palette carries a `folder` of its own, which is why it ships as `Atelier` and not `Atelier-Neutral`.
+The shared source lives in [`src/`](src/); the nine theme folders are generated from it and committed, so that installing means copying a folder rather than running a build. Which folder a palette is built into is stated in [`palettes/ramps.json`](palettes/ramps.json) — the Neutral ramp carries a `folder` of its own, which is why it ships as `Atelier` and not `Atelier-Neutral`.
 
 ```console
 python3 scripts/build_themes.py          # regenerate the nine folders from src/

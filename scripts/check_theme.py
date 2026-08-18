@@ -952,7 +952,7 @@ def check_local_markdown_links(path: Path, content: str) -> list[str]:
 
 
 def theme_folder(scheme: dict) -> str:
-    """The directory one scheme is built into. A folder name is the identity FreshRSS stores for a user's selection, so it is stated in palettes/ramps.json rather than derived where a rename would have to be remembered twice: the default palette carries `folder`, and every other scheme is named after its title. Both scripts read this one function -- build_themes.py imports it -- so the folders it writes and the folders this checks cannot drift apart."""
+    """The directory one scheme is built into. A folder name is the identity FreshRSS stores for a user's selection, so it is stated in palettes/ramps.json rather than derived where a rename would have to be remembered twice: the scheme Atelier carries under its own name has a `folder` of its own, and every other scheme is named after its title. Both scripts read this one function -- build_themes.py imports it -- so the folders it writes and the folders this checks cannot drift apart."""
     return scheme.get("folder", f"Atelier-{scheme['title']}")
 
 
