@@ -951,12 +951,20 @@ def check_local_markdown_links(path: Path, content: str) -> list[str]:
     return errors
 
 
-def theme_folders() -> list[tuple[str, Path]]:
-    """The nine folders the build ships, as (palette title, path) pairs."""
+def theme_folder(scheme: dict) -> str:
+    """The directory one scheme is built into. A folder name is the identity FreshRSS stores for a user's selection, so it is stated in palettes/ramps.json rather than derived where a rename would have to be remembered twice: the default palette carries `folder`, and every other scheme is named after its title. Both scripts read this one function -- build_themes.py imports it -- so the folders it writes and the folders this checks cannot drift apart."""
+    return scheme.get("folder", f"Atelier-{scheme['title']}")
+
+
+def theme_name(scheme: dict) -> str:
+    """What the FreshRSS theme picker lists the folder as. It is the folder with its separator spelled as a space, which keeps the picker entry and the directory the same name in two typographies rather than two facts."""
+    return theme_folder(scheme).replace("-", " ")
+
+
+def theme_folders() -> list[tuple[dict, Path]]:
+    """The nine folders the build ships, as (scheme, path) pairs."""
     schemes = json.loads(RAMPS.read_text(encoding="utf-8"))["schemes"]
-    return [
-        (scheme["title"], ROOT / f"Atelier-{scheme['title']}") for scheme in schemes
-    ]
+    return [(scheme, ROOT / theme_folder(scheme)) for scheme in schemes]
 
 
 def main() -> int:
@@ -999,7 +1007,7 @@ def main() -> int:
         errors.append("CHANGELOG.md: no released version heading found")
 
     # A theme folder is what a person copies into p/themes/, so each one has to be complete on its own: the sheets FreshRSS names, their RTL mirrors, the icons, a preview for the picker, and the license it travels under.
-    for title, folder in theme_folders():
+    for scheme, folder in theme_folders():
         name = folder.name
         if not folder.is_dir():
             errors.append(f"{name}: theme folder is missing; run scripts/build_themes.py")
@@ -1011,8 +1019,10 @@ def main() -> int:
         except (OSError, json.JSONDecodeError) as error:
             errors.append(f"{name}/metadata.json: {error}")
             metadata = {}
-        if metadata.get("name") != f"Atelier {title}":
-            errors.append(f"{name}/metadata.json: name must be Atelier {title}")
+        if metadata.get("name") != theme_name(scheme):
+            errors.append(
+                f"{name}/metadata.json: name must be {theme_name(scheme)}"
+            )
         if expected_version is not None and metadata.get("version") != expected_version:
             errors.append(
                 f"{name}/metadata.json: version must be the string "
@@ -1191,8 +1201,8 @@ def main() -> int:
 
     svg_files = sorted((SOURCE / "icons").glob("*.svg"))
     lucide_files = [path for path in svg_files if path.name not in NON_LUCIDE_SVGS]
-    if len(lucide_files) != 57:
-        errors.append(f"expected 57 Lucide SVGs, found {len(lucide_files)}")
+    if len(lucide_files) != 58:
+        errors.append(f"expected 58 Lucide SVGs, found {len(lucide_files)}")
     for path in lucide_files:
         content = path.read_text(encoding="utf-8")
         first_line = content.splitlines()[0]

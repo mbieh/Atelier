@@ -1292,7 +1292,7 @@ main.prompt h1,
 		padding-inline: 1rem;
 	}
 
-	/* Mapco paints these close bars with --main-first, so their icons sit on a primary surface and need the primary foreground, not the sidebar's filter reset. The bundled SVG stroke is #394447 — the exact light-theme --primary — so the icon rendered invisibly against its own bar. */
+	/* Mapco paints these close bars with --main-first, so their icons sit on a primary surface and need the primary foreground, not the sidebar's filter reset. The bundled SVG stroke is step 700 of the folder's ramp — the exact light-theme --primary — so the icon rendered invisibly against its own bar. */
 	.aside .toggle_aside img.icon,
 	.dropdown-menu .toggle_aside img.icon,
 	#slider .toggle_aside img.icon {
@@ -2511,7 +2511,11 @@ main.post .alert > p:last-child:has(
 }
 
 /* Consolidated shadcn-style alerts. Keep aliases for third-party extensions. */
+/* frss.css gives every alert "margin: 1rem auto; width: 90%", so an alert is a tenth narrower than whatever holds it and the gap grows with the viewport -- and worse where a theme rule replaces the auto margins, as ".prompt.alert" below does with "margin: 1rem": that pins the box to the left inset and drops the entire leftover tenth on the right, visibly lopsided in a wide stream card. An auto width lets the box fill its container instead, and the inline margins have to go with it, not only to close the gap: the settings forms place a loose alert as a grid item spanning both columns (".post .form-group > :not(.group-name, .group-controls)"), and an auto margin suppresses the stretch such an item would otherwise get -- an auto width then resolves against the content rather than the track, shrinking the box to its own text. Zero margins let it stretch; rows that want an inset restate one after this. border-box keeps the padding inside the width where an explicit one survives, such as base's ".group-controls .alert". */
 .alert {
+	box-sizing: border-box;
+	width: auto;
+	margin-inline: 0;
 	border-radius: var(--at-radius-l);
 	border: 1px solid var(--border);
 	background: var(--muted);
@@ -3652,6 +3656,52 @@ progress {
 .prompt.alert {
 	margin: 1rem;
 	text-align: center;
+}
+
+/* An empty stream is a state, not a warning. FreshRSS reuses the alert component for it -- the same "prompt alert alert-warn" box in the normal, reader and global views -- so the routine case of a list with nothing in it arrived as a wide yellow banner, the loudest surface in the theme, for a favourites list nobody has filled yet. Inside its own view the box drops the alert's tint, border and shadow and becomes an empty state: an icon, a line of text, and the room around them, which is what carries the meaning here. It stays the alert everywhere else, because everywhere else it is one. */
+#stream > .prompt.alert {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.75rem;
+	margin: 0;
+	padding: clamp(2.5rem, 14vh, 5rem) 2rem;
+	border: 0;
+	border-radius: 0;
+	background: none;
+	box-shadow: none;
+	color: var(--muted-foreground);
+}
+
+/* The icon is a mask rather than an image: an external SVG carries the stroke color the build baked into it, and this one has to follow the text through both schemes. */
+#stream > .prompt.alert::before {
+	content: "";
+	display: block;
+	inline-size: 2.5rem;
+	block-size: 2.5rem;
+	background-color: currentColor;
+	opacity: 0.55;
+	-webkit-mask-image: url("icons/inbox.svg");
+	-webkit-mask-position: center;
+	-webkit-mask-repeat: no-repeat;
+	-webkit-mask-size: 2.5rem 2.5rem;
+	mask-image: url("icons/inbox.svg");
+	mask-position: center;
+	mask-repeat: no-repeat;
+	mask-size: 2.5rem 2.5rem;
+}
+
+/* FreshRSS marks the sentence up as an <h2>, and the alert head sets it in bold at the size of a heading. It is the one line of the state, so it reads as body text in the page's own voice, with the message colour a shade above the icon. */
+#stream > .prompt.alert > .alert-head {
+	margin: 0;
+	max-inline-size: 32ch;
+	color: var(--foreground);
+	font-size: 1rem;
+	font-weight: 600;
+	line-height: 1.5;
+	letter-spacing: -0.005em;
+	text-shadow: none;
 }
 
 /* Drop Zone */

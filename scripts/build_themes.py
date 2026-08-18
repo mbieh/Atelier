@@ -12,7 +12,7 @@ import shutil
 import sys
 
 
-from check_theme import released_version, stylesheet_imports
+from check_theme import released_version, stylesheet_imports, theme_folder, theme_name
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -31,8 +31,8 @@ AUTHOR = "mbieh (based on Mapco by Thomas Guesnon)"
 # The steps a scheme has to define. 750 is a rung the published ramps do not have; it is derived in the generated file, so every scheme gets the same relationship instead of a hand-picked value.
 RAMP_STEPS = (50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950)
 
-# The assets in src/ are painted, not inherited: an external SVG cannot pick up the page's currentColor, and a PNG has no tokens at all. So both are authored in one ramp and re-rendered here in the folder's own. That canonical ramp is Mist, and it is read from ramps.json rather than restated as hex, so an asset color is only ever recognised as the step it actually is.
-CANONICAL_PALETTE = "mist"
+# The assets in src/ are painted, not inherited: an external SVG cannot pick up the page's currentColor, and a PNG has no tokens at all. So both are authored in one ramp and re-rendered here in the folder's own. That canonical ramp is the default palette's, Neutral -- an asset is authored in the scheme the theme ships as itself, so the folder most people install is the one whose assets are carried over verbatim -- and it is read from ramps.json rather than restated as hex, so an asset color is only ever recognised as the step it actually is.
+CANONICAL_PALETTE = "neutral"
 
 # The one color in the assets that means something other than a neutral step and stays put in every scheme: the gold of the favorite star, which check_theme.py holds against --favorite.
 FIXED_ASSET_COLORS = {"#ad7d09"}
@@ -129,14 +129,21 @@ def render_metadata(scheme: dict, version: str) -> str:
     steps = scheme["steps"]
     light = oklch_to_hex(*steps["100"])
     dark = oklch_to_hex(*steps["900"])
+    palette = (
+        f"the Tailwind {scheme['title']} palette \u2014 {scheme['character']} "
+        "\u2014 with a clear reading hierarchy, soft radii, and subtle motion."
+    )
+    # The default palette is the theme rather than one of its variants, so its entry says so where a reader meets it: the picker shows the name and this line, and nothing else tells them which of the nine they are looking at.
+    description = (
+        f"Atelier's default palette. Modern light and dark theme inspired by "
+        f"shadcn/ui, on {palette} Eight further palettes ship beside it."
+        if scheme.get("default")
+        else f"Modern light and dark theme inspired by shadcn/ui, on {palette}"
+    )
     metadata = {
-        "name": f"Atelier {scheme['title']}",
+        "name": theme_name(scheme),
         "author": AUTHOR,
-        "description": (
-            "Modern light and dark theme inspired by shadcn/ui, on the Tailwind "
-            f"{scheme['title']} palette \u2014 {scheme['character']} \u2014 with a "
-            "clear reading hierarchy, soft radii, and subtle motion."
-        ),
+        "description": description,
         "version": version,
         "files": THEME_FILES,
         # FreshRSS accepts a light and dark browser theme-color, and the two page backgrounds are what the browser chrome should match.
@@ -181,7 +188,7 @@ def recolor_icon(source: str, mapping: dict[str, str], name: str) -> str:
 
 def build_scheme(scheme: dict, version: str) -> dict[str, bytes]:
     """Render one theme folder as a path -> bytes mapping, relative to it."""
-    folder = f"Atelier-{scheme['title']}"
+    folder = theme_folder(scheme)
     ramp = {step: oklch_to_hex(*scheme["steps"][str(step)]) for step in RAMP_STEPS}
     canonical = {
         step: oklch_to_hex(*canonical_scheme()["steps"][str(step)])
@@ -320,7 +327,7 @@ def main() -> int:
 
     problems: list[str] = []
     for scheme in schemes:
-        target = ROOT / f"Atelier-{scheme['title']}"
+        target = ROOT / theme_folder(scheme)
         try:
             files = build_scheme(scheme, version)
         except ValueError as error:

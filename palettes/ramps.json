@@ -1,5 +1,5 @@
 {
-	"$comment": "The neutral ramps Atelier ships, verbatim from Tailwind CSS 4.3 (packages/tailwindcss/theme.css). Lightness in percent, chroma, hue in degrees; a hue of 0 stands for Tailwind's `none`, which is what an achromatic step carries. scripts/build_themes.py converts these to sRGB hex, because WCAG contrast is defined in that space -- the OKLCH source stays here so the conversion is auditable, and it is written into every generated _palette.css beside its hex. The `character` line is what the theme's description tells a reader in the FreshRSS picker.",
+	"$comment": "The neutral ramps Atelier ships, verbatim from Tailwind CSS 4.3 (packages/tailwindcss/theme.css). Lightness in percent, chroma, hue in degrees; a hue of 0 stands for Tailwind's `none`, which is what an achromatic step carries. scripts/build_themes.py converts these to sRGB hex, because WCAG contrast is defined in that space -- the OKLCH source stays here so the conversion is auditable, and it is written into every generated _palette.css beside its hex. The `character` line is what the theme's description tells a reader in the FreshRSS picker. One scheme carries two more keys: `folder` names the directory it is built into, and `default` marks it as the palette Atelier ships as itself -- that is the Neutral ramp, which is why its folder is plain `Atelier` and its picker entry has no palette in its name. Both are optional; every other scheme takes the folder and the name from its title.",
 	"schemes": [
 		{
 			"name": "slate",
@@ -59,6 +59,8 @@
 			"name": "neutral",
 			"title": "Neutral",
 			"character": "grey without a hue",
+			"folder": "Atelier",
+			"default": true,
 			"steps": {
 				"50": [98.5, 0.0, 0.0],
 				"100": [97.0, 0.0, 0.0],

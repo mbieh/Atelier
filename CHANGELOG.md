@@ -4,6 +4,19 @@ All notable changes to this project are documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## 1.4.0 - 2026-08-18
+
+### Changed
+
+- The Neutral palette ships as Atelier itself. Its folder is `Atelier` rather than `Atelier-Neutral`, and the theme picker lists it as **Atelier**, with the palette named in the description underneath — it is the theme, and the other eight are the palettes it also comes in. Nothing about the design changed: the folder holds the same ramp, grey without a hue, and the same rules as before. **Anyone using Atelier-Neutral has to pick the theme again after updating.** FreshRSS stores the folder name as the identity of a selection, so a renamed folder reads as a theme that is no longer installed and the account falls back to the default. Copy the new `Atelier` folder into `p/themes/`, select it once, and remove the old folder.
+- The folder a scheme is built into is stated in `palettes/ramps.json` instead of derived from its title, and both scripts read it through one function. A folder name is what FreshRSS remembers about a user's choice, so it is a fact the repository states once rather than a string two scripts each rebuild from the palette's name.
+- The assets in `src/` are authored in Neutral, the palette Atelier ships as itself, rather than in Mist. The build re-renders every icon into the ramp of the folder it writes, so this is invisible in all nine — but the folder most people install is now the one whose icons are carried over verbatim, with no conversion between an authored color and a shipped one.
+
+### Fixed
+
+- An alert fills the width it is given. The base theme sizes every alert at `width: 90%` with automatic side margins, so each one sat a tenth narrower than whatever held it, and the gap grew with the window. Where Atelier had replaced those margins with a fixed inset, the whole leftover tenth collected on one side — visibly lopsided in a wide stream card. Alerts size to their container now, which also settles a subtler case: a loose alert inside a settings row is a grid item spanning both columns, and an automatic margin suppresses the stretch such an item would otherwise get, so an alert that asked for no particular width would have shrunk to the length of its own sentence.
+- An empty stream reads as a state rather than a warning. FreshRSS renders "There are no articles to show" with the same alert component it uses for problems, which made an unread list that is simply empty — or a favourites list nobody has filled yet — the loudest surface on the page. Inside the stream that box now drops the alert's tint, border and shadow and becomes an empty state: an inbox icon, one line of text in the page's own voice, and the room around them. It stays an alert everywhere else, because everywhere else it is one.
+
 ## 1.3.2 - 2026-08-17
 
 ### Fixed
