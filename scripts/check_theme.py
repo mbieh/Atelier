@@ -297,8 +297,14 @@ STRUCTURAL_LAYER_CONTROL_RULES = (
     ),
 )
 REQUIRED_DARK_ICON_RULES = (
-    LayoutRule('#sidebar img.icon:not([src$="/starred.svg"])', context=DARK),
+    LayoutRule(
+        ':where(.darkMode_auto) #sidebar img.icon:not([src$="/starred.svg"])',
+        context=DARK,
+    ),
 )
+
+# Dark rules answer to two things at once: the system preference, and the FreshRSS setting that says whether the preference may be read at all. A rule that carries the media query but not the gate turns dark for a reader who asked for no dark mode, so the two are checked together rather than one of them.
+DARK_MODE_GATE = ":where(.darkMode_auto)"
 
 # Every stylesheet Atelier owns. All of them have to stay direction-neutral, whether FreshRSS requests them by name or atelier.css pulls them in. _palette.css is absent because it is generated per folder; each shipped copy is checked where it lands.
 DIRECTION_NEUTRAL_FILES = (
@@ -608,6 +614,25 @@ def check_direction_neutral(path: Path, css: str) -> list[str]:
                 f"/* {RTL_SAFE_MARKER}: ... */ comment"
             )
     return sorted(errors, key=lambda entry: int(entry.split(":")[1]))
+
+
+def check_dark_mode_gate(path: Path, css: str) -> list[str]:
+    """Hold every dark rule to the setting as well as to the system preference."""
+    try:
+        rules = parse_rules(css)
+    except ValueError:
+        return []
+    errors: list[str] = []
+    for rule in rules:
+        if not any("prefers-color-scheme: dark" in part for part in rule.context):
+            continue
+        if all(DARK_MODE_GATE in part for part in rule.selector.split(",")):
+            continue
+        errors.append(
+            f"{path}:{rule.line}: dark rule without {DARK_MODE_GATE}; it would "
+            "turn dark for a reader who set FreshRSS's automatic dark mode to No"
+        )
+    return errors
 
 
 def check_required_rules(
@@ -1169,6 +1194,7 @@ def main() -> int:
         path = SOURCE / filename
         content = path.read_text(encoding="utf-8")
         errors.extend(check_direction_neutral(Path("src") / filename, content))
+        errors.extend(check_dark_mode_gate(Path("src") / filename, content))
         # A sheet that loses its guard is silent here and wrong in FreshRSS: rtlcss would flip the :dir() pairs it was never meant to touch, and the mirror it writes would reverse a right-to-left page against itself.
         if (
             RTL_IGNORE_BEGIN not in content

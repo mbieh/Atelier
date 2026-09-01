@@ -100,7 +100,7 @@ Switch to another theme under **Configuration → Display**, then delete the `<F
 
 ## Light and dark mode
 
-Atelier follows your operating system's appearance setting. Switch your system to dark mode and FreshRSS turns dark on the next page load. There is no separate switch inside FreshRSS, and no preference is stored.
+Atelier follows your operating system's appearance setting, as long as FreshRSS is set to let it. **Configuration → Display → Automatic dark mode** carries that permission and ships as *Auto*; set it to *No* and the theme stays light whatever the system says. Switch your system to dark mode and FreshRSS turns dark on the next page load. Nothing else is stored, and there is no separate switch.
 
 ## How the palettes work
 

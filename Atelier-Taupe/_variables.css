@@ -159,7 +159,8 @@
 }
 
 @media (prefers-color-scheme: dark) {
-	:root {
+	/* FreshRSS carries a user setting for automatic dark mode -- "Automatic dark mode" under Display, which it advertises for this theme because metadata.json names a dark theme-color -- and marks the choice with a darkMode_auto class on the root element. Reading the system preference without it meant the setting said one thing and the page did another for anyone who had turned it off. The class is matched inside :where() so it gates the rule without lending it specificity, which keeps every weight in this file the one it was written as. */
+	:root:where(.darkMode_auto) {
 		color-scheme: dark;
 
 		/* The dark surfaces walk down the same ramp: page 900, cards 800, raised states between 800 and 700. Decorative boundaries use step 700; fields keep the higher-contrast --input role below. */

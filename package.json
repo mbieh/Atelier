@@ -1,6 +1,6 @@
 {
 	"name": "atelier-freshrss-theme",
-	"version": "1.4.1",
+	"version": "1.5.0",
 	"description": "Tooling for the Atelier theme for FreshRSS. The theme itself needs none of this: a folder is copied into p/themes/ and read by a browser.",
 	"private": true,
 	"license": "AGPL-3.0-or-later",

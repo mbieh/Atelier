@@ -65,7 +65,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-	:root {
+	:root:where(.darkMode_auto) {
 		/* No field-border override here. The dark scheme used to blend the foreground at 20%, which composited to 1.89:1 against the card and left field boundaries below WCAG 1.4.11. --input carries the contrast-checked value in both schemes now. */
 		--at-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.16);
 		--at-shadow-md: 0 1px 2px rgba(0, 0, 0, 0.28), 0 8px 24px rgba(0, 0, 0, 0.2);
@@ -244,7 +244,7 @@ select:not([multiple]):not([size]) {
 }
 
 @media (prefers-color-scheme: dark) {
-	select:not([multiple]):not([size]) {
+	:where(.darkMode_auto) select:not([multiple]):not([size]) {
 		background-image: url("icons/down-dark.svg");
 	}
 }
@@ -529,8 +529,8 @@ input[type="file"]::file-selector-button {
 }
 
 @media (prefers-color-scheme: dark) {
-	.header .item.title a .logo,
-	.header .item.title a:hover .logo {
+	:where(.darkMode_auto) .header .item.title a .logo,
+	:where(.darkMode_auto) .header .item.title a:hover .logo {
 		filter: invert(1) brightness(1.05);
 	}
 }
@@ -1297,9 +1297,9 @@ main.prompt h1,
 /* Dark mode inverts the primary surface to a light tone, so the icon keeps its native stroke instead — the same exemption .btn.btn-important already uses. */
 
 @media (max-width: 840px) and (prefers-color-scheme: dark) {
-	.aside .toggle_aside img.icon,
-	.dropdown-menu .toggle_aside img.icon,
-	#slider .toggle_aside img.icon {
+	:where(.darkMode_auto) .aside .toggle_aside img.icon,
+	:where(.darkMode_auto) .dropdown-menu .toggle_aside img.icon,
+	:where(.darkMode_auto) #slider .toggle_aside img.icon {
 		filter: none !important;
 	}
 }
@@ -3530,13 +3530,13 @@ tbody tr:hover {
 /* --primary is the darkest solid the theme fills with, which is what makes it the plate -- but it is a role, not a step: in the dark scheme it inverts to a light neutral, and a pale bar under the picture is the opposite of what this is for. There the page's own surface is the darkest one at hand, a step below the card, and it takes a hairline because that step alone is a quiet boundary. */
 
 @media (prefers-color-scheme: dark) {
-	.theme-preview-list .properties {
+	:where(.darkMode_auto) .theme-preview-list .properties {
 		background: var(--background);
 		color: var(--muted-foreground);
 		border-top: 1px solid var(--border);
 	}
 
-	.theme-preview-list .properties > div:first-child {
+	:where(.darkMode_auto) .theme-preview-list .properties > div:first-child {
 		color: var(--foreground);
 	}
 }
@@ -3938,27 +3938,27 @@ summary:focus-visible {
 
 @media (prefers-color-scheme: dark) {
 	/* Locally bundled neutral SVGs use a fixed light-theme stroke because external SVG files cannot inherit the page's currentColor. Keep these rules last so they win over Mapco's component-specific icon filters. */
-	img.icon:not([src$="/starred.svg"]),
+	:where(.darkMode_auto) img.icon:not([src$="/starred.svg"]),
 	/* The ID raises specificity above the light-theme sidebar reset without affecting feed favicons or the intentionally gold favorite icon. */
-	#sidebar img.icon:not([src$="/starred.svg"]) {
+	:where(.darkMode_auto) #sidebar img.icon:not([src$="/starred.svg"]) {
 		filter: brightness(0) saturate(100%) invert(84%) !important;
 	}
 
-	#bigMarkAsRead.big .bigTick {
+	:where(.darkMode_auto) #bigMarkAsRead.big .bigTick {
 		filter: brightness(0) saturate(100%) invert(84%) !important;
 	}
 
-	.btn.btn-important img.icon:not([src$="/starred.svg"]),
-	.notification .close img.icon {
+	:where(.darkMode_auto) .btn.btn-important img.icon:not([src$="/starred.svg"]),
+	:where(.darkMode_auto) .notification .close img.icon {
 		filter: none !important;
 	}
 
 	/* The sidebar's segmented subscription control overrides its primary surface with the dark secondary surface, so its add glyph needs the same light treatment as the surrounding sidebar actions. */
-	.aside .stick #btn-add img.icon:not([src$="/starred.svg"]) {
+	:where(.darkMode_auto) .aside .stick #btn-add img.icon:not([src$="/starred.svg"]) {
 		filter: brightness(0) saturate(100%) invert(84%) !important;
 	}
 
-	.box .box-title form .dropdown a.dropdown-toggle {
+	:where(.darkMode_auto) .box .box-title form .dropdown a.dropdown-toggle {
 		background-image: url("icons/more-dark.svg");
 	}
 }

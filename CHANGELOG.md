@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## 1.5.0 - 2026-09-01
+
+### Fixed
+
+- Dark mode follows FreshRSS's setting for it, not only the operating system. FreshRSS carries an "Automatic dark mode" setting under Display and marks the choice with a `darkMode_auto` class on the root element; it also advertises this theme as supporting it, because `metadata.json` names a dark `theme-color`. Atelier read the system preference and nothing else, so a reader who had turned automatic dark mode off still got a dark page — the setting said one thing and the interface did another. Every rule behind `prefers-color-scheme: dark` is now gated on that class, matched inside `:where()` so the gate lends it no specificity and every weight in the sheet stays what it was written as. The setting ships as "Auto", so nothing changes for anyone who never touched it. `check_theme.py` rejects a dark rule that arrives without the gate.
+
 ## 1.4.1 - 2026-09-01
 
 ### Changed
