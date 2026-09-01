@@ -1,3 +1,4 @@
+/*rtl:begin:ignore*/
 /*=== STRUCTURE */
 /*===============*/
 /*=== Header */
@@ -24,7 +25,6 @@
 		}
 
 		/* Atelier UI styles the search field, its submit button and all of their states as one control; nothing structural is needed here. */
-
 		&.configure {
 			text-align: center;
 
@@ -321,3 +321,4 @@ main.prompt {
 #nav_entries {
 	background: var(--sid-bg);
 }
+/*rtl:end:ignore*/

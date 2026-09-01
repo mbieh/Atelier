@@ -1,3 +1,4 @@
+/*rtl:begin:ignore*/
 /*=== Tables */
 table {
 	border-collapse: collapse;
@@ -16,3 +17,4 @@ th {
 	font-weight: normal;
 	text-align: center;
 }
+/*rtl:end:ignore*/

@@ -1,3 +1,4 @@
+/*rtl:begin:ignore*/
 /*=== READER VIEW */
 /*================*/
 #stream.reader {
@@ -16,3 +17,4 @@
 		}
 	}
 }
+/*rtl:end:ignore*/

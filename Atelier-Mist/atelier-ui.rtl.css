@@ -28,7 +28,6 @@
  */
 
 /*=== 1. Tokens & typography =========================================*/
-
 :root {
 	--at-sans: "Inter", "Inter Variable", ui-sans-serif, system-ui, -apple-system,
 		BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -76,9 +75,9 @@
 
 html,
 body {
-	font-family: var(--at-sans);
 	background: var(--background);
 	color: var(--foreground);
+	font-family: var(--at-sans);
 }
 
 ::selection {
@@ -114,6 +113,11 @@ body {
 /* Base variant: shadcn "outline" */
 .btn {
 	display: inline-flex;
+	color: var(--card-foreground);
+	font-size: 0.875rem;
+	border: 1px solid var(--at-button-border);
+	border-radius: var(--at-radius-m);
+	box-shadow: var(--at-shadow-xs);
 	align-items: center;
 	justify-content: center;
 	box-sizing: border-box;
@@ -122,15 +126,10 @@ body {
 	gap: 0.5rem;
 	padding-block: 0;
 	padding-inline: var(--at-control-padding-inline);
-	border-radius: var(--at-radius-m);
-	border: 1px solid var(--at-button-border);
 	background-color: var(--card);
-	color: var(--card-foreground);
-	font-size: 0.875rem;
 	font-weight: 500;
 	line-height: 1;
 	white-space: nowrap;
-	box-shadow: var(--at-shadow-xs);
 	transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out,
 		box-shadow 0.15s ease-in-out;
 }
@@ -168,11 +167,11 @@ body {
 }
 
 .btn.btn-attention {
-	border-radius: var(--at-radius-m);
 	background: var(--destructive);
-	border-color: var(--destructive);
 	color: var(--destructive-foreground);
+	border-radius: var(--at-radius-m);
 	box-shadow: var(--at-shadow-xs);
+	border-color: var(--destructive);
 }
 
 .btn.btn-attention:hover {
@@ -200,18 +199,17 @@ button.as-link:hover {
 }
 
 /*=== 3. Forms & search ==============================================*/
-
 input,
 select,
 textarea {
-	box-sizing: border-box;
-	border-radius: var(--at-radius-m);
-	border: 1px solid var(--at-field-border);
 	background: var(--card);
 	color: var(--foreground);
 	font-family: var(--at-sans);
 	font-size: 0.875rem;
+	border: 1px solid var(--at-field-border);
+	border-radius: var(--at-radius-m);
 	box-shadow: var(--at-shadow-xs);
+	box-sizing: border-box;
 	transition: border-color 0.15s ease-out, box-shadow 0.15s ease-out;
 }
 
@@ -308,19 +306,19 @@ label,
 
 input[type="checkbox"],
 input[type="radio"] {
-	appearance: none;
+	margin: 0;
+	padding: 0;
+	background: var(--card);
 	display: inline-grid;
+	border: 1px solid var(--input);
+	box-shadow: var(--at-shadow-xs);
+	appearance: none;
 	place-content: center;
 	inline-size: 1rem;
 	block-size: 1rem;
 	min-inline-size: 1rem;
 	min-block-size: 1rem;
-	margin: 0;
 	margin-inline-end: 0.45rem;
-	padding: 0;
-	border: 1px solid var(--input);
-	background: var(--card);
-	box-shadow: var(--at-shadow-xs);
 	vertical-align: -0.125rem;
 }
 
@@ -347,8 +345,8 @@ input[type="checkbox"]::before {
 }
 
 input[type="radio"]::before {
-	border-radius: 50%;
 	background: var(--primary-foreground);
+	border-radius: 50%;
 }
 
 input[type="checkbox"]:checked,
@@ -381,29 +379,29 @@ input[type="radio"]:focus-visible {
 }
 
 input[type="file"]::file-selector-button {
-	margin-inline-end: 0.75rem;
 	padding: 0.25rem 0.75rem;
-	border: 0;
-	border-inline-end: 1px solid var(--border);
 	background: var(--muted);
 	color: var(--foreground);
 	font: inherit;
+	border: 0;
+	margin-inline-end: 0.75rem;
+	border-inline-end: 1px solid var(--border);
 	font-weight: 500;
 	cursor: pointer;
 }
 
 /* FreshRSS's extension toggle maps directly to the shadcn Switch pattern. */
 .switch {
+	padding: 0;
+	background: var(--input);
+	border: 0;
+	border-radius: 999px;
+	box-shadow: none;
 	box-sizing: border-box;
 	inline-size: 2.25rem;
 	block-size: 1.25rem;
 	min-block-size: 1.25rem;
 	margin-inline: 0.5rem;
-	padding: 0;
-	border: 0;
-	border-radius: 999px;
-	background: var(--input);
-	box-shadow: none;
 	transition: background-color 0.15s ease-out;
 }
 
@@ -419,15 +417,15 @@ input[type="file"]::file-selector-button {
 
 .switch::before,
 .switch.active::before {
+	background: var(--card);
+	border-radius: 50%;
+	box-shadow: 0 1px 2px rgba(9, 11, 12, 0.2);
 	inset-block-start: 2px;
 	inset-inline-start: 2px;
 	inset-inline-end: auto;
 	inline-size: 1rem;
 	block-size: 1rem;
-	border-radius: 50%;
-	background: var(--card);
 	background-image: none;
-	box-shadow: 0 1px 2px rgba(9, 11, 12, 0.2);
 	transition: transform 0.15s ease-out;
 }
 
@@ -461,8 +459,8 @@ input[type="file"]::file-selector-button {
 .header .item.search .stick,
 #dropdown-search-wrapper .stick.search {
 	padding: 0;
-	border: 0;
 	background: transparent;
+	border: 0;
 }
 
 .header .item.search form,
@@ -477,20 +475,20 @@ input[type="file"]::file-selector-button {
 }
 
 .header .item.search input {
+	max-width: none;
+	width: auto;
+	border: 1px solid var(--at-field-border);
+	border-radius: var(--at-radius-m);
+	box-shadow: var(--at-shadow-xs);
 	grid-area: 1 / 1 / 2 / 2;
 	box-sizing: border-box;
 	justify-self: stretch;
 	inline-size: auto;
-	width: auto;
 	max-inline-size: none;
-	max-width: none;
 	block-size: var(--at-control-size);
-	border-radius: var(--at-radius-m);
-	border: 1px solid var(--at-field-border);
 	background-color: var(--card);
 	padding-inline-end: 2.75rem;
 	outline: none;
-	box-shadow: var(--at-shadow-xs);
 }
 
 .header .item.search input:focus {
@@ -500,17 +498,17 @@ input[type="file"]::file-selector-button {
 }
 
 .header .item.search .btn {
+	margin: 0;
+	padding: 0;
+	border: none;
+	border-radius: var(--at-radius-s);
+	box-shadow: none;
 	grid-area: 1 / 1 / 2 / 2;
 	justify-self: end;
 	inline-size: var(--at-control-size);
 	block-size: var(--at-control-size);
 	min-block-size: var(--at-control-size);
-	margin: 0;
-	padding: 0;
-	border: none;
 	background-color: transparent;
-	box-shadow: none;
-	border-radius: var(--at-radius-s);
 }
 
 .header .item.search .btn:hover {
@@ -557,17 +555,17 @@ input[type="file"]::file-selector-button {
 }
 
 .header .item.configure .btn {
+	padding: 0;
+	background: var(--card);
 	display: inline-grid;
+	border: 1px solid var(--at-button-border);
+	border-radius: var(--at-radius-m);
+	box-shadow: var(--at-shadow-xs);
 	place-items: center;
 	box-sizing: border-box;
 	inline-size: var(--at-control-size);
 	block-size: var(--at-control-size);
 	min-block-size: var(--at-control-size);
-	padding: 0;
-	border: 1px solid var(--at-button-border);
-	border-radius: var(--at-radius-m);
-	background: var(--card);
-	box-shadow: var(--at-shadow-xs);
 }
 
 .header .item.configure .signin {
@@ -613,14 +611,14 @@ input[type="file"]::file-selector-button {
 
 .nav_menu .stick,
 .nav_menu .group {
+	background: var(--card);
 	display: inline-flex;
+	border: 1px solid var(--at-button-border);
+	border-radius: var(--at-radius-m);
+	box-shadow: var(--at-shadow-xs);
 	align-items: center;
 	box-sizing: border-box;
 	block-size: var(--at-control-size);
-	border: 1px solid var(--at-button-border);
-	border-radius: var(--at-radius-m);
-	background: var(--card);
-	box-shadow: var(--at-shadow-xs);
 	overflow: visible;
 }
 
@@ -631,15 +629,15 @@ input[type="file"]::file-selector-button {
 
 /* An extension may nest a second .stick inside a group -- QuickCollapse wraps the sort trigger and its own button that way, inside the dropdown. A nested group is a wrapper, not a second card: it was drawing its own hairline and 8px radius mid-group, and its own height stood 2px taller than the space between its parent's borders. Strip it to a stretching row and let the outer group keep the boundary; its outer segments carry the end caps, since a wrapper like this holds everything the group shows. */
 .nav_menu :is(.stick, .group) :is(.stick, .group) {
+	margin: 0;
+	background: transparent;
 	display: flex;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
 	align-self: stretch;
 	block-size: 100%;
 	min-block-size: 0;
-	margin: 0;
-	border: 0;
-	border-radius: 0;
-	background: transparent;
-	box-shadow: none;
 }
 
 .nav_menu :is(.stick, .group) :is(.stick, .group) > .btn {
@@ -675,22 +673,22 @@ input[type="file"]::file-selector-button {
 
 /* Extensions fill #nav_menu_hooks with markup this theme never sees, and a control there is often a bare <a> or <button> that never got FreshRSS' .btn class. Such a segment kept its intrinsic size and sat in the group at its own height, breaking the row it shares. Give it the segment geometry, the quiet surface, and the end-cap corners that a .btn already gets. */
 .nav_menu :is(.stick, .group) > :is(a, button, label):not(.btn) {
+	margin: 0;
 	display: inline-flex;
+	color: var(--card-foreground);
+	font-size: 0.875rem;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
 	align-items: center;
 	justify-content: center;
 	box-sizing: border-box;
 	block-size: 100%;
 	min-block-size: 100%;
 	min-inline-size: var(--at-control-size);
-	margin: 0;
 	padding-block: 0;
 	padding-inline: var(--at-control-padding-inline);
-	border: 0;
-	border-radius: 0;
 	background-color: transparent;
-	box-shadow: none;
-	color: var(--card-foreground);
-	font-size: 0.875rem;
 	font-weight: 500;
 	line-height: 1;
 	white-space: nowrap;
@@ -743,7 +741,7 @@ input[type="file"]::file-selector-button {
 
 /* Paint the ellipsis from currentColor instead of selecting a second fixed- color SVG for dark mode. This keeps an enabled menu trigger at the same visual weight as the other toolbar actions while parent opacity still communicates a genuinely disabled state. */
 .nav_menu :is(.stick, .group) .dropdown:not(#dropdown-search-wrapper) >
-	a.dropdown-toggle::before {
+a.dropdown-toggle::before {
 	content: "";
 	display: block;
 	flex: 0 0 1rem;
@@ -751,7 +749,6 @@ input[type="file"]::file-selector-button {
 	block-size: 1rem;
 	background-color: var(--card-foreground);
 	opacity: 0.8;
-	-webkit-mask: url("icons/more.svg") center / 1rem 1rem no-repeat;
 	mask: url("icons/more.svg") center / 1rem 1rem no-repeat;
 }
 
@@ -761,8 +758,8 @@ input[type="file"]::file-selector-button {
 }
 
 #nav_menu_sort #toggle-order > .icon {
-	display: block;
 	margin: 0;
+	display: block;
 }
 
 /* QuickCollapse ships one fixed-color asset per state, both at #bebebe, so its control read as permanently disabled next to icons that follow the scheme. An external SVG cannot inherit currentColor, so paint the glyph from a mask the way the overflow trigger does, and take the pair from the bundled Lucide set: chevrons meeting for "collapse", parting for "expand". The extension's own stylesheet loads after the theme and reveals the second asset through #toggle-collapse.collapsed .uncollapse, so the rule that hides it has to carry more weight than that. */
@@ -778,25 +775,23 @@ input[type="file"]::file-selector-button {
 	inline-size: 1rem;
 	block-size: 1rem;
 	background-color: currentColor;
-	-webkit-mask: url("icons/chevrons-down-up.svg") center / 1rem 1rem no-repeat;
 	mask: url("icons/chevrons-down-up.svg") center / 1rem 1rem no-repeat;
 }
 
 /* The extension marks the collapsed stream on the button, where the action turns into "expand". */
 #toggle-collapse.collapsed::before {
-	-webkit-mask-image: url("icons/chevrons-up-down.svg");
 	mask-image: url("icons/chevrons-up-down.svg");
 }
 
 /* Standalone toolbar controls use the same geometry and surface as a group. Their height cannot come from a group either: the subscription view emits the sidebar button in a plain <div> where the configuration view uses a .group, so block-size: 100% resolved against an auto height and the button collapsed to its content. State the control height here instead. */
 .nav_menu > .btn,
 .nav_menu > :not(.stick, .group) > .btn {
-	block-size: var(--at-control-size);
-	min-block-size: var(--at-control-size);
+	background: var(--card);
 	border: 1px solid var(--at-button-border);
 	border-radius: var(--at-radius-m);
-	background: var(--card);
 	box-shadow: var(--at-shadow-xs);
+	block-size: var(--at-control-size);
+	min-block-size: var(--at-control-size);
 }
 
 @media (min-width: 841px) {
@@ -871,7 +866,6 @@ input[type="file"]::file-selector-button {
 }
 
 /*=== 5. Sidebar =====================================================*/
-
 .aside.aside_feed {
 	background: var(--sidebar);
 	border-inline-end: 1px solid var(--sidebar-border);
@@ -906,6 +900,7 @@ input[type="file"]::file-selector-button {
 }
 
 /* Sidebar rows reserve intrinsic columns for controls, labels, and counters. This replaces the base theme's percentage-minus-pixels calculations. The control column is pinned rather than intrinsic: a category row holds a 2rem collapse button where a feed row holds a 1rem icon, so an auto track sized them differently and staggered both the glyphs and the titles. */
+/* stylelint-disable-next-line no-duplicate-selectors */
 .aside_feed .tree-folder .tree-folder-title {
 	display: grid;
 	grid-template-columns: 1rem minmax(0, 1fr) auto;
@@ -938,10 +933,10 @@ input[type="file"]::file-selector-button {
 }
 
 .aside_feed .tree-folder .tree-folder-title > .dropdown-toggle > .icon {
+	margin: 0;
 	display: block;
 	inline-size: 1rem;
 	block-size: 1rem;
-	margin: 0;
 }
 
 .aside_feed .tree-folder .tree-folder-title > .title {
@@ -988,11 +983,11 @@ input[type="file"]::file-selector-button {
 
 /* Feed entries use lightweight ghost rows. */
 .aside_feed .tree-folder-items .item {
+	margin: 1px 6px;
 	display: grid;
+	border-radius: var(--at-radius-s);
 	grid-template-columns: auto minmax(0, 1fr);
 	align-items: center;
-	border-radius: var(--at-radius-s);
-	margin: 1px 6px;
 }
 
 /* Both children need explicit placement. FreshRSS omits the dropdown entirely beyond simplify_over_n_feeds and hides it below 840px via .no-mobile, and a display:none grid item claims no cell. Without this, .item-title auto-places into the intrinsic first column, collapses to its zero min-content width, and the empty 1fr column swallows the row. */
@@ -1063,19 +1058,19 @@ input[type="file"]::file-selector-button {
 /* Sidebar controls use shadcn-style primary and secondary treatments. */
 .aside .btn.btn-important {
 	background: var(--sidebar-primary);
-	border: none;
 	color: var(--sidebar-primary-foreground);
-	box-shadow: none;
+	border: none;
 	border-radius: var(--at-radius-m);
+	box-shadow: none;
 	font-weight: 600;
 }
 
 .aside .stick .btn {
 	background: var(--secondary);
-	border: none;
 	color: var(--secondary-foreground);
-	box-shadow: none;
+	border: none;
 	border-radius: var(--at-radius-m);
+	box-shadow: none;
 	font-weight: 600;
 }
 
@@ -1111,16 +1106,16 @@ input[type="file"]::file-selector-button {
 .aside_feed .tree-folder-title[data-unread]:not([data-unread="0"])::after,
 .aside_feed .tree-folder.category[data-unread]:not([data-unread="0"])::after,
 .aside_feed .feed .item-title:not([data-unread="0"])::after {
-	display: block;
-	box-sizing: border-box;
-	min-inline-size: 2rem;
 	padding: 0.25rem 0.5rem;
+	background: var(--sidebar-accent);
+	display: block;
+	color: var(--sidebar-accent-foreground);
+	font-size: 0.9rem;
 	/* The base theme outlines the active feed's counter only. Reset it here so every counter in the tree keeps the same pill silhouette. */
 	border: none;
 	border-radius: 999px;
-	background: var(--sidebar-accent);
-	color: var(--sidebar-accent-foreground);
-	font-size: 0.9rem;
+	box-sizing: border-box;
+	min-inline-size: 2rem;
 	font-weight: 600;
 	line-height: 1;
 	text-align: center;
@@ -1134,6 +1129,7 @@ input[type="file"]::file-selector-button {
 }
 
 /* Stretch the sidebar to the page end with a desktop CSS Grid. The sidebar becomes a real stretching column while the content card ends with its content. This replaces the base table-cell layout. The page background is the flat --background set in section 1: do not paint a gradient on <body>, because inherited rules such as "#stream { background: inherit }" redraw it relative to their own boxes and create visible ghost strips. */
+
 @media (min-width: 841px) {
 	body {
 		display: flex;
@@ -1198,8 +1194,7 @@ input[type="file"]::file-selector-button {
 	#global:has(#nav_menu_toggle_aside button:focus) > .aside,
 	#global:has(> .aside .toggle_aside:focus) > .aside,
 	#global:has(> .aside .close-aside:focus) > .aside {
-		transition:
-			width 240ms cubic-bezier(0.22, 1, 0.36, 1),
+		transition: width 240ms cubic-bezier(0.22, 1, 0.36, 1),
 			border-inline-end-width 160ms ease-out,
 			opacity 160ms ease-out,
 			transform 240ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -1210,8 +1205,7 @@ input[type="file"]::file-selector-button {
 	#global:has(#nav_menu_toggle_aside button:focus) > .aside.is-hidden,
 	#global:has(> .aside .toggle_aside:focus) > .aside.is-hidden,
 	#global:has(> .aside .close-aside:focus) > .aside.is-hidden {
-		transition:
-			width 240ms cubic-bezier(0.22, 1, 0.36, 1),
+		transition: width 240ms cubic-bezier(0.22, 1, 0.36, 1),
 			border-inline-end-width 160ms ease-out,
 			opacity 160ms ease-out,
 			transform 240ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -1247,12 +1241,12 @@ body.register {
 }
 
 main.prompt {
+	padding: 1.5rem;
 	background: var(--card);
 	color: var(--card-foreground);
 	border: 1px solid var(--border);
 	border-radius: var(--at-radius-l);
 	box-shadow: var(--at-shadow-md);
-	padding: 1.5rem;
 }
 
 main.prompt h1,
@@ -1274,13 +1268,13 @@ main.prompt h1,
 
 	/* The desktop toolbar is a flex row; below the breakpoint the base layer's centred inline-blocks took over, spacing the groups with 8px margins that collapse differently per row and indenting the bar by the 3.75rem the desktop sidebar toggle used to need. The same flex row, allowed to wrap, gives every gap one value and every row the same edges. */
 	.nav_menu {
+		padding: 0.5rem;
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
 		justify-content: center;
 		box-sizing: border-box;
 		gap: 0.5rem;
-		padding: 0.5rem;
 		padding-inline-start: 0.5rem;
 		text-align: start;
 	}
@@ -1301,6 +1295,7 @@ main.prompt h1,
 }
 
 /* Dark mode inverts the primary surface to a light tone, so the icon keeps its native stroke instead — the same exemption .btn.btn-important already uses. */
+
 @media (max-width: 840px) and (prefers-color-scheme: dark) {
 	.aside .toggle_aside img.icon,
 	.dropdown-menu .toggle_aside img.icon,
@@ -1328,8 +1323,7 @@ main.prompt h1,
 	/* Optional article controls occupy named intrinsic columns. The source feed becomes an eyebrow above the title, keeping every thumbnail on one shared axis instead of shifting it with each feed name's intrinsic width. */
 	.flux_header {
 		display: grid;
-		grid-template-columns:
-			auto auto auto minmax(0, 1fr) auto auto auto;
+		grid-template-columns: auto auto auto minmax(0, 1fr) auto auto auto;
 		grid-template-areas: "read favorite thumbnail content labels share link";
 		align-items: center;
 		box-sizing: border-box;
@@ -1338,25 +1332,21 @@ main.prompt h1,
 	}
 
 	.flux_header:not(.has-thumbnail) {
-		grid-template-columns:
-			auto auto var(--frss-padding-flux-items, 0.75rem) minmax(0, 1fr) auto auto auto;
+		grid-template-columns: auto auto var(--frss-padding-flux-items, 0.75rem) minmax(0, 1fr) auto auto auto;
 	}
 
 	.flux_header.websiteicon {
-		grid-template-columns:
-			auto auto auto auto minmax(0, 1fr) auto auto auto;
+		grid-template-columns: auto auto auto auto minmax(0, 1fr) auto auto auto;
 		grid-template-areas: "read favorite thumbnail website content labels share link";
 	}
 
 	.flux_header.websiteicon:not(.has-thumbnail) {
-		grid-template-columns:
-			auto auto var(--frss-padding-flux-items, 0.75rem) auto minmax(0, 1fr) auto auto auto;
+		grid-template-columns: auto auto var(--frss-padding-flux-items, 0.75rem) auto minmax(0, 1fr) auto auto auto;
 	}
 
 	.flux_header:is(.websitename, .websitefull) {
 		--at-article-row-end: 4;
-		grid-template-columns:
-			auto auto auto minmax(0, 1fr) max-content auto auto auto;
+		grid-template-columns: auto auto auto minmax(0, 1fr) max-content auto auto auto;
 		grid-template-rows: auto auto auto;
 		grid-template-areas: none;
 	}
@@ -1367,8 +1357,7 @@ main.prompt h1,
 	}
 
 	.flux_header:is(.websitename, .websitefull):not(.has-thumbnail) {
-		grid-template-columns:
-			auto auto var(--frss-padding-flux-items, 0.75rem)
+		grid-template-columns: auto auto var(--frss-padding-flux-items, 0.75rem)
 			minmax(0, 1fr) max-content auto auto auto;
 	}
 
@@ -1399,13 +1388,13 @@ main.prompt h1,
 	}
 
 	.flux .flux_header > .item.website > .item-element {
+		padding: 0;
 		display: flex;
+		color: var(--muted-foreground);
+		font-size: 0.8rem;
 		align-items: center;
 		gap: 0.375rem;
 		min-inline-size: 0;
-		padding: 0;
-		color: var(--muted-foreground);
-		font-size: 0.8rem;
 		font-weight: 500;
 		letter-spacing: 0;
 		line-height: 1rem;
@@ -1479,6 +1468,8 @@ main.prompt h1,
 		grid-row: 1 / var(--at-article-row-end);
 	}
 
+	/* The row's typography is set in the list-view section; this is only where the grid places it, so the two live apart on purpose. */
+	/* stylelint-disable-next-line no-duplicate-selectors */
 	.flux_header:is(.websitename, .websitefull) > .item.website {
 		grid-column: 4;
 		grid-row: 1;
@@ -1525,14 +1516,14 @@ main.prompt h1,
 	.flux_header > .item.manage > .item-element,
 	.flux_header > :is(.item.labels, .item.share) .dropdown-toggle,
 	.flux_header > .item.link > .item-element {
+		padding: 0;
 		display: grid;
+		color: var(--muted-foreground);
+		border-radius: var(--at-radius-s);
 		place-items: center;
 		box-sizing: border-box;
 		inline-size: 2rem;
 		block-size: 2rem;
-		padding: 0;
-		border-radius: var(--at-radius-s);
-		color: var(--muted-foreground);
 		transition: color 0.12s ease-in-out;
 	}
 
@@ -1577,17 +1568,17 @@ main.prompt h1,
 	}
 
 	.flux .flux_header .item.titleAuthorSummaryDate > .date {
+		display: flex;
+		width: auto;
+		color: var(--muted-foreground);
+		font-size: 0.8rem;
 		grid-area: date;
 		position: static;
 		inline-size: max-content;
-		width: auto;
 		padding-block: 0;
 		padding-inline: 1rem 0.5rem;
-		color: var(--muted-foreground);
-		display: flex;
 		align-items: center;
 		justify-content: flex-end;
-		font-size: 0.8rem;
 		font-weight: 500;
 		font-variant-numeric: tabular-nums;
 		letter-spacing: 0;
@@ -1606,19 +1597,19 @@ main.prompt h1,
 	}
 
 	.flux .flux_header:is(.websitename, .websitefull) >
-		.item.titleAuthorSummaryDate > .title {
+	.item.titleAuthorSummaryDate > .title {
 		grid-column: 1 / -1;
 		grid-row: 2;
 		padding-block: 0.125rem 0;
 	}
 
 	.flux .flux_header:is(.websitename, .websitefull):not(.has-summary) >
-		.item.titleAuthorSummaryDate > .title {
+	.item.titleAuthorSummaryDate > .title {
 		padding-block-end: 0.625rem;
 	}
 
 	.flux .flux_header:is(.websitename, .websitefull) >
-		.item.titleAuthorSummaryDate > .date {
+	.item.titleAuthorSummaryDate > .date {
 		grid-column: 2;
 		grid-row: 1 / var(--at-article-row-end);
 		align-self: center;
@@ -1626,13 +1617,13 @@ main.prompt h1,
 	}
 
 	.flux .flux_header:is(.websitename, .websitefull).has-summary >
-		.item.titleAuthorSummaryDate > .date {
+	.item.titleAuthorSummaryDate > .date {
 		grid-row: 1;
 		align-self: end;
 	}
 
 	.flux .flux_header:is(.websitename, .websitefull) >
-		.item.titleAuthorSummaryDate > .summary {
+	.item.titleAuthorSummaryDate > .summary {
 		grid-column: 1 / -1;
 		grid-row: 3;
 		margin-block: 0.25rem 0.625rem;
@@ -1681,22 +1672,22 @@ main.prompt h1,
 
 /* Date separator: a compact section header, not a label floating next to a decorative rule. The full-width surface also gives the first row a clear and stable starting edge. */
 .transition {
+	margin: 0 0.5rem;
+	padding: 0.5rem 0.75rem;
+	background: color-mix(in srgb, var(--muted) 58%, var(--card));
 	display: flex;
+	color: var(--muted-foreground);
+	font-size: 0.75rem;
 	align-items: center;
 	box-sizing: border-box;
 	min-block-size: 2.25rem;
-	margin: 0 0.5rem;
-	padding: 0.5rem 0.75rem;
 	border-block-end: 1px solid var(--border);
 	border-start-start-radius: var(--at-radius-m);
 	border-start-end-radius: var(--at-radius-m);
-	background: color-mix(in srgb, var(--muted) 58%, var(--card));
 	text-transform: none;
 	letter-spacing: 0;
 	font-weight: 600;
-	font-size: 0.75rem;
 	line-height: 1.25rem;
-	color: var(--muted-foreground);
 }
 
 .transition::after {
@@ -1837,19 +1828,19 @@ main.prompt h1,
 
 /* The action reads as one block: the tick carries the weight, the label names it, and the optional jump hint stays a footnote. */
 #bigMarkAsRead.big {
+	margin: 0;
+	padding: 1rem 1.75rem;
+	background: transparent;
 	display: inline-flex;
+	width: auto;
+	color: var(--primary);
+	font-size: 1rem;
+	border-radius: var(--at-radius-l);
 	flex-direction: column;
 	align-items: center;
 	gap: 0.5rem;
 	box-sizing: border-box;
 	inline-size: auto;
-	width: auto;
-	margin: 0;
-	padding: 1rem 1.75rem;
-	border-radius: var(--at-radius-l);
-	background: transparent;
-	color: var(--primary);
-	font-size: 1rem;
 	line-height: 1.4;
 	transition: background-color 0.15s ease-out;
 }
@@ -1909,16 +1900,17 @@ main.prompt h1,
 }
 
 .dropdown-menu {
-	border-radius: var(--at-radius-m);
-	border: 1px solid var(--border);
+	padding: 4px 0;
 	background: color-mix(in srgb, var(--popover) 86%, transparent);
 	color: var(--popover-foreground);
-	backdrop-filter: blur(12px) saturate(1.3);
-	-webkit-backdrop-filter: blur(12px) saturate(1.3);
+	border: 1px solid var(--border);
+	border-radius: var(--at-radius-m);
 	box-shadow: var(--at-shadow-pop);
+	/* stylelint-disable-next-line property-no-vendor-prefix */
+	-webkit-backdrop-filter: blur(12px) saturate(1.3);
+	backdrop-filter: blur(12px) saturate(1.3);  /* stylelint-disable-line property-no-vendor-prefix */
 	overflow: clip;
 	animation: at-pop 0.16s ease-out;
-	padding: 4px 0;
 }
 
 /* The hover surface belongs to the link, not to Mapco's full-width .item. Its width has to be explicit: a button sizes to its content even at display: block, so width: auto left every button entry -- logout, the mark-as-read choices -- with a hover surface that stopped at its label. The inset plus the 4px margin equals the 1rem the settings sidebar uses for its entries and headings, so the two menus share one rhythm. */
@@ -1926,12 +1918,12 @@ main.prompt h1,
 .dropdown-menu .item > span,
 .dropdown-menu .item > button,
 .dropdown-menu .item .as-link {
-	display: block;
-	box-sizing: border-box;
-	width: calc(100% - 8px) !important;
-	padding-inline: 0.75rem;
-	border-radius: var(--at-radius-s);
 	margin: 0 4px;
+	display: block;
+	width: calc(100% - 8px) !important;
+	border-radius: var(--at-radius-s);
+	box-sizing: border-box;
+	padding-inline: 0.75rem;
 }
 
 .dropdown-menu .item:hover,
@@ -1954,12 +1946,12 @@ main.prompt h1,
 
 .dropdown-menu .dropdown-header,
 .dropdown-menu .dropdown-section .dropdown-section-title {
+	color: var(--muted-foreground);
+	font-size: 0.8rem;
 	padding-inline: 1rem;
 	text-transform: none;
 	letter-spacing: 0;
 	font-weight: 600;
-	font-size: 0.8rem;
-	color: var(--muted-foreground);
 }
 
 /* Sort menus mark the active entry with a ✓ that Mapco pulls back into the inset with a negative margin. At this inset that would drop the glyph outside the entry's hover surface, so it gets its own slot instead — the same box the settings icons use. Unchecked entries reserve the slot so the labels of a menu stay on one line. */
@@ -1991,7 +1983,7 @@ main.prompt h1,
 }
 
 .dropdown-menu .dropdown-section:not(.dropdown-section ~ .dropdown-section) >
-	.dropdown-section-title {
+.dropdown-section-title {
 	padding-block-start: 0.5rem;
 }
 
@@ -2008,20 +2000,21 @@ main.prompt h1,
 
 /* Feed actions are a compact command menu rather than a second navigation list. FreshRSS renders this menu from a template without icons or section classes, so its stable link targets provide both the icon mapping and the boundary between navigation and mutating feed actions. */
 .aside_feed .tree-folder-items .feed > .dropdown > .dropdown-menu {
-	box-sizing: border-box;
-	min-inline-size: 15rem;
 	padding: 0.375rem;
 	background: var(--popover);
-	backdrop-filter: none;
+	box-sizing: border-box;
+	min-inline-size: 15rem;
+	/* stylelint-disable-next-line property-no-vendor-prefix */
 	-webkit-backdrop-filter: none;
+	backdrop-filter: none;  /* stylelint-disable-line property-no-vendor-prefix */
 }
 
 .aside_feed .tree-folder-items .feed > .dropdown > .dropdown-menu .item {
-	display: block;
-	inline-size: 100%;
 	margin: 0;
 	padding: 0;
+	display: block;
 	border-radius: var(--at-radius-s);
+	inline-size: 100%;
 }
 
 .aside_feed .tree-folder-items .feed > .dropdown > .dropdown-menu .item + .item {
@@ -2029,22 +2022,22 @@ main.prompt h1,
 }
 
 .aside_feed .tree-folder-items .feed > .dropdown > .dropdown-menu .item > :is(
-		a,
-		button,
-		.as-link
-	) {
+	a,
+	button,
+	.as-link
+) {
+	margin: 0;
+	padding: 0.5rem 0.625rem;
+	background: transparent !important;
 	display: flex;
+	color: var(--popover-foreground) !important;
+	font-size: 0.875rem;
+	border: 0;
+	border-radius: var(--at-radius-s);
 	align-items: center;
 	box-sizing: border-box;
 	inline-size: 100% !important;
 	min-block-size: 2.25rem;
-	margin: 0;
-	padding: 0.5rem 0.625rem;
-	border: 0;
-	border-radius: var(--at-radius-s);
-	background: transparent !important;
-	color: var(--popover-foreground) !important;
-	font-size: 0.875rem;
 	font-weight: 450;
 	line-height: 1.25rem;
 	text-align: start;
@@ -2053,8 +2046,8 @@ main.prompt h1,
 }
 
 .aside_feed .tree-folder-items .feed > .dropdown > .dropdown-menu .item:has(
-		> a[href*="c=feed"][href*="a=actualize"]
-	) {
+	> a[href*="c=feed"][href*="a=actualize"]
+) {
 	margin-block-start: 0.375rem;
 	padding-block-start: 0.375rem;
 	border-block-start: 1px solid var(--border);
@@ -2063,10 +2056,10 @@ main.prompt h1,
 }
 
 .aside_feed .tree-folder-items .feed > .dropdown > .dropdown-menu .item > :is(
-		a,
-		button,
-		.as-link
-	):is(:hover, :focus-visible) {
+	a,
+	button,
+	.as-link
+):is(:hover, :focus-visible) {
 	background: var(--accent) !important;
 	color: var(--accent-foreground) !important;
 }
@@ -2127,9 +2120,6 @@ main.prompt h1,
 	block-size: 1rem;
 	margin-inline-end: 0.625rem;
 	background-color: currentColor;
-	-webkit-mask-position: center;
-	-webkit-mask-repeat: no-repeat;
-	-webkit-mask-size: 1rem 1rem;
 	mask-position: center;
 	mask-repeat: no-repeat;
 	mask-size: 1rem 1rem;
@@ -2137,36 +2127,31 @@ main.prompt h1,
 
 /* Filter current feed */
 .aside_feed .tree-folder-items .feed > .dropdown > .dropdown-menu .item >
-	a[href*="c=index"][href*="get=f_"]::before {
-	-webkit-mask-image: url("icons/rss.svg");
+a[href*="c=index"][href*="get=f_"]::before {
 	mask-image: url("icons/rss.svg");
 }
 
 /* Open feed website */
 .aside_feed .tree-folder-items .feed > .dropdown > .dropdown-menu .item >
-	a[target="_blank"][rel~="noreferrer"]::before {
-	-webkit-mask-image: url("icons/link.svg");
+a[target="_blank"][rel~="noreferrer"]::before {
 	mask-image: url("icons/link.svg");
 }
 
 /* Manage feed */
 .aside_feed .tree-folder-items .feed > .dropdown > .dropdown-menu .item >
-	a[href*="c=subscription"][href*="a=feed"]::before {
-	-webkit-mask-image: url("icons/configure.svg");
+a[href*="c=subscription"][href*="a=feed"]::before {
 	mask-image: url("icons/configure.svg");
 }
 
 /* Refresh feed */
 .aside_feed .tree-folder-items .feed > .dropdown > .dropdown-menu .item >
-	a[href*="c=feed"][href*="a=actualize"]::before {
-	-webkit-mask-image: url("icons/refresh.svg");
+a[href*="c=feed"][href*="a=actualize"]::before {
 	mask-image: url("icons/refresh.svg");
 }
 
 /* Mark feed as read */
 .aside_feed .tree-folder-items .feed > .dropdown > .dropdown-menu .item >
-	button.read_all::before {
-	-webkit-mask-image: url("icons/read.svg");
+button.read_all::before {
 	mask-image: url("icons/read.svg");
 }
 
@@ -2312,9 +2297,9 @@ main.prompt h1,
 
 /* The logo already provides the canonical route back to the feed list. Hide FreshRSS's duplicate first entry in both configuration sidebars. The configuration variant contains no second entry, so remove its empty section as well; the subscription variant keeps Advanced Search below it. */
 .aside.nav-list > ul > .item.nav-section:first-child > ul > .item:first-child,
-main.post .alert > p:last-child:has(
-	> a[href*="c=index"][href*="a=index"]
-) {
+	main.post .alert > p:last-child:has(
+		> a[href*="c=index"][href*="a=index"]
+	) {
 	display: none;
 }
 
@@ -2371,8 +2356,9 @@ main.post .alert > p:last-child:has(
 /* The scrim behind the panel arrives with it instead of in one step. The base layer paints it at #0007 in the same frame it moves it under the panel, so the page is dimmed abruptly and by a harder value than anything else here dims it; this is the tint and blur the mobile overlay already uses, faded over the panel's own duration. */
 #slider + #close-slider {
 	background-color: rgba(9, 11, 12, 0.35);
-	backdrop-filter: blur(3px);
+	/* stylelint-disable-next-line property-no-vendor-prefix */
 	-webkit-backdrop-filter: blur(3px);
+	backdrop-filter: blur(3px);  /* stylelint-disable-line property-no-vendor-prefix */
 	opacity: 0;
 	transition: opacity 0.24s ease-in, left 0s linear 0.24s;
 }
@@ -2385,6 +2371,7 @@ main.post .alert > p:last-child:has(
 }
 
 /* Below the base layer's own breakpoint the panel is the full width of the viewport, and its open state says so too. Stating it here as well keeps the closed panel the same width as the open one, so the exit does not resize mid-flight. */
+
 @media (max-width: 840px) {
 	#slider {
 		inline-size: 100%;
@@ -2393,15 +2380,16 @@ main.post .alert > p:last-child:has(
 
 #overlay {
 	background: rgba(9, 11, 12, 0.35);
-	backdrop-filter: blur(3px);
+	/* stylelint-disable-next-line property-no-vendor-prefix */
 	-webkit-backdrop-filter: blur(3px);
+	backdrop-filter: blur(3px);  /* stylelint-disable-line property-no-vendor-prefix */
 }
 
 .box {
-	border-radius: var(--at-radius-l);
-	border: 1px solid var(--border);
 	background: var(--card);
 	color: var(--card-foreground);
+	border: 1px solid var(--border);
+	border-radius: var(--at-radius-l);
 	box-shadow: var(--at-shadow-md);
 }
 
@@ -2411,23 +2399,23 @@ main.post .alert > p:last-child:has(
 
 /* Render notifications as compact toasts instead of full-width banners. rtl-safe: horizontal centering is symmetric, and the physical left/translateX pair stays correct in RTL, where the logical form would flip the offset. */
 .notification {
+	background: var(--foreground);
+	max-width: min(90vw, 560px);
+	width: auto;
+	height: auto;
+	color: var(--background);
+	border: none;
+	border-radius: var(--at-radius-l);
+	box-shadow: 0 8px 20px rgba(9, 11, 12, 0.25), 0 20px 48px rgba(9, 11, 12, 0.18);
 	position: fixed;
 	top: auto;
 	bottom: 1.25rem;
 	left: 50%;
 	right: auto;
 	transform: translateX(-50%);
-	width: auto;
 	min-width: min(360px, 90vw);
-	max-width: min(90vw, 560px);
-	height: auto;
 	padding-block: 0.75rem;
 	padding-inline: 1.25rem 3rem;
-	background: var(--foreground);
-	color: var(--background);
-	border: none;
-	border-radius: var(--at-radius-l);
-	box-shadow: 0 8px 20px rgba(9, 11, 12, 0.25), 0 20px 48px rgba(9, 11, 12, 0.18);
 	font-weight: 500;
 	line-height: 1.5;
 	text-align: start;
@@ -2447,14 +2435,14 @@ main.post .alert > p:last-child:has(
 }
 
 .notification .msg::before {
-	content: "";
+	background: color-mix(in srgb, var(--muted-foreground) 70%, var(--background));
 	display: inline-block;
 	width: 9px;
 	height: 9px;
 	border-radius: 999px;
+	content: "";
 	margin-inline-end: 0.6rem;
 	vertical-align: middle;
-	background: color-mix(in srgb, var(--muted-foreground) 70%, var(--background));
 }
 
 /* State is carried by shape as well as hue, so the two variants stay distinguishable without color vision (WCAG 1.4.1): success keeps the round dot, failure turns it into a diamond. The rotation is symmetric, so it needs no RTL mirror. */
@@ -2464,10 +2452,10 @@ main.post .alert > p:last-child:has(
 }
 
 .notification.bad .msg::before {
-	border-radius: 1px;
-	transform: rotate(45deg);
 	background: color-mix(in srgb, var(--destructive) 70%, var(--background));
+	border-radius: 1px;
 	box-shadow: 0 0 8px color-mix(in srgb, var(--destructive) 60%, transparent);
+	transform: rotate(45deg);
 }
 
 .notification .close {
@@ -2499,6 +2487,7 @@ main.post .alert > p:last-child:has(
 		/* rtl-safe: keeps the centering offset from .notification. */
 		transform: translate(-50%, 8px);
 	}
+
 	to {
 		/* rtl-safe: keeps the centering offset from .notification. */
 		transform: translate(-50%, 0);
@@ -2513,17 +2502,17 @@ main.post .alert > p:last-child:has(
 /* Consolidated shadcn-style alerts. Keep aliases for third-party extensions. */
 /* frss.css gives every alert "margin: 1rem auto; width: 90%", so an alert is a tenth narrower than whatever holds it and the gap grows with the viewport -- and worse where a theme rule replaces the auto margins, as ".prompt.alert" below does with "margin: 1rem": that pins the box to the left inset and drops the entire leftover tenth on the right, visibly lopsided in a wide stream card. An auto width lets the box fill its container instead, and the inline margins have to go with it, not only to close the gap: the settings forms place a loose alert as a grid item spanning both columns (".post .form-group > :not(.group-name, .group-controls)"), and an auto margin suppresses the stretch such an item would otherwise get -- an auto width then resolves against the content rather than the track, shrinking the box to its own text. Zero margins let it stretch; rows that want an inset restate one after this. border-box keeps the padding inside the width where an explicit one survives, such as base's ".group-controls .alert". */
 .alert {
-	box-sizing: border-box;
-	width: auto;
-	margin-inline: 0;
-	border-radius: var(--at-radius-l);
-	border: 1px solid var(--border);
-	background: var(--muted);
-	color: var(--foreground);
-	box-shadow: var(--at-shadow-xs);
 	padding: 0.85rem 1.1rem;
-	text-shadow: none;
+	background: var(--muted);
+	width: auto;
+	color: var(--foreground);
 	font-size: 0.9rem;
+	border: 1px solid var(--border);
+	border-radius: var(--at-radius-l);
+	box-shadow: var(--at-shadow-xs);
+	box-sizing: border-box;
+	margin-inline: 0;
+	text-shadow: none;
 	font-weight: 500;
 	line-height: 1.5;
 }
@@ -2561,14 +2550,13 @@ main.post .alert > p:last-child:has(
 }
 
 /*=== 9. Segmented groups: .stick and .group ========================*/
-
 .stick,
 .group {
-	gap: 0;
 	padding: 0;
+	background: transparent;
 	border: 1px solid var(--border);
 	border-radius: var(--at-radius-m);
-	background: transparent;
+	gap: 0;
 }
 
 .stick > .btn,
@@ -2612,14 +2600,14 @@ main.post .alert > p:last-child:has(
 /* The toolbar flattens its segments through .nav_menu .stick .dropdown a.dropdown-toggle, which outweighs the cap rules above, so an end-cap dropdown trigger needs its corners restated at that weight. The <form> of the mark-as-read group is transparent for this too: the segments at its ends are the group's end caps. */
 .nav_menu :is(.stick, .group) > .dropdown:first-child > a.dropdown-toggle,
 .nav_menu :is(.stick, .group) > form:first-child > .dropdown:first-child >
-	a.dropdown-toggle {
+a.dropdown-toggle {
 	border-start-start-radius: var(--at-radius-inner);
 	border-end-start-radius: var(--at-radius-inner);
 }
 
 .nav_menu :is(.stick, .group) > .dropdown:last-child > a.dropdown-toggle,
 .nav_menu :is(.stick, .group) > form:last-child > .dropdown:last-child >
-	a.dropdown-toggle {
+a.dropdown-toggle {
 	border-start-end-radius: var(--at-radius-inner);
 	border-end-end-radius: var(--at-radius-inner);
 }
@@ -2645,17 +2633,17 @@ main.post .alert > p:last-child:has(
 /* FreshRSS opens two things with <details>: the environment block on About and the advanced sections when adding a feed. They read as different components -- a card holding a second framed box, and a pair of hairlines that barely registered. One header component for both: a tinted row with a chevron that turns when the section opens. What the header sits on still differs, because the contents do: the environment block is a list and takes a card, while the advanced sections hold form rows that have to keep the form's label axis. */
 .envInfo > summary,
 .post .form-advanced > .form-advanced-title {
+	margin: 0;
+	padding: 0.625rem 0.875rem;
+	background: var(--muted);
 	display: flex;
+	color: var(--foreground);
+	font-size: 0.875rem;
+	border-radius: var(--at-radius-m);
 	align-items: center;
 	gap: 0.5rem;
 	box-sizing: border-box;
 	inline-size: 100%;
-	margin: 0;
-	padding: 0.625rem 0.875rem;
-	border-radius: var(--at-radius-m);
-	background: var(--muted);
-	color: var(--foreground);
-	font-size: 0.875rem;
 	font-weight: 600;
 	letter-spacing: 0;
 	text-align: start;
@@ -2679,7 +2667,6 @@ main.post .alert > p:last-child:has(
 	block-size: 1rem;
 	background-color: currentColor;
 	opacity: 0.7;
-	-webkit-mask: url("icons/down.svg") center / 1rem 1rem no-repeat;
 	mask: url("icons/down.svg") center / 1rem 1rem no-repeat;
 	/* rtl-safe: a rotation of the vertical chevron, mirrored below. */
 	transform: rotate(-90deg);
@@ -2712,9 +2699,9 @@ main.post .alert > p:last-child:has(
 
 /* The environment block is a card, so its header squares off against the divider when the list below it is showing. */
 .envInfo {
+	background: var(--card);
 	border: 1px solid var(--border);
 	border-radius: var(--at-radius-m);
-	background: var(--card);
 	overflow: hidden;
 }
 
@@ -2728,12 +2715,12 @@ main.post .alert > p:last-child:has(
 
 /* The base layer frames the list a second time inside that card and pads it by 2rem on three sides. One frame is enough. */
 .envInfo > dl {
-	display: grid;
-	grid-template-columns: max-content minmax(0, 1fr);
-	gap: 0.375rem 1.5rem;
 	margin: 0;
 	padding: 0.875rem 1rem;
+	display: grid;
 	border: 0;
+	grid-template-columns: max-content minmax(0, 1fr);
+	gap: 0.375rem 1.5rem;
 }
 
 .envInfo dt {
@@ -2805,10 +2792,10 @@ main.post .alert > p:last-child:has(
 }
 
 .prompt .form-group > :is(label.checkbox, label.radio) {
+	padding: 0;
 	display: flex;
 	align-items: start;
 	gap: 0.5rem;
-	padding: 0;
 	line-height: 1.5;
 }
 
@@ -2898,14 +2885,14 @@ main.post.content.centered {
 
 /* A legend is not an ordinary block -- it sizes to its text and sits in the fieldset's border -- so its box has to be reset before it can carry the heading style. */
 .post legend {
-	box-sizing: border-box;
+	padding: 0;
+	background: none;
 	display: block;
+	border: 0;
+	box-sizing: border-box;
 	inline-size: auto;
 	max-inline-size: 100%;
 	margin-inline: 0;
-	padding: 0;
-	border: 0;
-	background: none;
 }
 
 /* One gap below the page title, whatever follows it: a section heading, a form, or a paragraph. FreshRSS starts these pages differently -- Manage users with an h2, Reading with a form, About with text -- and each brought its own margin, so the same title sat 7px, 14px or 17.5px above its content. A legend cannot be a child of the form, it sits in the first fieldset, so that case is named separately. */
@@ -2921,7 +2908,7 @@ main.post.content.centered {
 
 .post > h1 + form > fieldset:first-of-type > legend,
 .post > h1 + :is(datalist, template, script, style) + form > fieldset:first-of-type >
-	legend {
+legend {
 	margin-block-start: 0;
 }
 
@@ -2944,12 +2931,12 @@ main.post.content.centered {
 }
 
 .post .form-group .group-name {
+	margin: 0;
+	padding: 0;
 	float: none;
 	grid-column: 1;
 	inline-size: auto;
 	min-block-size: 0;
-	margin: 0;
-	padding: 0;
 	line-height: 1.4;
 	text-align: start;
 }
@@ -2965,7 +2952,7 @@ main.post.content.centered {
 
 /* The label carries an optical offset that lines it up with the text inside a control. A row that reads out plain text -- the version, the last check, the article count -- has no control to line up with, so the label sat a third of a line below its own value. Give that text the control's height and centre it in it, which is the position the offset already assumes. */
 .post .form-group > .group-controls:not(:has(input, select, textarea, button,
-	.btn, label, .stick)) {
+.btn, label, .stick)) {
 	display: flex;
 	align-items: center;
 	min-block-size: var(--at-control-size);
@@ -3025,13 +3012,13 @@ main.post.content.centered {
 
 .post .group-controls > :is(label.checkbox, label.radio),
 .post .group-controls > label:has(> :is(input, select, textarea)) {
+	padding: 0;
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 0.5rem;
 	max-inline-size: var(--at-form-wide-control-width);
 	min-block-size: var(--at-toolbar-control-height);
-	padding: 0;
 }
 
 .post .group-controls > label input[type="checkbox"],
@@ -3056,8 +3043,8 @@ main.post.content.centered {
 }
 
 .post .form-advanced > .form-advanced-title {
-	border: 1px solid var(--border);
 	background: var(--card);
+	border: 1px solid var(--border);
 	box-shadow: var(--at-shadow-xs);
 }
 
@@ -3070,16 +3057,16 @@ main.post.content.centered {
 }
 
 .post .form-group.form-actions {
+	background: transparent;
+	border: 0;
+	border-radius: 0;
 	position: static;
 	min-width: 0;
 	z-index: auto;
 	margin-block: 1rem 0;
 	padding-block: 1rem 0;
 	padding-inline: 0;
-	border: 0;
 	border-block-start: 1px solid var(--border);
-	border-radius: 0;
-	background: transparent;
 	backdrop-filter: none;
 }
 
@@ -3111,11 +3098,12 @@ main.post.content.centered {
 }
 
 /*=== 13. Cards, tables and pagination ==============================*/
-
+/* The card surface is set here and its heading rhythm further down, in the section each belongs to. */
+/* stylelint-disable-next-line no-duplicate-selectors */
 .box .box-title {
-	border-bottom: 1px solid var(--border);
 	background: var(--card);
 	color: var(--card-foreground);
+	border-bottom: 1px solid var(--border);
 }
 
 .box .box-title h1,
@@ -3132,34 +3120,34 @@ main.post.content.centered {
 }
 
 .box .box-title form input {
+	max-width: none;
+	width: 100%;
 	grid-area: 1 / 1 / 2 / 2;
 	box-sizing: border-box;
 	min-inline-size: 0;
 	max-inline-size: none;
-	width: 100%;
-	max-width: none;
 	padding-inline-end: 2.75rem;
 }
 
 .box .box-title form .dropdown {
-	grid-area: 1 / 1 / 2 / 2;
+	margin: 0;
+	padding: 0;
 	display: grid;
 	float: none;
+	grid-area: 1 / 1 / 2 / 2;
 	justify-self: end;
 	inline-size: var(--at-toolbar-control-height);
 	block-size: var(--at-toolbar-control-height);
 	place-items: center;
-	margin: 0;
-	padding: 0;
 	position: relative;
 }
 
 .box .box-title form .dropdown > .dropdown-toggle {
+	padding: 0;
 	display: grid;
 	inline-size: 100%;
 	block-size: 100%;
 	place-items: center;
-	padding: 0;
 }
 
 #stream.global .box.category .box-title > .title {
@@ -3210,11 +3198,11 @@ main.post.content.centered {
 
 /* Table and Data Table */
 .table-wrapper {
+	background: var(--card);
 	max-width: 100%;
-	overflow: auto;
 	border: 1px solid var(--border);
 	border-radius: var(--at-radius-l);
-	background: var(--card);
+	overflow: auto;
 }
 
 .table-wrapper table {
@@ -3267,11 +3255,11 @@ tbody tr:hover {
 }
 
 .pagination {
+	padding: 0;
+	background: transparent;
 	display: inline-flex;
 	align-items: center;
 	gap: 0.25rem;
-	padding: 0;
-	background: transparent;
 }
 
 .pagination .item,
@@ -3281,12 +3269,12 @@ tbody tr:hover {
 
 .pagination .item a {
 	display: inline-grid;
+	color: var(--foreground);
+	border: 1px solid transparent;
 	place-items: center;
 	min-inline-size: 2.25rem;
 	min-block-size: 2.25rem;
 	padding-inline: 0.625rem;
-	border: 1px solid transparent;
-	color: var(--foreground);
 	font-weight: 500;
 }
 
@@ -3309,21 +3297,20 @@ tbody tr:hover {
 .item .labels span,
 .list-tags .tag > a,
 .list-tags .tag > span {
+	background: var(--secondary);
 	display: inline-flex;
+	color: var(--secondary-foreground);
+	font-size: 0.75rem;
+	border: 1px solid var(--border);
+	border-radius: 999px;
 	align-items: center;
 	min-block-size: 1.25rem;
 	padding-inline: 0.5rem;
-	border: 1px solid var(--border);
-	border-radius: 999px;
-	background: var(--secondary);
-	color: var(--secondary-foreground);
-	font-size: 0.75rem;
 	font-weight: 600;
 	line-height: 1;
 }
 
 /*=== 14. Manage lists: extensions and feeds ========================*/
-
 .manage-list > li,
 .manage-list > .item,
 .box-content > .item {
@@ -3339,13 +3326,13 @@ tbody tr:hover {
 
 /* The extension list is a settings list, not prose. FreshRSS emits each row as switch, gear, name, which leaves the names behind a ragged column of controls. One card, one row per extension, the name on the reading edge and the controls collected on the trailing one: the switches then line up in a column of their own. Columns are assigned explicitly, so a row without the gear -- a system extension the user may not configure -- keeps its switch on the same axis as the others. */
 .post .manage-list {
+	padding: 0;
 	display: grid;
 	grid-template-columns: minmax(0, 1fr);
 	/* Rows join, columns stay apart: a column reads as one list instead of a stack of separate cards, which is what makes twenty extensions restful to scan. */
 	column-gap: 0.5rem;
 	row-gap: 0;
 	margin-block: 0.75rem 1.75rem;
-	padding: 0;
 	list-style: none;
 }
 
@@ -3358,16 +3345,16 @@ tbody tr:hover {
 
 /* Each extension is its own surface rather than a row inside one card: a card has to end on a full row, and sixteen extensions in three columns leave two empty cells that read as a hole in it. */
 .post .manage-list > li {
+	padding: 0.375rem 0.875rem;
+	background: var(--card);
 	display: grid;
+	border: 1px solid var(--border);
+	border-radius: var(--at-radius-m);
 	grid-template-columns: minmax(0, 1fr) auto auto;
 	align-items: center;
 	gap: 0.75rem;
 	box-sizing: border-box;
 	min-block-size: 2.75rem;
-	padding: 0.375rem 0.875rem;
-	border: 1px solid var(--border);
-	border-radius: var(--at-radius-m);
-	background: var(--card);
 	line-height: 1.5;
 }
 
@@ -3472,7 +3459,6 @@ tbody tr:hover {
 }
 
 /*=== 15. Panels, progress and remaining surfaces ===================*/
-
 .item.feed.mute,
 .item.feed.empty,
 .item.feed.disabled {
@@ -3485,14 +3471,14 @@ tbody tr:hover {
 
 /* The theme picker's preview. FreshRSS renders one entry per installed theme and marks the saved one .picked; no script in 1.29.1 moves that class, so the other entries are weight without a purpose -- with nine palettes installed the page fetched nine previews to show one. Only the picked entry renders, and it is a card: the palette above, what it is below. Should a later FreshRSS switch previews on selection, it toggles that same class and this follows -- as a swap rather than the base layer's cross-fade. */
 .theme-preview-list {
+	padding: 0;
 	display: block;
+	border: 0;
 	position: static;
 	inline-size: 100%;
 	max-inline-size: 40rem;
 	block-size: auto;
 	margin-block: 0.5rem;
-	padding: 0;
-	border: 0;
 }
 
 .theme-preview-list .preview-container:not(.picked) {
@@ -3500,11 +3486,11 @@ tbody tr:hover {
 }
 
 .theme-preview-list .preview-container {
-	overflow: hidden;
+	background: var(--card);
 	border: 1px solid var(--input);
 	border-radius: var(--at-radius-l);
-	background: var(--card);
 	box-shadow: var(--at-shadow-md);
+	overflow: hidden;
 }
 
 /* The base layer stacks the previews absolutely in a box of 640 by 320 and stretches each image across it, so every preview that is not exactly 2:1 is distorted -- Atelier's are 701 by 427. In flow the image keeps its own proportions and the card takes the height it asks for. It fills the card to the edge: a preview is a screenshot of an interface and arrives with its own pale margins, and the way to keep those from dissolving into the card is to leave no card around them -- the picture is the top of the card, and the card's own edge is what separates it from the page. That edge is --input rather than --border for the same reason a field's is: it has to hold against the surfaces on both sides of it. */
@@ -3522,15 +3508,16 @@ tbody tr:hover {
 
 /* The description sits under the image rather than over its lower third: it is a caption, and the preview is the one thing on this page that cannot be read from the text beside it. The blur the base layer puts here had a translucent bar over a picture to soften; there is no longer anything behind it. */
 .theme-preview-list .properties {
-	position: static;
-	display: block;
 	padding: 1rem;
-	border-top: 0;
 	background: var(--primary);
+	display: block;
 	color: var(--at-plate-foreground);
-	backdrop-filter: none;
-	-webkit-backdrop-filter: none;
 	font-size: 0.8125rem;
+	border-top: 0;
+	position: static;
+	/* stylelint-disable-next-line property-no-vendor-prefix */
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;  /* stylelint-disable-line property-no-vendor-prefix */
 	line-height: 1.55;
 }
 
@@ -3541,11 +3528,12 @@ tbody tr:hover {
 }
 
 /* --primary is the darkest solid the theme fills with, which is what makes it the plate -- but it is a role, not a step: in the dark scheme it inverts to a light neutral, and a pale bar under the picture is the opposite of what this is for. There the page's own surface is the darkest one at hand, a step below the card, and it takes a hairline because that step alone is a quiet boundary. */
+
 @media (prefers-color-scheme: dark) {
 	.theme-preview-list .properties {
-		border-top: 1px solid var(--border);
 		background: var(--background);
 		color: var(--muted-foreground);
+		border-top: 1px solid var(--border);
 	}
 
 	.theme-preview-list .properties > div:first-child {
@@ -3564,10 +3552,10 @@ tbody tr:hover {
 }
 
 .post a[href="./"] {
-	border: 1px solid var(--border);
-	border-radius: var(--at-radius-m);
 	background: var(--card);
 	color: var(--card-foreground);
+	border: 1px solid var(--border);
+	border-radius: var(--at-radius-m);
 	box-shadow: var(--at-shadow-xs);
 }
 
@@ -3580,15 +3568,16 @@ tbody tr:hover {
 /* Dialog and Sheet */
 #popup {
 	background: rgba(9, 11, 12, 0.4);
-	backdrop-filter: blur(3px);
+	/* stylelint-disable-next-line property-no-vendor-prefix */
 	-webkit-backdrop-filter: blur(3px);
+	backdrop-filter: blur(3px);  /* stylelint-disable-line property-no-vendor-prefix */
 }
 
 #popup-content {
-	border: 1px solid var(--border);
-	border-radius: var(--at-radius-l);
 	background: var(--card);
 	color: var(--card-foreground);
+	border: 1px solid var(--border);
+	border-radius: var(--at-radius-l);
 	box-shadow: var(--at-shadow-pop);
 }
 
@@ -3602,6 +3591,8 @@ tbody tr:hover {
 	background: var(--accent);
 }
 
+/* The slider's motion and shadow are set in the layout section; this is its resting surface. */
+/* stylelint-disable-next-line no-duplicate-selectors */
 #slider {
 	border-inline-start: 1px solid var(--border);
 	background: var(--card);
@@ -3614,11 +3605,11 @@ progress {
 }
 
 #actualizeProgress progress {
-	block-size: 0.5rem;
+	background: var(--muted);
 	border: 0;
 	border-radius: 999px;
+	block-size: 0.5rem;
 	overflow: hidden;
-	background: var(--muted);
 }
 
 #actualizeProgress progress::-webkit-progress-bar {
@@ -3626,18 +3617,18 @@ progress {
 }
 
 #actualizeProgress progress::-webkit-progress-value {
-	border-radius: 999px;
 	background: var(--primary);
+	border-radius: 999px;
 }
 
 #actualizeProgress progress::-moz-progress-bar {
-	border-radius: 999px;
 	background: var(--primary);
+	border-radius: 999px;
 }
 
 #load_more {
-	border-radius: var(--at-radius-m);
 	color: var(--muted-foreground);
+	border-radius: var(--at-radius-m);
 }
 
 #load_more:hover {
@@ -3660,18 +3651,18 @@ progress {
 
 /* An empty stream is a state, not a warning. FreshRSS reuses the alert component for it -- the same "prompt alert alert-warn" box in the normal, reader and global views -- so the routine case of a list with nothing in it arrived as a wide yellow banner, the loudest surface in the theme, for a favourites list nobody has filled yet. Inside its own view the box drops the alert's tint, border and shadow and becomes an empty state: an icon, a line of text, and the room around them, which is what carries the meaning here. It stays the alert everywhere else, because everywhere else it is one. */
 #stream > .prompt.alert {
+	margin: 0;
+	padding: clamp(2.5rem, 14vh, 5rem) 2rem;
+	background: none;
 	display: flex;
+	color: var(--muted-foreground);
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
 	gap: 0.75rem;
-	margin: 0;
-	padding: clamp(2.5rem, 14vh, 5rem) 2rem;
-	border: 0;
-	border-radius: 0;
-	background: none;
-	box-shadow: none;
-	color: var(--muted-foreground);
 }
 
 /* The icon is a mask rather than an image: an external SVG carries the stroke color the build baked into it, and this one has to follow the text through both schemes. */
@@ -3682,10 +3673,6 @@ progress {
 	block-size: 2.5rem;
 	background-color: currentColor;
 	opacity: 0.55;
-	-webkit-mask-image: url("icons/inbox.svg");
-	-webkit-mask-position: center;
-	-webkit-mask-repeat: no-repeat;
-	-webkit-mask-size: 2.5rem 2.5rem;
 	mask-image: url("icons/inbox.svg");
 	mask-position: center;
 	mask-repeat: no-repeat;
@@ -3740,13 +3727,12 @@ progress {
 }
 
 /*=== 16. Statistics ================================================*/
-
 .stat {
 	padding: 1rem;
-	border: 1px solid var(--border);
-	border-radius: var(--at-radius-l);
 	background: var(--card);
 	color: var(--card-foreground);
+	border: 1px solid var(--border);
+	border-radius: var(--at-radius-l);
 }
 
 .stat canvas {
@@ -3780,11 +3766,11 @@ html.controller_stats main.post > br {
 }
 
 html.controller_stats main.post > .box {
+	margin: 0;
 	display: block;
 	box-sizing: border-box;
 	inline-size: auto;
 	max-inline-size: none;
-	margin: 0;
 }
 
 html.controller_stats main.post > .box .box-content {
@@ -3818,22 +3804,22 @@ html.controller_stats .box .box-title > :is(h1, h2, h3) {
 }
 
 html.controller_stats .box .box-title .btn {
-	position: static;
+	margin: 0;
+	padding: 0;
+	background: var(--card);
 	display: inline-grid;
+	color: var(--muted-foreground);
+	font-size: 1rem;
+	border: 1px solid var(--at-button-border);
+	border-radius: var(--at-radius-s);
+	box-shadow: none;
+	position: static;
 	flex: 0 0 auto;
 	place-items: center;
 	inline-size: 1.75rem;
 	block-size: 1.75rem;
 	min-block-size: 0;
-	margin: 0;
-	padding: 0;
-	border: 1px solid var(--at-button-border);
-	border-radius: var(--at-radius-s);
-	background: var(--card);
-	color: var(--muted-foreground);
-	font-size: 1rem;
 	line-height: 1;
-	box-shadow: none;
 }
 
 html.controller_stats .box .box-title .btn:hover {
@@ -3854,7 +3840,6 @@ html.controller_stats .box .box-content > canvas {
 }
 
 /*=== 17. Article typography ========================================*/
-
 .flux_content .content a {
 	color: var(--primary);
 	text-decoration-thickness: 1px;
@@ -3870,18 +3855,18 @@ html.controller_stats .box .box-content > canvas {
 
 .flux_content .content :not(pre) > code {
 	padding: 0.125rem 0.375rem;
-	border-radius: 4px;
 	background: var(--muted);
 	color: var(--code-text);
 	font-size: 0.875em;
+	border-radius: 4px;
 }
 
 .flux_content .content pre {
 	padding: 1rem;
-	overflow: auto;
+	background: var(--muted);
 	border: 1px solid var(--border);
 	border-radius: var(--at-radius-m);
-	background: var(--muted);
+	overflow: auto;
 }
 
 .flux_content .content hr {
@@ -3906,6 +3891,7 @@ html.controller_stats .box .box-content > canvas {
 }
 
 /* Soft page transitions as progressive enhancement. */
+
 @view-transition {
 	navigation: auto;
 }
@@ -3915,6 +3901,8 @@ html.controller_stats .box .box-content > canvas {
 	animation-duration: 0.18s;
 }
 
+/* The card is built in the layout section; this is only the entrance it plays, which belongs with the other animations. */
+/* stylelint-disable-next-line no-duplicate-selectors */
 #stream.normal,
 #stream.reader {
 	animation: at-fade 0.25s ease-out;
@@ -3925,7 +3913,6 @@ html.controller_stats .box .box-content > canvas {
 }
 
 /*=== 19. Accessibility =============================================*/
-
 a:focus-visible,
 .btn:focus-visible,
 button.as-link:focus-visible,

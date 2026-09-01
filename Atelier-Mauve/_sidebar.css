@@ -1,3 +1,4 @@
+/*rtl:begin:ignore*/
 /*=== Tree */
 .tree {
 	margin: 10px 0;
@@ -277,3 +278,4 @@
 .aside_feed .stick #btn-add {
 	border-inline-start-color: var(--sid-bg);
 }
+/*rtl:end:ignore*/

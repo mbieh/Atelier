@@ -1,3 +1,4 @@
+/*rtl:begin:ignore*/
 /*=== GLOBAL VIEW */
 /*================*/
 #stream {
@@ -64,3 +65,4 @@
 	inset: 3rem;
 	border-radius: 3px;
 }
+/*rtl:end:ignore*/

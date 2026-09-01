@@ -12,14 +12,20 @@ import shutil
 import sys
 
 
-from check_theme import released_version, stylesheet_imports, theme_folder, theme_name
+from check_theme import (
+    released_version,
+    rtl_mirror,
+    stylesheet_imports,
+    theme_folder,
+    theme_name,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "src"
 RAMPS = ROOT / "palettes" / "ramps.json"
 
-# FreshRSS rewrites only the filenames listed in metadata.json to ".rtl.css", with no existence check and no fallback (app/FreshRSS.php), so exactly these two need a mirror on disk. The sources stay direction-neutral -- check_theme.py enforces that -- so each mirror is a verbatim copy.
+# FreshRSS rewrites only the filenames listed in metadata.json to ".rtl.css", with no existence check and no fallback (app/FreshRSS.php), so exactly these two need a mirror on disk. The sources stay direction-neutral -- check_theme.py enforces that -- so each mirror is the source with the rtlcss ignore directives dropped, which is what that tool writes for a sheet it has been told to leave alone.
 RTL_MIRRORED = ("atelier.css", "atelier-ui.css")
 
 # A theme folder travels on its own, so it carries the license it is distributed under and the notices for what it bundles.
@@ -202,10 +208,10 @@ def build_scheme(scheme: dict, version: str) -> dict[str, bytes]:
             )
         files[name] = source.read_bytes()
     for name in RTL_MIRRORED:
-        content = (SOURCE / name).read_bytes()
-        files[name] = content
+        source = (SOURCE / name).read_text(encoding="utf-8")
+        files[name] = source.encode("utf-8")
         stem, _, suffix = name.rpartition(".")
-        files[f"{stem}.rtl.{suffix}"] = content
+        files[f"{stem}.rtl.{suffix}"] = rtl_mirror(source).encode("utf-8")
     for name in SHARED_DOCUMENTS:
         files[name] = (ROOT / name).read_bytes()
 

@@ -1,0 +1,10 @@
+# The theme folders are generated copies of src/; a finding there is the same
+# finding nine times over, and build_themes.py --check is what holds them to
+# their source.
+Atelier/
+Atelier-*/
+
+# Mirrors are generated too, and FreshRSS's own pipeline ignores them as well.
+*.rtl.css
+
+node_modules/

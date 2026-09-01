@@ -1,5 +1,5 @@
+/*rtl:begin:ignore*/
 /* Semantic roles. Neutrals resolve through the ramp in _palette.css and never through a literal, so a scheme swap is a one-file change. The accent hues below are deliberately literal: success, warning and destructive keep their meaning across every neutral scheme. Their quiet surfaces do not -- a tint and a border hand-picked against a cool grey read as a foreign body on a warm one -- so those are mixed from the accent and the ramp, and follow whichever neutral the folder ships. Where a role needs a value the ramp does not offer, it is mixed from two adjacent steps rather than hand-picked, so the formula carries over to the other schemes. */
-
 :root {
 	color-scheme: light;
 
@@ -218,3 +218,4 @@
 		--sid-pills: color-mix(in srgb, var(--at-scale-50) 10%, transparent);
 	}
 }
+/*rtl:end:ignore*/

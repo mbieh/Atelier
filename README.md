@@ -143,7 +143,16 @@ The shared source lives in [`src/`](src/); the nine theme folders are generated 
 python3 scripts/build_themes.py          # regenerate the nine folders from src/
 python3 scripts/build_themes.py --check  # fail if a folder has drifted from its source
 python3 scripts/check_theme.py           # the release checks
+npm install && npm run stylelint         # the CSS conventions FreshRSS lints with
 ```
+
+The build and the release checks need nothing but Python 3. The stylelint step is the exception, and it exists for one reason: FreshRSS lints every theme under `p/themes/` with the configuration in [`.stylelintrc.json`](.stylelintrc.json), which is a verbatim copy of the one that repository publishes. Holding the source to it here is what keeps a folder copyable into a FreshRSS installation — or into FreshRSS itself.
+
+### Writing direction
+
+Atelier answers direction inside one stylesheet: a declaration that reads differently in Arabic or Hebrew carries a `:dir(rtl)` rule beside it, and `check_theme.py` rejects any that does not. That is why `atelier.rtl.css` and `atelier-ui.rtl.css` can be copies rather than translations.
+
+FreshRSS generates its own `*.rtl.css` files with rtlcss and verifies them in CI. That tool does not know about `:dir()` and would flip both halves of every mirrored pair, so each sheet opens with `/*rtl:begin:ignore*/` and closes with `/*rtl:end:ignore*/` — rtlcss's own control comments, which turn its pass into the copy the mirror already is. The build writes each mirror as the source minus those two lines, which is exactly what rtlcss leaves behind.
 
 Edit `src/`, never a theme folder — a folder is overwritten by the next build. The one exception is `thumbs/`, which holds the hand-drawn preview for the theme picker: the build leaves it alone, and `check_theme.py` only insists that every folder has one.
 

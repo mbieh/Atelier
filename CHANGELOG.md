@@ -4,6 +4,14 @@ All notable changes to this project are documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## 1.4.1 - 2026-09-01
+
+### Changed
+
+- The stylesheets are held to FreshRSS's own stylelint configuration, which every theme under `p/themes/` is linted with. Atelier is meant to be installable there, and being lintable by that configuration is what makes a folder copyable into it, so the rules now run over `src/` here rather than at the door of a pull request: `.stylelintrc.json` is a verbatim copy of the one FreshRSS publishes, `npm run stylelint` checks against it, and CI runs the same step. Roughly six hundred declarations moved to satisfy `order/properties-order`; the cascade is untouched, because the only shorthand that changed places with a longhand is `border` against `border-radius`, and `border` does not reset a radius.
+- The sixteen `-webkit-mask-*` declarations are gone. Unprefixed `mask` has been in Safari since 15.4 and the theme asks for 17.2, so the prefix was carrying nothing. The six `-webkit-backdrop-filter` declarations stay, each with a stylelint exemption above it: there the prefix is still load-bearing, since Safari only dropped it in 18.
+- Every sheet is wrapped in rtlcss's ignore directives, and a mirror is now the source minus exactly those two lines. Atelier answers writing direction inside one stylesheet, with a `:dir(rtl)` rule beside each declaration it mirrors, which is why a mirror can be a copy at all. FreshRSS instead generates its `*.rtl.css` files by running rtlcss over the theme folder and holds the result in CI; unguided, that pass would flip both halves of every `:dir()` pair and hand a right-to-left reader a sheet that is wrong twice over. `check_theme.py` now insists on the directives, because a sheet that loses them is silent here and broken there.
+
 ## 1.4.0 - 2026-08-18
 
 ### Changed

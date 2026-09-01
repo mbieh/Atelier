@@ -324,6 +324,19 @@ DIRECTION_NEUTRAL_FILES = (
 # Because the sources stay direction-neutral, each mirror is a verbatim copy. Every construct the direction check rejects either has a logical-property equivalent or needs a hand-written mirror, so it has to live in a :dir(...) rule or carry an "rtl-safe:" comment stating why it already reads correctly in both directions. The marker is accepted on the declaration's own line, the line above it, or the rule's selector line.
 RTL_SAFE_MARKER = "rtl-safe"
 
+# The two lines every sheet is wrapped in. Atelier answers direction inside one stylesheet, with :dir(rtl) rules beside the declarations they mirror, so a mirror is the same file under a second name. FreshRSS's own pipeline instead runs rtlcss over p/themes/ and commits what it writes; unguided, that tool would flip both halves of every :dir() pair and hand a right-to-left reader a sheet that is wrong twice over. These are rtlcss's own control comments: they make its pass a copy, which is what the mirror already is. It strips them as it writes, so a mirror is the source minus exactly these two lines.
+RTL_IGNORE_BEGIN = "/*rtl:begin:ignore*/"
+RTL_IGNORE_END = "/*rtl:end:ignore*/"
+
+
+def rtl_mirror(source: str) -> str:
+    """The right-to-left mirror of one sheet: what rtlcss writes for it."""
+    return "".join(
+        line
+        for line in source.splitlines(keepends=True)
+        if line.strip() not in (RTL_IGNORE_BEGIN, RTL_IGNORE_END)
+    )
+
 # CSS property names are case-insensitive, so every pattern below has to be.
 PHYSICAL_PROPERTY = re.compile(
     r"(?<![\w-])(?:"
@@ -976,6 +989,8 @@ def main() -> int:
         for path in ROOT.rglob("*")
         if path.is_file()
         and ".git" not in path.parts
+        # Installed tooling is neither Atelier's text nor its convention.
+        and "node_modules" not in path.parts
         and not generated.intersection(path.parents)
         and path.suffix in {".css", ".json", ".md", ".py", ".yml", ".yaml"}
     )
@@ -1043,8 +1058,13 @@ def main() -> int:
             mirror = path.with_name(f"{path.stem}.rtl{path.suffix}")
             if not mirror.is_file():
                 errors.append(f"{name}: missing RTL counterpart {mirror.name}")
-            elif path.read_bytes() != mirror.read_bytes():
-                errors.append(f"{name}/{mirror.name} must be identical to {filename}")
+            elif mirror.read_text(encoding="utf-8") != rtl_mirror(
+                path.read_text(encoding="utf-8")
+            ):
+                errors.append(
+                    f"{name}/{mirror.name} must be {filename} with the rtlcss "
+                    "ignore directives removed"
+                )
         # A folder is what gets installed, so its @import chain has to resolve inside it. The same check runs over src/ below, but src/ is not what ships: only here does a partial that never made it into the folder show up as the 404 it would be.
         for path in sorted(folder.glob("*.css")):
             sheet = path.name
@@ -1147,11 +1167,18 @@ def main() -> int:
     ui_css = (SOURCE / "atelier-ui.css").read_text(encoding="utf-8")
     for filename in DIRECTION_NEUTRAL_FILES:
         path = SOURCE / filename
-        errors.extend(
-            check_direction_neutral(
-                Path("src") / filename, path.read_text(encoding="utf-8")
+        content = path.read_text(encoding="utf-8")
+        errors.extend(check_direction_neutral(Path("src") / filename, content))
+        # A sheet that loses its guard is silent here and wrong in FreshRSS: rtlcss would flip the :dir() pairs it was never meant to touch, and the mirror it writes would reverse a right-to-left page against itself.
+        if (
+            RTL_IGNORE_BEGIN not in content
+            or content.rstrip().splitlines()[-1].strip() != RTL_IGNORE_END
+        ):
+            errors.append(
+                f"src/{filename}: must open with {RTL_IGNORE_BEGIN} and close "
+                f"with {RTL_IGNORE_END} so rtlcss copies it instead of "
+                "reversing its :dir() rules"
             )
-        )
 
     try:
         ui_rules = parse_rules(ui_css)

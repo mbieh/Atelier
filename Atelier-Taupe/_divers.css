@@ -1,3 +1,4 @@
+/*rtl:begin:ignore*/
 /*=== DIVERS */
 /*===========*/
 .aside.aside_feed .nav-form input,
@@ -12,3 +13,4 @@
 .aside.aside_feed .nav-form .dropdown .dropdown-menu::after {
 	inset-inline-end: 33px;
 }
+/*rtl:end:ignore*/

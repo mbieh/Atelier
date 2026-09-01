@@ -1,3 +1,4 @@
+/*rtl:begin:ignore*/
 /*=== STATISTICS */
 /*===============*/
 .stat {
@@ -14,3 +15,4 @@
 .stat > table th {
 	border-bottom: 1px solid var(--grey-medium-light);
 }
+/*rtl:end:ignore*/

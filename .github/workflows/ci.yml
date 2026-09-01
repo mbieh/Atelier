@@ -19,3 +19,17 @@ jobs:
 
       - name: Verify generated theme folders
         run: python3 scripts/build_themes.py --check
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install lint tooling
+        run: npm ci
+
+      # FreshRSS lints every theme under p/themes/ with this configuration, so the
+      # source is held to it here rather than at the door of a pull request.
+      - name: Verify CSS conventions
+        run: npm run --silent stylelint
