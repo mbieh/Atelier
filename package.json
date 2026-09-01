@@ -5,8 +5,8 @@
 	"private": true,
 	"license": "AGPL-3.0-or-later",
 	"scripts": {
-		"stylelint": "stylelint 'src/**/*.css'",
-		"stylelint_fix": "stylelint --fix 'src/**/*.css'"
+		"stylelint": "stylelint 'src/**/*.css' 'Atelier/**/*.css'",
+		"stylelint_fix": "stylelint --fix 'src/**/*.css' 'Atelier/**/*.css'"
 	},
 	"devDependencies": {
 		"@stylistic/stylelint-plugin": "^5.3.0",
