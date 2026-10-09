@@ -4,6 +4,34 @@ All notable changes to this project are documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## 1.6.0 - 2026-10-09
+
+### Changed
+
+- A theme folder ships two stylesheets instead of seventeen. `atelier.css` pulled fifteen partials and the palette in through `@import`, each carrying `?v=` with the release version, because FreshRSS cache-busts only the sheets `metadata.json` names and a partial would otherwise keep its URL across releases. The build now writes those partials into `atelier.css` itself, in the order the imports gave them and each under a `/* src/… */` marker, so every sheet FreshRSS loads is one it names and refreshes by its own mtime, and the browser no longer finds the partials one round trip after the sheet that asks for them. The `?v=` workaround is gone, and with it the check that held it; `check_theme.py` instead rejects any `@import` in a shipped sheet. `src/` keeps the partials, and `metadata.json` is unchanged.
+- `atelier-ui.css` stays a sheet of its own. It is the override layer and restates selectors of the structural layer on purpose, which FreshRSS's stylelint configuration accepts across two sheets and rejects inside one: folded in, it would have been fifty-three duplicate selectors.
+- The palette is no longer a rule of its own. The build writes the ramp into the top of the first `:root` rule in `_variables.css`, since a second `:root` in one sheet is the same duplicate; a custom property resolves where it is used rather than where it is declared, so its place inside the block changes nothing.
+- Mapco's two `.btn` rules, one in `_forms.css` and one in `_layout.css`, are one rule for the same reason. Where both set a property, the second rule's value is the one that stands, as it was before. No rule between the two positions matches a button at the same specificity, so moving them changes nothing on screen.
+- **Updating by copying over an installed folder leaves the old partials behind.** Nothing loads them any more, so they are harmless, but the `_*.css` files in the folder can be deleted.
+
+### Fixed
+
+- Atelier follows FreshRSS 1.30.1, whose markup and base stylesheet changed in five places the theme relies on. Every fix below holds on 1.29.1 as well, and the README now names 1.30.1 as the version the theme is built against.
+- Article rows on the desktop keep their layout. FreshRSS 1.30 gives the title cell a grid of its own, on a selector one class heavier than the rule that laid the cell out here, so its columns, areas and a half-rem column gap won: the summary stopped running under the date, and title and date moved apart. The rule carries the extra class now and sets the gap and alignment it had relied on getting by default.
+- The end of the stream is styled again. FreshRSS 1.30 names the block by class instead of `#stream-footer`, so the centred column with bounded padding fell back to the base layer's 5em margin; the rule matches both names, at the weight of the id.
+- A hidden unread count stays hidden. FreshRSS 1.30 lets a reader hide the count of a feed, a category or the whole tree and shows a faint dot in its place; Atelier wrote the number into the pill regardless for categories and the entries at the top of the tree, and drew FreshRSS's dot at half strength into feed pills only. Every hidden count is now a solid dot at full strength, centred where a pill would sit, so an entry with unread articles still reads as one and the dot lines up with the counts around it.
+- The log filter, new in FreshRSS 1.30, sits on one row with a gap between label, field and button rather than running together as inline text.
+- Logout carries its icon in front again, like every other entry, in the account menu and in the settings sidebar. FreshRSS 1.30 wraps the logout button in a form of its own, so the rules that matched it as a child of its menu entry stopped matching: the leading glyph was not drawn, and FreshRSS's own trailing icon was no longer hidden, which put the icon after the label. Those rules now find the button anywhere inside its entry, which holds for 1.29 and 1.30 alike and is how FreshRSS adapted its own themes; the keyboard focus ring and the disabled state in dropdown menus follow the same way.
+- The update page shows one button until it is pressed. FreshRSS pairs "Start update" with an "Updating…" note styled as a button, hidden until the first is clicked; `.btn` sets a display of its own and comes later in the cascade at the same weight, so the note was visible from the start, next to the real button, and pressing it did nothing. The note stays hidden until FreshRSS shows it.
+- The troubleshooting entry for dark mode named the operating system as the only switch. Since 1.5.0, FreshRSS's *Automatic dark mode* setting comes first, and the entry says so.
+
+### Development
+
+- The lint tooling follows FreshRSS: `@stylistic/stylelint-plugin` 5.3.1 and `stylelint` 17.15. The plugin's new release indents the later entries of a selector list at the level of the first, and one selector in `atelier-ui.css` had them a tab deeper; it is the failure FreshRSS's CI reported once its own lockfile moved.
+- A mirror is what rtlcss writes, byte for byte. rtlcss drops each ignore directive together with the blank lines in front of it, because postcss keeps that whitespace as part of the node it removes; the build dropped only the directive, so `atelier.rtl.css` carried one blank line after `@charset` that FreshRSS's own pass does not write, and the copy in FreshRSS had to come out of rtlcss rather than out of the build. Both now agree, and `check_theme.py` holds the mirrors to the same rule.
+- The icons are optimised with svgo under a verbatim copy of FreshRSS's `svgo.config.mjs`. FreshRSS runs that pass over every SVG in its tree and fails on any change, and the bundled icons had never been through it: it would have rewritten all sixty. The configuration keeps comments, so each Lucide file still carries its license header, only without the spaces inside the comment; `npm run svgo` applies it, CI holds the icons to it, and `check_theme.py` expects the header in that spelling.
+- `Atelier/` is in the lint scope again, which now means its assembled `atelier.css` — exactly the sheet FreshRSS lints — rather than a generated palette file.
+
 ## 1.5.0 - 2026-09-01
 
 ### Fixed

@@ -13,18 +13,18 @@ Atelier is based on the official Mapco theme by Thomas Guesnon, distributed as p
 The Mapco structural modules remain the foundation. A comparison against the tag above shows the following intentional differences outside Atelier's override layer:
 
 - `_components.css` covers nested `.as-link` elements and adds `.alert-info`.
-- `_forms.css` uses `:user-invalid` instead of `:invalid` so fields are not presented as invalid before user interaction, and drops Mapco's `lato` font stack together with the empty `.form-group::after` clearfix.
+- `_forms.css` uses `:user-invalid` instead of `:invalid` so fields are not presented as invalid before user interaction, and drops Mapco's `lato` font stack together with the empty `.form-group::after` clearfix, and holds the two `.btn` rules Mapco splits between `_forms.css` and `_layout.css` as one.
 - `_fonts.css` does not load Mapco web fonts.
 - `_logs.css` uses a valid semantic error background instead of passing a hexadecimal custom property to `rgba()`.
 - `_sidebar.css` routes the sidebar scrollbar through the palette instead of Mapco's literal fallback pair.
-- `_variables.css` maps shadcn/ui semantic roles onto the neutral ramp in `_palette.css`. That ramp is one of the nine Tailwind 4.3 neutrals — slate, gray, zinc, neutral, stone, taupe, mauve, mist or olive — and which one this folder carries is the only difference between it and its eight siblings.
-- `atelier.css` is the renamed Mapco entry point.
+- `_variables.css` maps shadcn/ui semantic roles onto the neutral ramp the build writes into the top of its first `:root` rule. That ramp is one of the nine Tailwind 4.3 neutrals — slate, gray, zinc, neutral, stone, taupe, mauve, mist or olive — and which one this folder carries is the only difference between it and its eight siblings.
+- `atelier.css` is the renamed Mapco entry point. Where Mapco imports the modules above, the build writes them into it, each under a `/* src/<module> */` marker, so a theme folder ships two stylesheets rather than seventeen.
 
 Every module above is direction-neutral, so `atelier.rtl.css` and `atelier-ui.rtl.css` are verbatim copies of their sources rather than hand-mirrored variants. The visual redesign itself lives in `atelier-ui.css`.
 
 ## Lucide
 
-The 57 SVG files under `icons/` are adapted copies from `lucide-static` 1.31.0. Each file retains the `@license lucide-static v1.31.0 - ISC` header.
+The 58 SVG files under `icons/` are adapted copies from `lucide-static` 1.31.0. Each file retains the `@license lucide-static v1.31.0 - ISC` header; the files are optimised with svgo under FreshRSS's own configuration, which keeps comments and only drops the spaces inside them.
 
 - Source: <https://github.com/lucide-icons/lucide>
 - Copyright holders: Lucide Icons and Contributors

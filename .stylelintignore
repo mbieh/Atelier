@@ -1,9 +1,8 @@
 # The palette folders are generated copies of src/; a finding there is the same
 # finding eight times over, and build_themes.py --check is what holds them to
-# their source. Atelier itself stays in scope: its sheets are those same copies,
-# so they add no findings, and its _palette.css is the one file the build writes
-# from scratch rather than copies -- the only generated CSS these rules would
-# otherwise never see.
+# their source. Atelier itself stays in scope: its atelier.css is assembled by
+# the build rather than copied -- the partials written into one sheet, with the
+# generated ramp inside -- and that sheet is exactly what FreshRSS lints.
 Atelier-*/
 
 # Mirrors are generated too, and FreshRSS's own pipeline ignores them as well.

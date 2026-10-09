@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 # The shared source every theme folder is built from. The folders themselves are generated artifacts: scripts/build_themes.py --check owns their byte-for-byte freshness, and this script checks what a fresh build cannot know -- that the source is sound, and that each shipped palette clears its contrast bars.
 SOURCE = ROOT / "src"
 RAMPS = ROOT / "palettes" / "ramps.json"
-LUCIDE_HEADER = "<!-- @license lucide-static v1.31.0 - ISC -->"
+LUCIDE_HEADER = "<!--@license lucide-static v1.31.0 - ISC-->"
 NON_LUCIDE_SVGS = {"FreshRSS-logo.svg", "icon.svg"}
 EXPECTED_THEME_FILES = ["_frss.css", "atelier.css", "atelier-ui.css"]
 REQUIRED_SEMANTIC_PROPERTIES = {
@@ -306,7 +306,7 @@ REQUIRED_DARK_ICON_RULES = (
 # Dark rules answer to two things at once: the system preference, and the FreshRSS setting that says whether the preference may be read at all. A rule that carries the media query but not the gate turns dark for a reader who asked for no dark mode, so the two are checked together rather than one of them.
 DARK_MODE_GATE = ":where(.darkMode_auto)"
 
-# Every stylesheet Atelier owns. All of them have to stay direction-neutral, whether FreshRSS requests them by name or atelier.css pulls them in. _palette.css is absent because it is generated per folder; each shipped copy is checked where it lands.
+# Every stylesheet Atelier owns. All of them have to stay direction-neutral, whether FreshRSS requests them by name or the build writes them into atelier.css. The ramp is absent because it is generated per folder; each shipped structural layer is checked where it lands.
 DIRECTION_NEUTRAL_FILES = (
     "_components.css",
     "_configuration.css",
@@ -330,18 +330,21 @@ DIRECTION_NEUTRAL_FILES = (
 # Because the sources stay direction-neutral, each mirror is a verbatim copy. Every construct the direction check rejects either has a logical-property equivalent or needs a hand-written mirror, so it has to live in a :dir(...) rule or carry an "rtl-safe:" comment stating why it already reads correctly in both directions. The marker is accepted on the declaration's own line, the line above it, or the rule's selector line.
 RTL_SAFE_MARKER = "rtl-safe"
 
-# The two lines every sheet is wrapped in. Atelier answers direction inside one stylesheet, with :dir(rtl) rules beside the declarations they mirror, so a mirror is the same file under a second name. FreshRSS's own pipeline instead runs rtlcss over p/themes/ and commits what it writes; unguided, that tool would flip both halves of every :dir() pair and hand a right-to-left reader a sheet that is wrong twice over. These are rtlcss's own control comments: they make its pass a copy, which is what the mirror already is. It strips them as it writes, so a mirror is the source minus exactly these two lines.
+# The two lines every sheet is wrapped in. Atelier answers direction inside one stylesheet, with :dir(rtl) rules beside the declarations they mirror, so a mirror is the same file under a second name. FreshRSS's own pipeline instead runs rtlcss over p/themes/ and commits what it writes; unguided, that tool would flip both halves of every :dir() pair and hand a right-to-left reader a sheet that is wrong twice over. These are rtlcss's own control comments: they make its pass a copy, which is what the mirror already is. It strips them as it writes, together with the blank lines in front of each -- postcss keeps those as part of the node it removes -- so a mirror is the source minus exactly that.
 RTL_IGNORE_BEGIN = "/*rtl:begin:ignore*/"
 RTL_IGNORE_END = "/*rtl:end:ignore*/"
 
 
 def rtl_mirror(source: str) -> str:
     """The right-to-left mirror of one sheet: what rtlcss writes for it."""
-    return "".join(
-        line
-        for line in source.splitlines(keepends=True)
-        if line.strip() not in (RTL_IGNORE_BEGIN, RTL_IGNORE_END)
-    )
+    lines: list[str] = []
+    for line in source.splitlines(keepends=True):
+        if line.strip() in (RTL_IGNORE_BEGIN, RTL_IGNORE_END):
+            while lines and not lines[-1].strip():
+                lines.pop()
+            continue
+        lines.append(line)
+    return "".join(lines)
 
 # CSS property names are case-insensitive, so every pattern below has to be.
 PHYSICAL_PROPERTY = re.compile(
@@ -1090,16 +1093,14 @@ def main() -> int:
                     f"{name}/{mirror.name} must be {filename} with the rtlcss "
                     "ignore directives removed"
                 )
-        # A folder is what gets installed, so its @import chain has to resolve inside it. The same check runs over src/ below, but src/ is not what ships: only here does a partial that never made it into the folder show up as the 404 it would be.
+        # FreshRSS cache-busts the sheets metadata.json names and nothing else, so a sheet a folder ships may not reach for another one: the build writes every partial into the structural layer instead.
         for path in sorted(folder.glob("*.css")):
-            sheet = path.name
             for imported in stylesheet_imports(path.read_text(encoding="utf-8")):
-                target = imported.partition("?")[0]
-                if not (folder / target).is_file():
-                    errors.append(
-                        f"{name}/{sheet}: imports {target}, which the folder does "
-                        "not contain"
-                    )
+                errors.append(
+                    f"{name}/{path.name}: imports {imported}; a shipped sheet has "
+                    "to be self-contained, since FreshRSS cache-busts only the "
+                    "files metadata.json names"
+                )
         # FreshRSS shows this in the theme picker, and a folder without it shows a hole.
         if not (folder / "thumbs" / "original.png").is_file():
             errors.append(f"{name}: missing thumbs/original.png for the theme picker")
@@ -1107,18 +1108,17 @@ def main() -> int:
             if not (folder / document).is_file():
                 errors.append(f"{name}: missing {document}; the folder is distributed alone")
 
-        palette = folder / "_palette.css"
-        if not palette.is_file():
-            errors.append(f"{name}: missing generated _palette.css")
+        structural = folder / "atelier.css"
+        if not structural.is_file():
             continue
-        palette_css = palette.read_text(encoding="utf-8")
+        structural_css = structural.read_text(encoding="utf-8")
+        # The structural layer is the one stylesheet the build assembles rather than copies, and the ramp in it is written by no source file, so the conventions the sweep applies to src/ are applied to the assembled sheet here.
         errors.extend(
-            check_direction_neutral(palette.relative_to(ROOT), palette_css)
+            check_direction_neutral(structural.relative_to(ROOT), structural_css)
         )
-        # The generated palette is the one stylesheet no source file stands in for, so the conventions the sweep applies to src/ are applied to it here.
-        errors.extend(check_comment_lines(palette.relative_to(ROOT), palette_css))
+        errors.extend(check_comment_lines(structural.relative_to(ROOT), structural_css))
         token_rules: list[Rule] = []
-        for filename in ("_palette.css", "_variables.css", "atelier-ui.css"):
+        for filename in ("atelier.css", "atelier-ui.css"):
             try:
                 token_rules.extend(
                     parse_rules((folder / filename).read_text(encoding="utf-8"))
@@ -1172,16 +1172,8 @@ def main() -> int:
     for path in css_paths:
         content = path.read_text(encoding="utf-8")
         for imported in stylesheet_imports(content):
-            target, _, query = imported.partition("?")
-            # The palette is the one partial src/ does not hold: it is generated per folder, which is the whole point of the layout.
-            if target != "_palette.css" and not (path.parent / target).is_file():
-                errors.append(f"src/{path.name}: missing imported stylesheet: {target}")
-            # FreshRSS busts the cache of the sheets it names, by mtime, but an imported partial keeps its URL across releases. Without the query a browser can pair a stale partial with a fresh override layer, which restores styling a release deliberately removed. A missing version heading is reported above; do not repeat it per import.
-            elif expected_version is not None and query != f"v={expected_version}":
-                errors.append(
-                    f'src/{path.name}: @import "{target}" must carry '
-                    f"?v={expected_version} so browsers refetch it"
-                )
+            if not (path.parent / imported).is_file():
+                errors.append(f"src/{path.name}: missing imported stylesheet: {imported}")
         if re.search(r"url\(\s*[\"']?https?://", content, flags=re.IGNORECASE):
             errors.append(f"src/{path.name}: external runtime asset URL is not allowed")
         if re.search(r"rgba?\(\s*var\(", content, flags=re.IGNORECASE):

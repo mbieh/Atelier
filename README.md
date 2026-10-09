@@ -39,7 +39,7 @@ Every one of them clears the same contrast bars, in light and dark alike; see [D
 
 ## Requirements
 
-**FreshRSS 1.29.1.** That is the version Atelier is built and tested against. Other versions will most likely work, but the theme follows FreshRSS's markup closely, so a larger FreshRSS update may need a matching theme update.
+**FreshRSS 1.30.1.** That is the version Atelier follows; 1.29.1, the release it was first built on, is still covered. Other versions will most likely work, but the theme follows FreshRSS's markup closely, so a larger FreshRSS update may need a matching theme update.
 
 **A browser from 2024 or later.** Atelier uses modern CSS — nesting, `:has()`, subgrid, `color-mix()` and `:dir()` — which in practice means Chrome or Edge 120+, Firefox 121+, or Safari 17.2+. Older browsers will render the page, but parts of the layout will look wrong.
 
@@ -94,6 +94,8 @@ cp -r ~/atelier/Atelier /path/to/FreshRSS/p/themes/
 
 Then reload FreshRSS. If the page still looks unchanged, force-reload it with `Ctrl`/`Cmd` + `Shift` + `R`.
 
+Copying over an installed folder leaves behind the files a release no longer ships — since 1.6.0, the `_*.css` partials. Nothing loads them, but deleting the folder before you copy keeps it tidy.
+
 ### Removing
 
 Switch to another theme under **Configuration → Display**, then delete the `<FreshRSS>/p/themes/Atelier*` folders you no longer want.
@@ -104,7 +106,7 @@ Atelier follows your operating system's appearance setting, as long as FreshRSS 
 
 ## How the palettes work
 
-A theme folder differs from its siblings in one file: `_palette.css`, a neutral ramp of eleven steps. Everything else is byte-for-byte identical — `Atelier` and `Atelier-Stone` are not two themes, they are one theme on two ramps.
+A theme folder differs from its siblings in one block: a neutral ramp of eleven steps, which opens the first `:root` rule in `atelier.css`. Everything else is byte-for-byte identical — `Atelier` and `Atelier-Stone` are not two themes, they are one theme on two ramps.
 
 That works because no component ever names a color. Every rule asks for a role — background, foreground, border, accent — and [`src/_variables.css`](src/_variables.css) maps those roles onto steps of the ramp. Which step a role gets is decided by the contrast it needs, so a different palette keeps the theme readable instead of only recoloring it.
 
@@ -129,7 +131,7 @@ The first writes a tenth folder; the second tells you whether the new ramp holds
 
 **The page looks unstyled or the layout is broken.** Usually an outdated browser — see [Requirements](#requirements). Otherwise force-reload the page.
 
-**Dark mode does not turn on.** Atelier follows the system setting, not a FreshRSS setting. Check your operating system's appearance preference.
+**Dark mode does not turn on.** Check **Configuration → Display → Automatic dark mode** first: on *No*, Atelier stays light whatever the system says. On *Auto*, it follows your operating system's appearance preference.
 
 **Some pages still look like the previous theme.** Force-reload the page; browsers hold on to stylesheets aggressively.
 
@@ -144,15 +146,16 @@ python3 scripts/build_themes.py          # regenerate the nine folders from src/
 python3 scripts/build_themes.py --check  # fail if a folder has drifted from its source
 python3 scripts/check_theme.py           # the release checks
 npm install && npm run stylelint         # the CSS conventions FreshRSS lints with
+npm run svgo                             # the icon optimisation FreshRSS checks for
 ```
 
-The build and the release checks need nothing but Python 3. The stylelint step is the exception, and it exists for one reason: FreshRSS lints every theme under `p/themes/` with the configuration in [`.stylelintrc.json`](.stylelintrc.json), which is a verbatim copy of the one that repository publishes. Holding the source to it here is what keeps a folder copyable into a FreshRSS installation — or into FreshRSS itself.
+The build and the release checks need nothing but Python 3. The two npm steps are the exception, and they exist for one reason: FreshRSS lints every theme under `p/themes/` with the configuration in [`.stylelintrc.json`](.stylelintrc.json), and runs svgo over every SVG with the one in [`svgo.config.mjs`](svgo.config.mjs) — both verbatim copies of what that repository publishes. Holding the source to them here is what keeps a folder copyable into a FreshRSS installation — or into FreshRSS itself.
 
 ### Writing direction
 
 Atelier answers direction inside one stylesheet: a declaration that reads differently in Arabic or Hebrew carries a `:dir(rtl)` rule beside it, and `check_theme.py` rejects any that does not. That is why `atelier.rtl.css` and `atelier-ui.rtl.css` can be copies rather than translations.
 
-FreshRSS generates its own `*.rtl.css` files with rtlcss and verifies them in CI. That tool does not know about `:dir()` and would flip both halves of every mirrored pair, so each sheet opens with `/*rtl:begin:ignore*/` and closes with `/*rtl:end:ignore*/` — rtlcss's own control comments, which turn its pass into the copy the mirror already is. The build writes each mirror as the source minus those two lines, which is exactly what rtlcss leaves behind.
+FreshRSS generates its own `*.rtl.css` files with rtlcss and verifies them in CI. That tool does not know about `:dir()` and would flip both halves of every mirrored pair, so each sheet opens with `/*rtl:begin:ignore*/` and closes with `/*rtl:end:ignore*/` — rtlcss's own control comments, which turn its pass into the copy the mirror already is. The build writes each mirror as the source minus those two lines and the blank lines in front of them, which is exactly what rtlcss leaves behind.
 
 Edit `src/`, never a theme folder — a folder is overwritten by the next build. The one exception is `thumbs/`, which holds the hand-drawn preview for the theme picker: the build leaves it alone, and `check_theme.py` only insists that every folder has one.
 

@@ -95,28 +95,6 @@ main.prompt {
 	}
 }
 
-.btn {
-	border-inline-start-width: 0;
-	padding: 0.5rem 1rem;
-	background-color: var(--grey-light);
-	background-position: center;
-	background-repeat: no-repeat;
-
-	transition: all 0.15s ease-in-out;
-
-	&:hover {
-		background-color: var(--grey-medium-light);
-	}
-
-	&.active {
-		background-color: var(--main-first);
-
-		.icon {
-			filter: brightness(3);
-		}
-	}
-}
-
 /*=== Index menu */
 /* Atelier UI lays this bar out as a flex row and owns its padding. */
 .nav_menu {

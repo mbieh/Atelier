@@ -33,3 +33,7 @@ jobs:
       # source is held to it here rather than at the door of a pull request.
       - name: Verify CSS conventions
         run: npm run --silent stylelint
+
+      # FreshRSS runs svgo over every SVG with this configuration and fails on any change.
+      - name: Verify optimised icons
+        run: npm run --silent svgo && git diff --exit-code
