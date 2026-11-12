@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## 1.6.1 - 2026-11-12
+
+### Fixed
+
+- Links in an article are underlined. FreshRSS's base sheet removes the underline from every link, and Atelier set its thickness and offset without ever drawing it, so a link in the article body differed from the text around it only by one shade of the same grey — 700 against 900 in the light scheme, 200 against 50 in the dark — and in reader mode it was easy to read straight past. The underline is drawn in the muted foreground tone at rest and in the link's own color under the pointer. The feed, title and author links around the article keep their look.
+
 ## 1.6.0 - 2026-10-09
 
 ### Changed
