@@ -4,6 +4,13 @@ All notable changes to this project are documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## 1.6.2 - 2026-11-24
+
+### Fixed
+
+- Atelier follows FreshRSS 1.31.0. Nothing the theme relies on broke: the base stylesheet and Mapco are unchanged, and of the markup changes only one reaches a selector here, which it puts back the way 1.29 had it. The README now names 1.31.0 as the version the theme is built against, with 1.29.1 and 1.30 still covered.
+- "Mark as read" in the toolbar no longer draws a divider at the left edge of its group on FreshRSS 1.30. That release put the form's hidden CSRF field in front of the button, so the button stopped being the form's first child: it took the hairline meant for the dropdown beside it, inside the group's own border, and lost the rounded corner its hover surface needs. Both rules now look past a hidden field, which holds for 1.29, 1.30 and 1.31 alike.
+
 ## 1.6.1 - 2026-11-12
 
 ### Fixed

@@ -39,7 +39,7 @@ Every one of them clears the same contrast bars, in light and dark alike; see [D
 
 ## Requirements
 
-**FreshRSS 1.30.1.** That is the version Atelier follows; 1.29.1, the release it was first built on, is still covered. Other versions will most likely work, but the theme follows FreshRSS's markup closely, so a larger FreshRSS update may need a matching theme update.
+**FreshRSS 1.31.0.** That is the version Atelier follows; 1.30 and 1.29.1, the release it was first built on, are still covered. Other versions will most likely work, but the theme follows FreshRSS's markup closely, so a larger FreshRSS update may need a matching theme update.
 
 **A browser from 2024 or later.** Atelier uses modern CSS — nesting, `:has()`, subgrid, `color-mix()` and `:dir()` — which in practice means Chrome or Edge 120+, Firefox 121+, or Safari 17.2+. Older browsers will render the page, but parts of the layout will look wrong.
 
